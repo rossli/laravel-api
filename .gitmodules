@@ -1,0 +1,3 @@
+[submodule "app/Models"]
+	path = app/Models
+	url = git@code.aliyun.com:jkwedu/jkwedu-model.git
