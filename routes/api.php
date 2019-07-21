@@ -19,6 +19,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::namespace('Api')->prefix('v1')->group(function () {
     Route::get('/users','UserController@index')->name('api.users.index');
+    Route::get('/banners','BannerController@index')->name('api.banners.index');
 });
 
 //跨域处理
