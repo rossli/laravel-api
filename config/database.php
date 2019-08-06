@@ -90,6 +90,19 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
         ],
+        'mysql_crm' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST_CRM', '127.0.0.1'),
+            'port' => env('DB_PORT_CRM', '5432'),
+            'database' => env('DB_DATABASE_CRM', 'laoshiok-crm'),
+            'username' => env('DB_USERNAME_CRM', 'forge'),
+            'password' => env('DB_PASSWORD_CRM', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'schema' => 'public',
+            'sslmode' => 'prefer',
+        ],
 
     ],
 
