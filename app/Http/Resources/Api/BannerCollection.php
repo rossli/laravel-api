@@ -28,6 +28,5 @@ class BannerCollection extends ResourceCollection
                 //'self' => 'link-value',
             ],
         ];
-        return parent::toArray($request);
     }
 }

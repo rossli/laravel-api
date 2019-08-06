@@ -17,7 +17,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::namespace('Api')->prefix('v1')->group(function () {
+Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::class])->group(function () {
     Route::get('/users','UserController@index')->name('api.users.index');
     Route::get('/banners','BannerController@index')->name('api.banners.index');
 });
