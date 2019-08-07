@@ -10,4 +10,5 @@ class BaseController extends Controller
 {
     use ApiResponseTrait;
 
+
 }

@@ -12,11 +12,21 @@ class BannerController extends BaseController
 
     public function index()
     {
-        return $this->success(new BannerCollection(Banner::where([
+        $banners = Banner::where([
             ['pos', '=', 0],
             ['enabled', '=', 1],
             ['attr', '=', Banner::ATTR_MINI],
-        ])->get()));
+        ])->get();
+
+        $data = [];
+        $banners->each(function ($item) use (&$data) {
+            $data[] = [
+                'image' => config('jkw.cdn_domain') . '/' . $item->image,
+                'url'=>$item->url,
+            ];
+        });
+
+        return $this->success($data);
     }
 
 
