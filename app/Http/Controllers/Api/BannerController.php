@@ -7,15 +7,17 @@ use App\Models\Banner;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class BannerController extends Controller
+class BannerController extends BaseController
 {
 
     public function index()
     {
-        return new BannerCollection(Banner::where([
+        return $this->success(new BannerCollection(Banner::where([
             ['pos', '=', 0],
             ['enabled', '=', 1],
             ['attr', '=', Banner::ATTR_MINI],
-        ])->get());
+        ])->get()));
     }
+
+
 }

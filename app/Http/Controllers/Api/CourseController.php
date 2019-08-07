@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\Api\CourseCollection;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\CourseMaterial;
@@ -9,13 +10,13 @@ use App\Models\CourseTask;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class CourseController extends Controller
+class CourseController extends BaseController
 {
     //公开课程
     public function open()
     {
         $category = Category::with('course')->find(9);
-        return $category->course;
+        return $this->success($category->course);
     }
 
     //推荐课程

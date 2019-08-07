@@ -22,10 +22,11 @@ class BannerCollection extends ResourceCollection
 
     public function toArray($request)
     {
+
         return [
             'data' => $this->collection,
-            'mata' => [
-                //'self' => 'link-value',
+            'links' => [
+                'self' => 'link-value',
             ],
         ];
     }
