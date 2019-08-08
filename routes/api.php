@@ -23,6 +23,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/recommend','CourseController@recommend')->name('api.course.recommend');
     Route::get('/course/open','CourseController@open')->name('api.course.open');
     Route::get('/course/show/{id}','CourseController@show')->name('api.course.show');
+    Route::get('/book','BookController@index')->name('api.book.index');
+    Route::get('/book/show/{id}','BookController@show')->name('api.book.show');
 
 });
 
