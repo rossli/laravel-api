@@ -94,4 +94,27 @@ class CourseController extends BaseController
         ];
         return $this->success($data);
     }
+
+    public function list()
+    {
+        $category = Category::with('course')->get();
+        $data=[];
+        $i=0;
+        $category->each(function ($item) use (&$data,&$i) {
+            $course=$item->course;
+            $course->each(function ($it) use (&$data,$i){
+               $data[$i][]=[
+                   'image' => config('jkw.cdn_domain') . '/' . $it->cover,
+                   'title' => $it->title,
+                   'subtitle' => $it->subtitle,
+                   'id' => $it->id,
+                   'is_free' => $it->is_free,
+                   'price' => $it->price,
+                   'is_finished' => $it->is_finished,
+               ];
+           });
+           $i++;
+        });
+        return $this->success($data);
+    }
 }

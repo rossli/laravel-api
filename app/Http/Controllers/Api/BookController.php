@@ -43,4 +43,20 @@ class BookController extends BaseController
         ];
         return $this->success($data);
     }
+
+    public function list()
+    {
+        $books = Book::where('enabled', 1)->orderBy('updated_at', 'DESC')->get();
+        $data = [];
+        $books->each(function ($item) use (&$data) {
+            $data[] = [
+                'image' => config('jkw.cdn_domain') . '/' . $item->cover,
+                'title' => $item->title,
+                'subtitle' => $item->subtitle,
+                'id' => $item->id,
+                'price' => $item->price,
+            ];
+        });
+        return $this->success($data);
+    }
 }
