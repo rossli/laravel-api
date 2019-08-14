@@ -16,7 +16,7 @@ class CourseController extends BaseController
     public function open()
     {
         $category = Category::with('course')->find(9);
-        $course = $category->course;
+        $course = $category->course->take(6);
         $data = [];
         $course->each(function ($item) use (&$data) {
             $data[] = [

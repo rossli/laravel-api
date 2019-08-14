@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Console\Commands\ModelMakeCommand;
+use App\Utils\Utils;
 use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\AuthCode;
 use Laravel\Passport\Client;
@@ -32,6 +34,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Validator::extend('mobile', function($attribute, $value, $parameters, $validator) {
+            return preg_match("/^1[0-9]{2}[0-9]{8}$|15[0189]{1}[0-9]{8}$|189[0-9]{8}$/", $value);
+        });
+
+        Validator::extend('id_card', function($attribute, $value, $parameters, $validator) {
+            return Utils::checkIdCard($value);
+        });
+
         Passport::routes();
 
         Passport::tokensExpireIn(now()->addDays(15));
