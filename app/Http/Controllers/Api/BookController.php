@@ -46,7 +46,7 @@ class BookController extends BaseController
 
     public function list()
     {
-        $books = Book::where('enabled', 1)->orderBy('updated_at', 'DESC')->get();
+        $books = Book::where('enabled', 1)->orderBy('updated_at', 'DESC')->limit(6)->get();
         $data = [];
         $books->each(function ($item) use (&$data) {
             $data[] = [

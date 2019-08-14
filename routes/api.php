@@ -19,7 +19,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::class])->group(function () {
-    Route::get('/users','UserController@index')->name('api.users.index');
+    //注册用户
+    Route::post('/auth/register','AuthController@register')->name('api.auth.register');
+    Route::post('/auth/login','AuthController@login')->name('api.auth.login');
+
+
     Route::get('/banners','BannerController@index')->name('api.banners.index');
     Route::get('/course/recommend','CourseController@recommend')->name('api.course.recommend');
     Route::get('/course/open','CourseController@open')->name('api.course.open');
@@ -33,6 +37,10 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/material/show','CourseMaterialController@show')->name('api.course-material.show');
 
 
+});
+
+Route::namespace('Api')->prefix('v1')->middleware('auth:api')->group(function () {
+    Route::get('/users','UserController@index')->name('api.users.index');
 });
 
 //跨域处理
