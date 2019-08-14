@@ -24,9 +24,9 @@ class BookController extends BaseController
         return $this->success($data);
     }
 
-    public function show($id)
+    public function show(Request $request)
     {
-        $book = Book::find($id);
+        $book = Book::findOrFail($request->id);
         $data = [];
 
         $data[] = [
@@ -55,6 +55,7 @@ class BookController extends BaseController
                 'subtitle' => $item->subtitle,
                 'id' => $item->id,
                 'price' => $item->price,
+                'origin_price'=>$item->origin_price,
             ];
         });
         return $this->success($data);

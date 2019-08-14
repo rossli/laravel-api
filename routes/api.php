@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 */
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
+
     return $request->user();
 });
 
@@ -26,12 +27,15 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/banners','BannerController@index')->name('api.banners.index');
     Route::get('/course/recommend','CourseController@recommend')->name('api.course.recommend');
     Route::get('/course/open','CourseController@open')->name('api.course.open');
-    Route::get('/course/show/{id}','CourseController@show')->name('api.course.show');
+    Route::get('/course/show','CourseController@show')->name('api.course.show');
     Route::get('/course/list','CourseController@list')->name('api.course.list');
 
     Route::get('/book','BookController@index')->name('api.book.index');
     Route::get('/book/list','BookController@list')->name('api.book.list');
-    Route::get('/book/show/{id}','BookController@show')->name('api.book.show');
+    Route::get('/book/show','BookController@show')->name('api.book.show');
+    Route::get('/course/task/live','CourseTaskController@live')->name('api.course-task.live');
+    Route::get('/course/material/show','CourseMaterialController@show')->name('api.course-material.show');
+
 
 });
 

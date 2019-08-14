@@ -52,9 +52,9 @@ class CourseController extends BaseController
         return $this->success($data);
     }
 
-    public function show($id)
+    public function show(Request $request)
     {
-        $course = Course::with('task', 'material')->find($id);
+        $course = Course::with('task', 'material')->findOrFail($request->id);
         $data = [];
         $task = [];
         $material = [];
@@ -74,7 +74,6 @@ class CourseController extends BaseController
                 'title' => $item->title,
                 'size' => $item->size,
                 'description' => $item->description,
-                'path' => $item->path,
             ];
         });
         $data[] = [
@@ -98,22 +97,23 @@ class CourseController extends BaseController
     public function list()
     {
         $category = Category::with('course')->get();
-        $data=[];
-        $i=0;
-        $category->each(function ($item) use (&$data,&$i) {
-            $course=$item->course;
-            $course->each(function ($it) use (&$data,$i){
-               $data[$i][]=[
-                   'image' => config('jkw.cdn_domain') . '/' . $it->cover,
-                   'title' => $it->title,
-                   'subtitle' => $it->subtitle,
-                   'id' => $it->id,
-                   'is_free' => $it->is_free,
-                   'price' => $it->price,
-                   'is_finished' => $it->is_finished,
-               ];
-           });
-           $i++;
+        $data = [];
+        $i = 0;
+        $category->each(function ($item) use (&$data, &$i) {
+            $course = $item->course;
+            $course->each(function ($it) use (&$data, $i) {
+                $data[$i][] = [
+                    'image' => config('jkw.cdn_domain') . '/' . $it->cover,
+                    'title' => $it->title,
+                    'subtitle' => $it->subtitle,
+                    'id' => $it->id,
+                    'is_free' => $it->is_free,
+                    'price' => $it->price,
+                    'is_finished' => $it->is_finished,
+                    'origin_price' => $it->origin_price,
+                ];
+            });
+            $i++;
         });
         return $this->success($data);
     }
