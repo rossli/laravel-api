@@ -6,7 +6,7 @@ use App\Models\CourseMaterial;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class CourseMaterialController extends Controller
+class CourseMaterialController extends BaseController
 {
     //
     public function show(Request $request)

@@ -7,13 +7,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Rachel\TalkfunSdk\Facades\Talkfun;
 
-class CourseTaskController extends Controller
+class CourseTaskController extends BaseController
 {
     //
     public function live(Request $request)
     {
         $task=CourseTask::findOrFail($request->id);
-
         if ($task->type == CourseTask::TYPE_CLIP) {
             $res = Talkfun::clipGet($task->media_id);
         } else {

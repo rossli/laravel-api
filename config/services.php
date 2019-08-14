@@ -43,5 +43,9 @@ return [
             'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
         ],
     ],
+    'talkfun'=>[
+        'openID' => env('TALKFUN_OPENID',''),
+        'openToken' => env('TALKFUN_OPENTOKEN',''),
+    ],
 
 ];
