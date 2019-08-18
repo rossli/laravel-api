@@ -13,7 +13,6 @@ class UserController extends BaseController
 
     public function index(Request $request)
     {
-
         $user = $request->user();
         return $this->success(new UserResource($user));
     }

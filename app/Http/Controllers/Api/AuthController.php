@@ -44,4 +44,25 @@ class AuthController extends BaseController
         }
     }
 
+    public function reset(LoginRequest $request){
+        $user = User::where('mobile', $request->mobile)->first();
+
+        if ($user) {
+            $user->update([
+                'password' => bcrypt($request->get('password')),
+            ]);
+
+            $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+
+            return $this->success([
+                'token' => $token,
+            ]);
+
+        } else {
+            $response = '用户不存在';
+            return $this->failed($response, 422);
+        }
+
+    }
+
 }

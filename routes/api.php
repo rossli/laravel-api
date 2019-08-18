@@ -22,6 +22,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     //注册用户
     Route::post('/auth/register','AuthController@register')->name('api.auth.register');
     Route::post('/auth/login','AuthController@login')->name('api.auth.login');
+    Route::post('/auth/reset','AuthController@reset')->name('api.auth.reset');
 
 
     Route::get('/banners','BannerController@index')->name('api.banners.index');
