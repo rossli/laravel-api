@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 
 class CourseController extends BaseController
 {
+
     //公开课程
     public function open()
     {
@@ -29,6 +30,7 @@ class CourseController extends BaseController
                 'is_finished' => $item->is_finished,
             ];
         });
+
         return $this->success($data);
     }
 
@@ -37,7 +39,7 @@ class CourseController extends BaseController
     {
         $courses = Course::where([
             ['enabled', '=', '1'],
-            ['is_recommend', '=', '1']
+            ['is_recommend', '=', '1'],
         ])->limit(6)->get();
         $data = [];
         $courses->each(function ($item) use (&$data) {
@@ -50,19 +52,20 @@ class CourseController extends BaseController
                 'is_finished' => $item->is_finished,
             ];
         });
+
         return $this->success($data);
     }
 
-    public function show(Request $request)
+    public function show($id)
     {
-        $course = Course::with('task', 'material')->findOrFail($request->id);
-        $is_student = false;
-        if (request()->user()) {
-            $course_member = CourseMember::where([['user_id', '=', request()->user()->id], ['course_id', '=', $request->id]])->first();
-            $is_student = $course_member ? true : false;
-        }
 
-        $data = [];
+        $course = Course::with([
+            'task' => function ($query) {
+                $query->select('id', 'title', 'is_free', 'type', 'media_id', 'course_id');
+            },
+            'material',
+        ])->find($id);
+
         $task = [];
         $material = [];
         $course->task->each(function ($item) use (&$task) {
@@ -72,7 +75,6 @@ class CourseController extends BaseController
                 'is_free' => $item->is_free,
                 'type' => $item->type,
                 'media_id' => $item->media_id,
-
             ];
         });
         $course->material->each(function ($item) use (&$material) {
@@ -83,7 +85,7 @@ class CourseController extends BaseController
                 'description' => $item->description,
             ];
         });
-        $data[] = [
+        $data = [
             'image' => config('jkw.cdn_domain') . '/' . $course->cover,
             'title' => $course->title,
             'id' => $course->id,
@@ -96,9 +98,8 @@ class CourseController extends BaseController
             'short_intro' => $course->short_intro,
             'task' => $task,
             'material' => $material,
-            'is_student' => $is_student,
-
         ];
+
         return $this->success($data);
     }
 
@@ -123,6 +124,7 @@ class CourseController extends BaseController
             });
             $i++;
         });
+
         return $this->success($data);
     }
 }

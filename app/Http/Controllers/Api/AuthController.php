@@ -45,6 +45,7 @@ class AuthController extends BaseController
     }
 
     public function reset(LoginRequest $request){
+
         $user = User::where('mobile', $request->mobile)->first();
 
         if ($user) {
