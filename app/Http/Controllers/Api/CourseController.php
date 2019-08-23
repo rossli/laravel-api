@@ -6,6 +6,7 @@ use App\Http\Resources\Api\CourseCollection;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\CourseMaterial;
+use App\Models\CourseMember;
 use App\Models\CourseTask;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -55,6 +56,12 @@ class CourseController extends BaseController
     public function show(Request $request)
     {
         $course = Course::with('task', 'material')->findOrFail($request->id);
+        $is_student = false;
+        if (request()->user()) {
+            $course_member = CourseMember::where([['user_id', '=', request()->user()->id], ['course_id', '=', $request->id]])->first();
+            $is_student = $course_member ? true : false;
+        }
+
         $data = [];
         $task = [];
         $material = [];
@@ -89,6 +96,7 @@ class CourseController extends BaseController
             'short_intro' => $course->short_intro,
             'task' => $task,
             'material' => $material,
+            'is_student' => $is_student,
 
         ];
         return $this->success($data);

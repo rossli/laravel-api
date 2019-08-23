@@ -28,21 +28,27 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/banners','BannerController@index')->name('api.banners.index');
     Route::get('/course/recommend','CourseController@recommend')->name('api.course.recommend');
     Route::get('/course/open','CourseController@open')->name('api.course.open');
-    Route::get('/course/show','CourseController@show')->name('api.course.show');
+    Route::get('/course','CourseController@show')->name('api.course.show');
     Route::get('/course/list','CourseController@list')->name('api.course.list');
 
     Route::get('/book','BookController@index')->name('api.book.index');
     Route::get('/book/list','BookController@list')->name('api.book.list');
-    Route::get('/book/show','BookController@show')->name('api.book.show');
+    Route::get('/book','BookController@show')->name('api.book.show');
     Route::get('/course/task/live','CourseTaskController@live')->name('api.course-task.live');
-    Route::get('/course/material/show','CourseMaterialController@show')->name('api.course-material.show');
-
+    Route::get('/course/material','CourseMaterialController@show')->name('api.course-material.show');
+    Route::middleware('auth:api')->group(function () {
+        Route::get('/users','UserController@index')->name('api.users.index');
+        Route::post('/users/update/name','UserController@updateName')->name('api.users.update.name');
+        Route::post('/users/update/password','UserController@updatePassword')->name('api.users.update.password');
+        Route::post('/users/update/sex','UserController@updateSex')->name('api.users.update.sex');
+        Route::prefix('me')->group(function (){
+            Route::get('/course','MeController@course')->name('api.me.course');
+        });
+    });
 
 });
 
-Route::namespace('Api')->prefix('v1')->middleware('auth:api')->group(function () {
-    Route::get('/users','UserController@index')->name('api.users.index');
-});
+
 
 //跨域处理
 Route::middleware([\Barryvdh\Cors\HandleCors::class])->group(function () {
