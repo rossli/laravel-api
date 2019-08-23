@@ -63,7 +63,6 @@ class CourseController extends BaseController
             },
             'material',
         ])->find($id);
-        $data = [];
         $task = [];
         $material = [];
         $course->task->each(function ($item) use (&$task) {
@@ -83,7 +82,7 @@ class CourseController extends BaseController
                 'description' => $item->description,
             ];
         });
-        $data[] = [
+        $data = [
             'image'        => config('jkw.cdn_domain') . '/' . $course->cover,
             'title'        => $course->title,
             'id'           => $course->id,
