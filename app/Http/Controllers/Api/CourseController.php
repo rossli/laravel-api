@@ -93,6 +93,8 @@ class CourseController extends BaseController
             'price' => $course->price,
             'is_finished' => $course->is_finished,
             'student_num' => $course->student_num,
+            'student_add'=>$course->student_add,
+            'student_sum'=>$course->student_add+$course->student_num,
             'origin_price' => $course->origin_price,
             'summary' => $course->summary,
             'short_intro' => $course->short_intro,
@@ -126,5 +128,23 @@ class CourseController extends BaseController
         });
 
         return $this->success($data);
+    }
+
+    public function join($id)
+    {
+        $user_id = request()->user()->id;
+        $course = Course::find($id);
+        if ($course && $user_id) {
+            CourseMember::create([
+                'user_id' => $user_id,
+                'course_id' => $id
+            ]);
+            $course->student_num++;
+            $course->save();
+
+            return $this->success('加入成功!');
+        }
+        return $this->failed('信息错误', 200, -1);
+
     }
 }

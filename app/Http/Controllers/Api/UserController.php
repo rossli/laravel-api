@@ -14,8 +14,43 @@ class UserController extends BaseController
 
     public function index(Request $request)
     {
-        $user = $request->user();
-        return $this->success(new UserResource($user));
+        $user = new UserResource($request->user());
+        $data = [
+            "id" => $user->id,
+            "email" => $user->email,
+            "mobile" => $user->mobile,
+            "receiver_mobile" => $user->receiver_mobile,
+            "receiver_name" => $user->receiver_name,
+            "mentee_id" => $user->mentee_id,
+            "mentee_name" => $user->mentee_name,
+            "mentee_avatar" =>config('jkw.cdn_domain') . '/' . $user->mentee_avatar,
+            "name" => $user->name,
+            "nick_name" => $user->nick_name,
+            "wechat_name" => $user->wechat_name,
+            "avatar" =>config('jkw.cdn_domain') . '/' . $user->avatar,
+            "email_verified_at" => $user->email_verified_at,
+            "agreed" => $user->agreed,
+            "login_time" => $user->login_time,
+            "login_ip" => $user->login_ip,
+            "created_ip" => $user->created_ip,
+            "invite_code" => $user->invite_code,
+            "from_user_id" => $user->from_user_id,
+            "register_type" => $user->register_type,
+            "register_way" => $user->register_way,
+            "uuid" => $user->uuid,
+            "uuid_type" => $user->uuid_type,
+            "sex" => $user->sex,
+            "sign" => $user->sign,
+            "province" => $user->province,
+            "city" => $user->city,
+            "district" => $user->district,
+            "address" => $user->address,
+            "created_at" => $user->created_at,
+            "updated_at" => $user->updated_at
+
+        ];
+
+        return $this->success($data);
     }
 
     public function updateName(Request $request)
@@ -67,7 +102,7 @@ class UserController extends BaseController
                 return $this->success('原始密码不对,请核实后修改', '-1');
             }
         }
-        return $this->success( '用户不存在', -1);
+        return $this->success('用户不存在', -1);
     }
 
 }

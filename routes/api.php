@@ -32,16 +32,20 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
 
     Route::get('/book','BookController@index')->name('api.book.index');
     Route::get('/book/list','BookController@list')->name('api.book.list');
-    Route::get('/book','BookController@show')->name('api.book.show');
+    Route::get('/book/{id}','BookController@show')->name('api.book.show');
     Route::get('/course/task/live','CourseTaskController@live')->name('api.course-task.live');
-    Route::get('/course/material','CourseMaterialController@show')->name('api.course-material.show');
+    Route::get('/course/material/{id}','CourseMaterialController@show')->name('api.course-material.show');
     Route::middleware('auth:api')->group(function () {
         Route::get('/users','UserController@index')->name('api.users.index');
         Route::post('/users/update/name','UserController@updateName')->name('api.users.update.name');
         Route::post('/users/update/password','UserController@updatePassword')->name('api.users.update.password');
         Route::post('/users/update/sex','UserController@updateSex')->name('api.users.update.sex');
+        Route::post('/course/join/{id}', 'CourseController@join')->name('api.course.join');
+
         Route::prefix('me')->group(function (){
             Route::get('/course','MeController@course')->name('api.me.course');
+            Route::get('/order','MeController@order')->name('api.me.order');
+            Route::get('/is-student/{id}','MeController@isStudent')->name('api.me.isStudent');
         });
     });
 
