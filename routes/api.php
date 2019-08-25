@@ -47,6 +47,12 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/order','MeController@order')->name('api.me.order');
             Route::get('/is-student/{id}','MeController@isStudent')->name('api.me.isStudent');
         });
+        Route::get('/order/cancel/{id}','OrderController@cancel')->name('api.order.cancel');
+        Route::get('/order/{id}','OrderController@show')->name('api.order.show');
+        Route::post('/cart/store','ShoppingCartController@store')->name('api.cart.store');
+        Route::get('/cart','ShoppingCartController@index')->name('api.cart.index');
+        Route::get('/cart/count','ShoppingCartController@count')->name('api.cart.count');
+        Route::get('/cart/delete','ShoppingCartController@delete')->name('api.cart.delete');
     });
 
 });

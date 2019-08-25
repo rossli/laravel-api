@@ -27,9 +27,8 @@ class BookController extends BaseController
     public function show(Request $request)
     {
         $book = Book::findOrFail($request->id);
-        $data = [];
 
-        $data[] = [
+        $data= [
             'image' => config('jkw.cdn_domain') . '/' . $book->cover,
             'title' => $book->title,
             'id' => $book->id,
