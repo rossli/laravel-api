@@ -9,6 +9,8 @@ use App\Models\OrderItem;
 use App\Models\ShoppingCart;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use EasyWeChat\Factory;
+use Jenssegers\Agent\Facades\Agent;
 
 class OrderController extends BaseController
 {
@@ -57,41 +59,28 @@ class OrderController extends BaseController
 
     public function cartSubmit()
     {
-        $goods = ShoppingCart::where(['user_id', '=', request()->user()->id])->get();
+        $carts = ShoppingCart::where('user_id', request()->user()->id)->get();
         $book_price = 0;
         $course_price = 0;
-        $goods->each(function ($item) use (&$book_price, &$course_price) {
+        $str = null;
+        $carts->each(function ($item) use (&$book_price, &$course_price, &$str) {
             if ($item->type == ShoppingCart::TYPE_BOOK) {
                 $book = Book::find($item->goods_id);
                 if ($item->nubmer >= $book->num) {
-                    return $this->success('当前图书库存不足,请联系管理员', -1);
+                    $str = '当前图书库存不足,请联系管理员';
                 }
-                $book_price += $book->price;
-                OrderItem::create([
-                    'course_id' => $book->id,
-                    'course_price' => $book->price * 100,
-                    'course_origin_price' => $book->origin_price,
-                    'course_title' => $book->title,
-                    'course_cover' => $book->cover,
-                    'num' => $item->nubmer,
-                ]);
-
+                $book_price += $book->price * $item->number;
             } else {
                 $course = Course::find($item->goods_id);
                 if (Request()->user()->canBuy($item->goods_id)) {
-                    return $this->success('您已购买过此课程!', -1);
+                    $str = '您已购买过此课程!';
                 }
                 $course_price += $course->price;
-                OrderItem::create([
-                    'course_id' => $course->id,
-                    'course_price' => $course->price * 100,
-                    'course_origin_price' => $course->origin_price,
-                    'course_title' => $course->title,
-                    'course_cover' => $course->cover,
-                    'num' => $item->nubmer,
-                ]);
             }
         });
+        if ($str) {
+            return $this->success($str, -1);
+        }
         $sum = $book_price + $course_price;
         $order_sn = date('YmdHis') . (time() + Request()->user()->id);
         \DB::beginTransaction();
@@ -102,11 +91,40 @@ class OrderController extends BaseController
                 'wait_pay_fee' => $sum * 100,
                 'user_id' => Request()->user()->id,
             ]);
-            OrderItem::update([
-                'order_id' => $order->id,
-                'order_sn' => $order_sn,
-                'user_id' => Request()->user()->id,
-            ]);
+            $carts->each(function ($item) use ($order, $order_sn) {
+                if ($item->type == ShoppingCart::TYPE_BOOK) {
+                    $book = Book::find($item->goods_id);
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'order_sn' => $order_sn,
+                        'user_id' => Request()->user()->id,
+                        'course_id' => $book->id,
+                        'course_price' => $book->price * 100,
+                        'course_origin_price' => $book->origin_price * 100,
+                        'course_title' => $book->title,
+                        'course_cover' => $book->cover,
+                        'num' => $item->number,
+                        'type' => $item->type,
+                    ]);
+                } else {
+                    $course = Course::find($item->goods_id);
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'order_sn' => $order_sn,
+                        'user_id' => Request()->user()->id,
+                        'course_id' => $course->id,
+                        'course_price' => $course->price * 100,
+                        'course_origin_price' => $course->origin_price * 100,
+                        'course_title' => $course->title,
+                        'course_cover' => $course->cover,
+                        'num' => $item->number,
+                        'type' => $item->type,
+                    ]);
+                }
+
+                $item->delete();
+            });
+
         } catch (Exception $e) {
             \DB::rollback();
             return back()->withErrors('订单创建错误,请联系管理员');
@@ -131,6 +149,7 @@ class OrderController extends BaseController
                 'total_fee' => $course->price * 100,
                 'wait_pay_fee' => $course->price * 100,
                 'user_id' => $request->user()->id,
+                'type' => Order::TYPE_NORMAL
             ]);
             OrderItem::create([
                 'order_id' => $order->id,
@@ -142,6 +161,7 @@ class OrderController extends BaseController
                 'course_title' => $course->title,
                 'course_cover' => $course->cover,
                 'num' => 1,
+                'type' => ShoppingCart::TYPE_COURSE
             ]);
         } catch (Exception $e) {
             \DB::rollback();
@@ -168,8 +188,9 @@ class OrderController extends BaseController
                 'total_fee' => $book->price * 100,
                 'wait_pay_fee' => $book->price * 100,
                 'user_id' => $request->user()->id,
+                'type' => Order::TYPE_BOOK
             ]);
-           OrderItem::create([
+            OrderItem::create([
                 'order_id' => $order->id,
                 'order_sn' => $order_sn,
                 'user_id' => $request->user()->id,
@@ -179,6 +200,7 @@ class OrderController extends BaseController
                 'course_title' => $book->title,
                 'course_cover' => $book->cover,
                 'num' => 1,
+                'type' => ShoppingCart::TYPE_BOOK
             ]);
         } catch (Exception $e) {
             \DB::rollback();
@@ -194,10 +216,10 @@ class OrderController extends BaseController
         $order = Order::with('orderItem')->find($request->id);
         $order_item = [];
         $order->orderItem->each(function ($item) use (&$order_item) {
-            $order_item = [
+            $order_item[] = [
                 'cover' => config('jkw.cdn_domain') . '/' . $item->course_cover,
                 'course_price' => $item->course_price,
-                'num' => $item->num,
+                'number' => $item->num,
                 'course_id' => $item->course_id,
                 'course_title' => $item->course_title,
             ];
@@ -205,9 +227,124 @@ class OrderController extends BaseController
         $data = [
             'total_fee' => $order->total_fee,
             'wait_pay_fee' => $order->wait_pay_fee,
+            'type' => $order->type,
             'coupon_deduction' => $order->coupon_deduction,
             'item' => $order_item
         ];
         return $this->success($data);
     }
+
+    private function getPaymentApp(): \EasyWeChat\Payment\Application
+    {
+        $config = [
+            // 必要配置
+            'app_id' => config('wechat.payment.default.app_id'),
+            'mch_id' => config('wechat.payment.default.mch_id'),
+            'key' => config('wechat.payment.default.key'),   // API 密钥
+            'notify_url' => config('wechat.payment.default.notify_url'),   // API
+
+        ];
+
+        $app = Factory::payment($config);
+        return $app;
+    }
+
+    private function getOrder($order_id)
+    {
+        $order = Order::with('orderItem')->where('status', Order::STATUS_WAIT_PAY)->findOrFail($order_id);
+
+        return $order;
+    }
+
+    private function unifiy($order, $trade_type, $openid = NULL)
+    {
+
+        //支付二维码120分钟失效
+        $minutes = 120;
+        if (env('APP_DEBUG')) {
+            Cache::forget($order->order_sn);
+        }
+        $app = $this->getPaymentApp();
+        return $result = Cache::remember($order->order_sn, $minutes, function () use ($order, $app, $trade_type, $openid) {
+
+            $total_fee = env('APP_DEBUG') ? 1 : $order->wait_pay_fee * 100;
+            $result = $app->order->unify([
+                'trade_type' => $trade_type,
+                'body' => '师大教科文-订单支付',
+                'out_trade_no' => $order->order_sn,
+                'total_fee' => $total_fee,
+                'spbill_create_ip' => request()->ip(), // 可选，如不传该参数，SDK 将会自动获取相应 IP 地址
+                'openid' => $openid,
+            ]);
+
+            if ($result['result_code'] == 'SUCCESS') {
+                PayLog::create([
+                    'order_id' => $order->id,
+                    'order_sn' => $order->order_sn,
+                    'appid' => config('wechat.payment.default.app_id'),
+                    'mch_id' => config('wechat.payment.default.mch_id'),
+
+                    'cash_fee' => $total_fee,
+                    'nonce_str' => $result['nonce_str'],
+
+                    'out_trade_no' => $order->order_sn,
+                    'result_code' => $result['result_code'],
+                    'return_code' => $result['return_code'],
+                    'sign' => $result['sign'],
+                    'total_fee' => $order->total_fee * 100,
+                    'trade_type' => $result['trade_type'],
+                    'openid' => $openid ?: '',
+                ]);
+
+            }
+            return $result;
+        });
+
+    }
+
+    public function paymentWx()
+    {
+        $user = session('wechat.oauth_user.default');
+        $openid = $user->id;
+        $app = $this->getPaymentApp();
+        $order_id = request('id');
+        $order = $this->getOrder($order_id);
+        $result = $this->unifiy($order, 'JSAPI', $openid);
+        if ($result['result_code'] !== 'SUCCESS') {
+            return back()->withErrors('订单错误,请联系管理员');
+        }
+        $jssdk = $app->jssdk;
+        $config = $jssdk->bridgeConfig($result['prepay_id']);
+
+        $data['config'] = $config;
+
+        return $this->success($data);
+    }
+
+    public function paymentH5()
+    {
+        $order_id = request('id');
+        $order = $this->getOrder($order_id);
+        $result = $this->unifiy($order, 'MWEB');
+        if ($result['result_code'] !== 'SUCCESS') {
+            return back()->withErrors('订单错误,请联系管理员');
+        }
+        info('pay_log:' . json_encode($result));
+        $data = [];
+
+        $redirect_url = route('web.order.confirm-h5', ['id' => $order_id]);
+        $url = $result['mweb_url'] . '&redirect_url=' . urlencode($redirect_url);
+        info('mweb_url:' . $url);
+        $data['mweb_url'] = $url;
+
+        return $this->success($data);
+    }
+
+    public function confirmH5()
+    {
+        $order_id = request('id');
+        return view('web.order.confirm-h5', compact('order_id'));
+    }
+
+
 }

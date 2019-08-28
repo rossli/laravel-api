@@ -65,7 +65,6 @@ class CourseController extends BaseController
             },
             'material',
         ])->find($id);
-
         $task = [];
         $material = [];
         $course->task->each(function ($item) use (&$task) {

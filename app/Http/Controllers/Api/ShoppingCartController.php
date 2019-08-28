@@ -72,22 +72,23 @@ class ShoppingCartController extends BaseController
 
     public function count()
     {
-        $count = ShoppingCart::where('user_id', request()->user()->id)->count('number');
+        $cart = ShoppingCart::where('user_id', request()->user()->id)->get();
+        $count = 0;
+        if ($cart) {
+            $cart->each(function ($item) use (&$count) {
+                $count += $item->number;
+            });
+        }
         if ($count) {
             return $this->success($count);
+        } else {
+            return $this->success(0);
         }
-        return $this->failed('数据错误!');
     }
 
     public function delete(Request $request)
     {
-        $cart = ShoppingCart::find($request->id);
-        if ($cart) {
-            $cart->delete();
-            return $this->success('删除成功');
-        }
-
-        return $this->failed('数据错误!');
-
+        ShoppingCart::where('goods_id', $request->get('id'))->where('user_id', $request->user()->id)->delete();
+        return $this->success('删除成功');
     }
 }
