@@ -85,6 +85,7 @@ class CourseController extends BaseController
         $data = [
             'image'        => config('jkw.cdn_domain') . '/' . $course->cover,
             'title'        => $course->title,
+            'subtitle'        => $course->subtitle,
             'id'           => $course->id,
             'is_free'      => $course->is_free,
             'price'        => $course->price,
@@ -95,7 +96,6 @@ class CourseController extends BaseController
             'short_intro'  => $course->short_intro,
             'task'         => $task,
             'material'     => $material,
-
         ];
 
         return $this->success($data);
