@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('sms_captcha', function ($attribute, $value, $parameters, $validator) {
 
             $mobile = request('mobile');
-            if ($mobile && Redis::get($mobile . '_sms') == $value) {
+            if ($mobile && Redis::get($mobile . '_sms' .request('method')) == $value) {
                 return TRUE;
             }
 

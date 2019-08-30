@@ -5,18 +5,18 @@ namespace App\Http\Requests\Api;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class RegisterRequest extends BaseFormRequest
+class ResetRequest extends BaseFormRequest
 {
 
     public function rules()
     {
         return [
-            'mobile' => ['required','mobile','unique:users'],
-            'sms' => ['required','sms_captcha'],
+            'mobile' => ['required','mobile'],
             'password' => ['required', 'max:16', 'min:6'],
+            'sms' => ['required','sms_captcha'],
             'method' => [
                 'required',
-                Rule::in(['regist']),
+                Rule::in(['reset']),
             ],
         ];
     }
@@ -29,14 +29,14 @@ class RegisterRequest extends BaseFormRequest
     {
         return [
             'mobile.required' => '手机号必填',
-            'mobile.unique' => '手机号已存在,您可直接登录',
             'mobile.mobile' => '手机号不正确',
-            'sms.required' => '短信验证码必填',
-            'sms.sms_captcha' => '短信验证码不正确',
             'password.min' => '密码长度不能小于6个字符',
             'password.max' => '密码长度不能大于16个字符',
             'password.required' => '密码必填',
-            'method.in'     => 'method 必须是 regist',
+            'sms.required' => '短信验证码必填',
+            'sms.sms_captcha' => '短信验证码不正确',
+            'method.required'     => 'method 必填',
+            'method.in'     => 'method 必须是 reset',
         ];
     }
 }

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserController extends BaseController
 {
@@ -128,7 +129,7 @@ class UserController extends BaseController
 
     public function smsCode(Request $request)
     {
-        $data = $request->only(['ckey', 'captcha', 'mobile']);
+        $data = $request->only(['ckey', 'captcha', 'mobile', 'method']);
 
         if (!Redis::get($request->input('ckey'))) {
             return $this->failed('验证码错误或验证码超时');
@@ -138,12 +139,18 @@ class UserController extends BaseController
             'ckey'    => 'required',
             'captcha' => 'required|captcha_api:' . $request->input('ckey'),
             'mobile'  => 'required|mobile',
+            'method' => [
+                'required',
+                Rule::in(['regist', 'reset']),
+            ],
         ], [
             'ckey.required'       => 'ckey必填',
             'captcha.required'    => '验证码必填',
             'captcha.captcha_api' => '验证码错误',
             'mobile.required'     => '手机号码必填',
             'mobile.mobile'       => '手机号码错误',
+            'method.required'     => 'method 必填',
+            'method.in'     => 'method 必须是 regist 或  reset',
         ]);
 
         if ($validator->fails()) {
@@ -152,16 +159,16 @@ class UserController extends BaseController
 
         Redis::del($request->input('ckey'));
 
-        return $this->smsSend($data['mobile']);
+        return $this->smsSend($data['mobile'], $data['method']);
 
     }
 
-    private function smsSend($mobile)
+    private function smsSend($mobile, $method)
     {
 
         if (env('APP_DEBUG')) {
             $code = 1234;
-            Redis::set($mobile . '_sms', $code, 'EX', 300);
+            Redis::set($mobile . '_sms' . $method, $code, 'EX', 300);
             $this->createSmsRecord($mobile, '测试短信验证密码', '测试短信验证密码');
 
             return $this->success('测试短信发送成功,验证码为1234');
@@ -193,7 +200,7 @@ class UserController extends BaseController
         $message = '您的验证码为: ' . $code;
         $res = Utils::sendSms253($mobile, $message);
         if ($res) {
-            Redis::set($mobile . '_sms', $code, 'EX', 300);
+            Redis::set($mobile . '_sms' . $method, $code, 'EX', 300);
             Redis::incr(request()->ip());
             Redis::incr($mobile);
             Redis::set(md5($mobile), 1, 'EX', 60);
@@ -202,6 +209,7 @@ class UserController extends BaseController
 
             return $this->success('验证码发送成功');
         }
+
         return $this->failed('验证码发送失败');
     }
 
@@ -213,6 +221,17 @@ class UserController extends BaseController
             'response_data' => json_encode($res),
             'remark'        => $message,
         ]);
+    }
+
+    public function exists()
+    {
+        $bool = User::where('mobile', request('mobile', ''))->exists();
+
+        if ($bool) {
+            return $this->success('用户已存在');
+        }
+
+        return $this->failed('用户不存在');
     }
 
 }
