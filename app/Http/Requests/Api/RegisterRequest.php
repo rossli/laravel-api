@@ -16,7 +16,7 @@ class RegisterRequest extends BaseFormRequest
             'password' => ['required', 'max:16', 'min:6'],
             'method' => [
                 'required',
-                Rule::in(['regist']),
+                Rule::in(['register']),
             ],
         ];
     }
@@ -36,7 +36,7 @@ class RegisterRequest extends BaseFormRequest
             'password.min' => '密码长度不能小于6个字符',
             'password.max' => '密码长度不能大于16个字符',
             'password.required' => '密码必填',
-            'method.in'     => 'method 必须是 regist',
+            'method.in'     => 'method 必须是 register',
         ];
     }
 }

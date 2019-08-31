@@ -45,8 +45,8 @@ class AuthController extends BaseController
         }
     }
 
-    public function reset(ResetRequest $request){
-
+    public function reset(ResetRequest $request)
+    {
         $user = User::where('mobile', $request->mobile)->first();
         if (!$user) {
             $response = '用户不存在';

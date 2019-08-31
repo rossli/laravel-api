@@ -63,7 +63,7 @@ class UserController extends BaseController
         $this->validate($request, [
             'nick_name' => 'required|max:100',
         ]);
-        $user = User::find($request->id);
+        $user = new UserResource($request->user());
         if ($user) {
             $user->update([
                 'nick_name' => $request->nick_name,
@@ -75,7 +75,7 @@ class UserController extends BaseController
 
     public function updateSex(Request $request)
     {
-        $user = User::find($request->id);
+        $user =  new UserResource($request->user());
         if ($user) {
             $user->update([
                 'sex' => $request->sex,
@@ -90,7 +90,7 @@ class UserController extends BaseController
         $this->validate($request, [
             'password' => 'required|min:6|max:16',
         ]);
-        $user = User::find($request->id);
+        $user =  new UserResource($request->user());
         if ($user) {
             if (Hash::check($request->oldPassword, $user->password)) {
                 if ($request->password !== $request->confirmPassword) {
@@ -141,16 +141,16 @@ class UserController extends BaseController
             'mobile'  => 'required|mobile',
             'method' => [
                 'required',
-                Rule::in(['regist', 'reset']),
+                Rule::in(['register', 'reset']),
             ],
         ], [
             'ckey.required'       => 'ckey必填',
-            'captcha.required'    => '验证码必填',
-            'captcha.captcha_api' => '验证码错误',
+            'captcha.required'    => '图型验证码必填',
+            'captcha.captcha_api' => '图型验证码错误',
             'mobile.required'     => '手机号码必填',
             'mobile.mobile'       => '手机号码错误',
             'method.required'     => 'method 必填',
-            'method.in'     => 'method 必须是 regist 或  reset',
+            'method.in'     => 'method 必须是 register 或  reset',
         ]);
 
         if ($validator->fails()) {
@@ -231,7 +231,7 @@ class UserController extends BaseController
             return $this->success('用户已存在');
         }
 
-        return $this->failed('用户不存在');
+        return $this->success('用户不存在',-1);
     }
 
 }
