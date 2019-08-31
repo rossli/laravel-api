@@ -141,7 +141,7 @@ class UserController extends BaseController
             'mobile'  => 'required|mobile',
             'method' => [
                 'required',
-                Rule::in(['register', 'reset']),
+                Rule::in(['register', 'reset','smsLogin']),
             ],
         ], [
             'ckey.required'       => 'ckey必填',
@@ -150,7 +150,7 @@ class UserController extends BaseController
             'mobile.required'     => '手机号码必填',
             'mobile.mobile'       => '手机号码错误',
             'method.required'     => 'method 必填',
-            'method.in'     => 'method 必须是 register 或  reset',
+            'method.in'     => 'method 必须是 register,smsLogin 或  reset',
         ]);
 
         if ($validator->fails()) {
