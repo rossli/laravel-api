@@ -14,7 +14,7 @@ class CourseTaskController extends BaseController
     {
         $task=CourseTask::find($request->id);
 
-        if($task){
+        if(!$task){
             return $this->failed('没有该课程!');
         }
 
