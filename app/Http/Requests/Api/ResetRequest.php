@@ -11,13 +11,14 @@ class ResetRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'mobile' => ['required','mobile'],
-            'password' => ['required', 'max:16', 'min:6'],
-            'sms' => ['required','sms_captcha'],
             'method' => [
                 'required',
                 Rule::in(['reset']),
             ],
+            'mobile' => ['required','mobile'],
+            'password' => ['required', 'max:16', 'min:6'],
+            'sms' => ['required','sms_captcha'],
+
         ];
     }
     /**

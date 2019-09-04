@@ -32,6 +32,7 @@ class BaseFormRequest extends FormRequest
 
     public function failedValidation(Validator $validator)
     {
+        info('hahah');
         //write your bussiness logic here otherwise it will give same old JSON response
         throw new HttpResponseException(response()->json([
             'status'  => 'error',

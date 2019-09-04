@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\LoginRequest;
 use App\Http\Requests\Api\RegisterRequest;
 use App\Http\Requests\Api\ResetRequest;
+use App\Http\Requests\Api\SmsLoginRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,6 +16,7 @@ class AuthController extends BaseController
         $user = User::create([
             'mobile' => $request->get('mobile'),
             'password' => bcrypt($request->get('password')),
+            'avatar'=>config('jkw.default_avatar'),
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
@@ -45,8 +47,8 @@ class AuthController extends BaseController
         }
     }
 
-    public function reset(ResetRequest $request){
-
+    public function reset(ResetRequest $request)
+    {
         $user = User::where('mobile', $request->mobile)->first();
         if (!$user) {
             $response = '用户不存在';
@@ -62,6 +64,24 @@ class AuthController extends BaseController
         return $this->success([
             'token' => $token,
         ]);
+
+    }
+
+    public function smsLogin(SmsLoginRequest $request)
+    {
+
+        $user = User::where('mobile', $request->mobile)->first();
+        if (!$user) {
+            $response = '用户不存在';
+            return $this->failed($response, 422);
+        }
+
+        $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+
+        return $this->success([
+            'token' => $token,
+        ]);
+
 
     }
 

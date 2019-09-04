@@ -11,13 +11,14 @@ class RegisterRequest extends BaseFormRequest
     public function rules()
     {
         return [
+            'method' => [
+                'required',
+                Rule::in(['register']),
+            ],
             'mobile' => ['required','mobile','unique:users'],
             'sms' => ['required','sms_captcha'],
             'password' => ['required', 'max:16', 'min:6'],
-            'method' => [
-                'required',
-                Rule::in(['regist']),
-            ],
+
         ];
     }
     /**
@@ -36,7 +37,9 @@ class RegisterRequest extends BaseFormRequest
             'password.min' => '密码长度不能小于6个字符',
             'password.max' => '密码长度不能大于16个字符',
             'password.required' => '密码必填',
-            'method.in'     => 'method 必须是 regist',
+            'method.in'     => 'method 必须是 register',
+            'method.required'     => 'method 必填',
+
         ];
     }
 }

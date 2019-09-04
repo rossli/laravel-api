@@ -6,10 +6,12 @@ use App\Models\Book;
 use App\Models\Course;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\PayLog;
 use App\Models\ShoppingCart;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use EasyWeChat\Factory;
+use Illuminate\Support\Facades\Cache;
 use Jenssegers\Agent\Facades\Agent;
 
 class OrderController extends BaseController
@@ -332,7 +334,7 @@ class OrderController extends BaseController
         info('pay_log:' . json_encode($result));
         $data = [];
 
-        $redirect_url = route('web.order.confirm-h5', ['id' => $order_id]);
+        $redirect_url = env('INDEX_URL').'/m';
         $url = $result['mweb_url'] . '&redirect_url=' . urlencode($redirect_url);
         info('mweb_url:' . $url);
         $data['mweb_url'] = $url;
