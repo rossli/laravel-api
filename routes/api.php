@@ -41,6 +41,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/book/list', 'BookController@list')->name('api.book.list');
     Route::get('/book/{id}', 'BookController@show')->name('api.book.show');
     Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
+    Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
     Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
     Route::middleware('auth:api')->group(function () {
         Route::get('/users', 'UserController@index')->name('api.users.index');
