@@ -12,7 +12,12 @@ class CourseTaskController extends BaseController
     //
     public function live(Request $request)
     {
-        $task=CourseTask::findOrFail($request->id);
+        $task=CourseTask::find($request->id);
+
+        if($task){
+            return $this->failed('没有该课程!');
+        }
+
         if ($task->type == CourseTask::TYPE_CLIP) {
             $res = Talkfun::clipGet($task->media_id);
         } else {
@@ -27,7 +32,7 @@ class CourseTaskController extends BaseController
         } else {
             $url = '';
         }
-        $data[]=[
+        $data=[
             'url'=>$url,
         ];
        return $this->success($data);
