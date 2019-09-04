@@ -16,6 +16,7 @@ class AuthController extends BaseController
         $user = User::create([
             'mobile' => $request->get('mobile'),
             'password' => bcrypt($request->get('password')),
+            'avatar'=>config('jkw.default_avatar'),
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
@@ -68,6 +69,7 @@ class AuthController extends BaseController
 
     public function smsLogin(SmsLoginRequest $request)
     {
+
         $user = User::where('mobile', $request->mobile)->first();
         if (!$user) {
             $response = '用户不存在';

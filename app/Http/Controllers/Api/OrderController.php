@@ -6,10 +6,12 @@ use App\Models\Book;
 use App\Models\Course;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\PayLog;
 use App\Models\ShoppingCart;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use EasyWeChat\Factory;
+use Illuminate\Support\Facades\Cache;
 use Jenssegers\Agent\Facades\Agent;
 
 class OrderController extends BaseController
