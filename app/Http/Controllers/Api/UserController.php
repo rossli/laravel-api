@@ -32,7 +32,7 @@ class UserController extends BaseController
             "name"              => $user->name,
             "nick_name"         => $user->nick_name,
             "wechat_name"       => $user->wechat_name,
-            "avatar"            => config('jkw.cdn_domain') . '/' . $user->avatar,
+            "avatar"            => $user->avatar?config('jkw.cdn_domain') . '/' . $user->avatar:config('jkw.cdn_domain') . '/'.config('jkw.default_avatar'),
             "email_verified_at" => $user->email_verified_at,
             "agreed"            => $user->agreed,
             "login_time"        => $user->login_time,
