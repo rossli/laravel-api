@@ -41,7 +41,7 @@ class MeController extends BaseController
     {
         $orders = Order::with([
             'orderItem' => function ($query) {
-                $query->select('order_id', 'user_id', 'course_title', 'course_id', 'course_cover','num');
+                $query->select('order_id', 'user_id','course_origin_price','course_price', 'course_title', 'course_id', 'course_cover','num');
             },
         ])->where('user_id', request()->user()->id)->orderBy('id', 'DESC')->get();
         $data = [];

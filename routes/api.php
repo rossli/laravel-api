@@ -27,8 +27,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
 
     Route::get('/user/exists','UserController@exists')->name('api.user.check-mobile');
     //验证码
-    Route::get('user/captcha','UserController@captcha')->name('api.user.captcha');
-    Route::post('user/sms-code','UserController@smsCode')->name('api.user.sms-code');
+    Route::get('/user/captcha','UserController@captcha')->name('api.user.captcha');
+    Route::post('/user/sms-code','UserController@smsCode')->name('api.user.sms-code');
 
 
     Route::get('/banners', 'BannerController@index')->name('api.banners.index');
@@ -65,11 +65,11 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::get('/cart', 'ShoppingCartController@index')->name('api.cart.index');
         Route::get('/cart/count', 'ShoppingCartController@count')->name('api.cart.count');
         Route::post('/cart/delete', 'ShoppingCartController@delete')->name('api.cart.delete');
-        Route::get('payment-wx','OrderController@paymentWx')->name('api.order.payment-wx');
-        Route::get('payment-h5','OrderController@paymentH5')->name('api.order.payment-h5');
-        Route::post('payment/notify', 'PaymentController@notify')->name('api.payment.notify');
+        Route::get('/payment-wx','OrderController@paymentWx')->name('api.order.payment-wx');
+        Route::get('/payment-h5','OrderController@paymentH5')->name('api.order.payment-h5');
+        Route::post('/payment/notify', 'PaymentController@notify')->name('api.payment.notify');
         //查询支付状态
-        Route::get('payment/status/{id}', 'PaymentController@status')->name('web.payment.status');
+        Route::get('/payment/status/{id}', 'PaymentController@status')->name('web.payment.status');
 
     });
 

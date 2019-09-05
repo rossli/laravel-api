@@ -74,7 +74,7 @@ class OrderController extends BaseController
                 $book_price += $book->price * $item->number;
             } else {
                 $course = Course::find($item->goods_id);
-                if (Request()->user()->canBuy($item->goods_id)) {
+                if (!Request()->user()->canBuy($item->goods_id)) {
                     $str = '您已购买过此课程!';
                 }
                 $course_price += $course->price;
@@ -139,7 +139,7 @@ class OrderController extends BaseController
     {
         $course_id = $request->id;
         $course = Course::find($course_id);
-        if ($request->user()->canBuy($course_id)) {
+        if (!$request->user()->canBuy($course_id)) {
             return $this->success('您已购买过此课程!', -1);
         }
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
