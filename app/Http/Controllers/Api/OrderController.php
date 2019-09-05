@@ -129,7 +129,7 @@ class OrderController extends BaseController
 
         } catch (Exception $e) {
             \DB::rollback();
-            return back()->withErrors('订单创建错误,请联系管理员');
+            return $this->failed('订单创建错误,请联系管理员');
         }
         \DB::commit();
         return $this->success($order->id);
@@ -139,7 +139,7 @@ class OrderController extends BaseController
     {
         $course_id = $request->id;
         $course = Course::find($course_id);
-        if (!$request->user()->canBuy($course_id)) {
+        if ($request->user()->canBuy($course_id)) {
             return $this->success('您已购买过此课程!', -1);
         }
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
