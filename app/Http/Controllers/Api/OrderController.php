@@ -334,7 +334,7 @@ class OrderController extends BaseController
         info('pay_log:' . json_encode($result));
         $data = [];
 
-        $redirect_url = env('INDEX_URL').'/m';
+        $redirect_url = env('INDEX_URL') . '/m#/order/confirm/' . $order_id . '?status=back';
         $url = $result['mweb_url'] . '&redirect_url=' . urlencode($redirect_url);
         info('mweb_url:' . $url);
         $data['mweb_url'] = $url;
