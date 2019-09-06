@@ -48,6 +48,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::post('/users/update/name', 'UserController@updateName')->name('api.users.update.name');
         Route::post('/users/update/password', 'UserController@updatePassword')->name('api.users.update.password');
         Route::post('/users/update/sex', 'UserController@updateSex')->name('api.users.update.sex');
+        Route::get('/users/address','UserController@address')->name('api.user.address');
+        Route::post('/users/update/address','UserController@updateAddress')->name('api.user.update.address');
         Route::post('/course/join/{id}', 'CourseController@join')->name('api.course.join');
 
         Route::prefix('me')->group(function () {
