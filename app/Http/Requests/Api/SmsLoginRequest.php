@@ -33,6 +33,7 @@ class SmsLoginRequest extends BaseFormRequest
             'mobile.mobile' => '手机号不正确',
             'sms.required' => '短信验证码必填',
             'sms.sms_captcha' => '短信验证码不正确',
+            'method.required' => 'method必填',
             'method.in' => 'method 必须是 smsLogin',
         ];
     }

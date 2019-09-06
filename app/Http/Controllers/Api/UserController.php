@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\LoginRequest;
 use App\Http\Requests\Api\RegisterRequest;
+use App\Http\Requests\Api\UpdateAddressRequest;
 use App\Http\Resources\Api\UserResource;
 use App\Models\SmsRecord;
 use App\Models\User;
@@ -21,37 +22,37 @@ class UserController extends BaseController
     {
         $user = new UserResource($request->user());
         $data = [
-            "id"                => $user->id,
-            "email"             => $user->email,
-            "mobile"            => $user->mobile,
-            "receiver_mobile"   => $user->receiver_mobile,
-            "receiver_name"     => $user->receiver_name,
-            "mentee_id"         => $user->mentee_id,
-            "mentee_name"       => $user->mentee_name,
-            "mentee_avatar"     => config('jkw.cdn_domain') . '/' . $user->mentee_avatar,
-            "name"              => $user->name,
-            "nick_name"         => $user->nick_name,
-            "wechat_name"       => $user->wechat_name,
-            "avatar"            => $user->avatar?config('jkw.cdn_domain') . '/' . $user->avatar:config('jkw.cdn_domain') . '/'.config('jkw.default_avatar'),
+            "id" => $user->id,
+            "email" => $user->email,
+            "mobile" => $user->mobile,
+            "receiver_mobile" => $user->receiver_mobile,
+            "receiver_name" => $user->receiver_name,
+            "mentee_id" => $user->mentee_id,
+            "mentee_name" => $user->mentee_name,
+            "mentee_avatar" => config('jkw.cdn_domain') . '/' . $user->mentee_avatar,
+            "name" => $user->name,
+            "nick_name" => $user->nick_name,
+            "wechat_name" => $user->wechat_name,
+            "avatar" => $user->avatar ? config('jkw.cdn_domain') . '/' . $user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
             "email_verified_at" => $user->email_verified_at,
-            "agreed"            => $user->agreed,
-            "login_time"        => $user->login_time,
-            "login_ip"          => $user->login_ip,
-            "created_ip"        => $user->created_ip,
-            "invite_code"       => $user->invite_code,
-            "from_user_id"      => $user->from_user_id,
-            "register_type"     => $user->register_type,
-            "register_way"      => $user->register_way,
-            "uuid"              => $user->uuid,
-            "uuid_type"         => $user->uuid_type,
-            "sex"               => $user->sex,
-            "sign"              => $user->sign,
-            "province"          => $user->province,
-            "city"              => $user->city,
-            "district"          => $user->district,
-            "address"           => $user->address,
-            "created_at"        => $user->created_at,
-            "updated_at"        => $user->updated_at,
+            "agreed" => $user->agreed,
+            "login_time" => $user->login_time,
+            "login_ip" => $user->login_ip,
+            "created_ip" => $user->created_ip,
+            "invite_code" => $user->invite_code,
+            "from_user_id" => $user->from_user_id,
+            "register_type" => $user->register_type,
+            "register_way" => $user->register_way,
+            "uuid" => $user->uuid,
+            "uuid_type" => $user->uuid_type,
+            "sex" => $user->sex,
+            "sign" => $user->sign,
+            "province" => $user->province,
+            "city" => $user->city,
+            "district" => $user->district,
+            "address" => $user->address,
+            "created_at" => $user->created_at,
+            "updated_at" => $user->updated_at,
 
         ];
 
@@ -75,7 +76,7 @@ class UserController extends BaseController
 
     public function updateSex(Request $request)
     {
-        $user =  new UserResource($request->user());
+        $user = new UserResource($request->user());
         if ($user) {
             $user->update([
                 'sex' => $request->sex,
@@ -90,7 +91,7 @@ class UserController extends BaseController
         $this->validate($request, [
             'password' => 'required|min:6|max:16',
         ]);
-        $user =  new UserResource($request->user());
+        $user = new UserResource($request->user());
         if ($user) {
             if (Hash::check($request->oldPassword, $user->password)) {
                 if ($request->password !== $request->confirmPassword) {
@@ -120,10 +121,10 @@ class UserController extends BaseController
         Redis::set($captcha['key'], 1, 'EX', 300);
 
         return $this->success([
-            'code'    => '200',
+            'code' => '200',
             'message' => 'success',
-            'ckey'    => $captcha['key'],
-            'img'     => $captcha['img'],
+            'ckey' => $captcha['key'],
+            'img' => $captcha['img'],
         ]);
     }
 
@@ -136,21 +137,21 @@ class UserController extends BaseController
         }
 
         $validator = Validator::make($data, [
-            'ckey'    => 'required',
+            'ckey' => 'required',
             'captcha' => 'required|captcha_api:' . $request->input('ckey'),
-            'mobile'  => 'required|mobile',
+            'mobile' => 'required|mobile',
             'method' => [
                 'required',
-                Rule::in(['register', 'reset','smsLogin']),
+                Rule::in(['register', 'reset', 'smsLogin']),
             ],
         ], [
-            'ckey.required'       => 'ckey必填',
-            'captcha.required'    => '图型验证码必填',
+            'ckey.required' => 'ckey必填',
+            'captcha.required' => '图型验证码必填',
             'captcha.captcha_api' => '图型验证码错误',
-            'mobile.required'     => '手机号码必填',
-            'mobile.mobile'       => '手机号码错误',
-            'method.required'     => 'method 必填',
-            'method.in'     => 'method 必须是 register,smsLogin 或  reset',
+            'mobile.required' => '手机号码必填',
+            'mobile.mobile' => '手机号码错误',
+            'method.required' => 'method 必填',
+            'method.in' => 'method 必须是 register,smsLogin 或  reset',
         ]);
 
         if ($validator->fails()) {
@@ -216,10 +217,10 @@ class UserController extends BaseController
     private function createSmsRecord($mobile, $message, $res)
     {
         SmsRecord::create([
-            'mobile'        => $mobile,
-            'send_data'     => $message,
+            'mobile' => $mobile,
+            'send_data' => $message,
             'response_data' => json_encode($res),
-            'remark'        => $message,
+            'remark' => $message,
         ]);
     }
 
@@ -231,7 +232,42 @@ class UserController extends BaseController
             return $this->success('用户已存在');
         }
 
-        return $this->success('用户不存在',-1);
+        return $this->success('用户不存在', -1);
     }
 
+
+    public function address()
+    {
+        $user = Request()->user();
+        if ($user) {
+            $data = [
+                'receiver_mobile' => $user->receiver_mobile,
+                'receiver_name' => $user->receiver_name,
+                'province' => $user->province,
+                'city' => $user->city,
+                'district' => $user->district,
+                'address' => $user->address,
+            ];
+            return $this->success($data);
+        }
+        return $this->failed('用户不存在');
+    }
+
+    public function updateAddress(UpdateAddressRequest $request)
+    {
+        $user = Request()->user();
+        if ($user) {
+            $user->update([
+                'receiver_mobile' => $request->receiver_mobile,
+                'receiver_name' => $request->receiver_name,
+                'province' => $request->province,
+                'city' => $request->city,
+                'district' => $request->district,
+                'address' => $request->address,
+            ]);
+            return $this->success('提交成功');
+        }
+
+        return $this->failed('用户不存在');
+    }
 }
