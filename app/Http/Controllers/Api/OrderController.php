@@ -360,7 +360,7 @@ class OrderController extends BaseController
             ]);
         }
 
-        $this->failed('参数错误');
+        return $this->failed('参数错误');
     }
 
     private function getAccessToken($code)
