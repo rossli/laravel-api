@@ -307,8 +307,7 @@ class OrderController extends BaseController
 
     public function paymentWx()
     {
-        $user = session('wechat.oauth_user.default');
-        $openid = $user->id;
+        $openid = request('openid');
         $app = $this->getPaymentApp();
         $order_id = request('id');
         $order = $this->getOrder($order_id);
