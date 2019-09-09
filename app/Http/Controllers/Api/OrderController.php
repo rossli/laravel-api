@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PayLog;
 use App\Models\ShoppingCart;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use EasyWeChat\Factory;
@@ -345,6 +346,52 @@ class OrderController extends BaseController
     {
         $order_id = request('id');
         return view('web.order.confirm-h5', compact('order_id'));
+    }
+
+    public function getOpenid()
+    {
+        $code = request('code','');
+        $res = $this->getAccessToken($code);
+
+        if (!isset($res->errcode)) {
+            return $this->success([
+                'openid' => $res->openid,
+            ]);
+        }
+
+        $this->failed('参数错误');
+    }
+
+    private function getAccessToken($code)
+    {
+        $url = 'https://api.weixin.qq.com/sns/oauth2/access_token';
+
+        $param = [
+            'appid'        => config('wechat.official_account.default.app_id'),
+            'secret'       => config('wechat.official_account.default.secret'),
+            'code'         => $code,
+            'grant_type'   => 'authorization_code',
+        ];
+
+        $request_url = $url . '?' . http_build_query($param);
+
+        $body = $this->requestGet($request_url);
+        return $body;
+    }
+
+    /**
+     * @param string $request_url
+     *
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     * @throws GuzzleException
+     */
+    private function requestGet(string $request_url)
+    {
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('GET', $request_url);
+        $body = json_decode($response->getBody());
+
+        return $body;
     }
 
 

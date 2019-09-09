@@ -66,6 +66,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/cancel/{id}', 'OrderController@cancel')->name('api.order.cancel');
             Route::get('/payment-wx', 'OrderController@paymentWx')->name('api.order.payment-wx');
             Route::get('/payment-h5', 'OrderController@paymentH5')->name('api.order.payment-h5');
+            Route::get('/openid', 'OrderController@getOpenid')->name('api.order.openid');
 
             Route::get('/{id}', 'OrderController@show')->name('api.order.show');
 
