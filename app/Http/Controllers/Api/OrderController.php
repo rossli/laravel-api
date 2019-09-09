@@ -334,7 +334,7 @@ class OrderController extends BaseController
         info('pay_log:' . json_encode($result));
         $data = [];
 
-        $redirect_url = 'test.jkwedu.net/m#/order/confirm/' . $order_id . '?status=back';
+        $redirect_url = 'https://test.jkwedu.net/m#/order/confirm/' . $order_id . '?status=back';
         $url = $result['mweb_url'] . '&redirect_url=' . urlencode($redirect_url);
         info('mweb_url:' . $url);
         $data['mweb_url'] = $url;
