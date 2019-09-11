@@ -334,7 +334,7 @@ class OrderController extends BaseController
         info('pay_log:' . json_encode($result));
         $data = [];
 
-        $redirect_url = 'https://test.jkwedu.net/m#/order/confirm/' . $order_id . '?status=back';
+        $redirect_url = config('jkw.index_url') . '/m#/order/confirm/' . $order_id . '?status=back';
         $url = $result['mweb_url'] . '&redirect_url=' . urlencode($redirect_url);
         info('mweb_url:' . $url);
         $data['mweb_url'] = $url;
@@ -350,7 +350,7 @@ class OrderController extends BaseController
 
     public function getOpenid()
     {
-        $code = request('code','');
+        $code = request('code', '');
         $res = $this->getAccessToken($code);
 
         if (!isset($res->errcode)) {
@@ -367,10 +367,10 @@ class OrderController extends BaseController
         $url = 'https://api.weixin.qq.com/sns/oauth2/access_token';
 
         $param = [
-            'appid'        => config('wechat.official_account.default.app_id'),
-            'secret'       => config('wechat.official_account.default.secret'),
-            'code'         => $code,
-            'grant_type'   => 'authorization_code',
+            'appid' => config('wechat.official_account.default.app_id'),
+            'secret' => config('wechat.official_account.default.secret'),
+            'code' => $code,
+            'grant_type' => 'authorization_code',
         ];
 
         $request_url = $url . '?' . http_build_query($param);
