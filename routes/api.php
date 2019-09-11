@@ -25,6 +25,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::post('/auth/reset', 'AuthController@reset')->name('api.auth.reset');
     Route::post('/auth/sms-login', 'AuthController@smsLogin')->name('api.auth.sms-login');
 
+    Route::get('/openid', 'OrderController@getOpenid')->name('api.order.openid');
+
     Route::get('/user/exists', 'UserController@exists')->name('api.user.check-mobile');
     //验证码
     Route::get('/user/captcha', 'UserController@captcha')->name('api.user.captcha');
@@ -66,7 +68,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/cancel/{id}', 'OrderController@cancel')->name('api.order.cancel');
             Route::get('/payment-wx', 'OrderController@paymentWx')->name('api.order.payment-wx');
             Route::get('/payment-h5', 'OrderController@paymentH5')->name('api.order.payment-h5');
-            Route::get('/openid', 'OrderController@getOpenid')->name('api.order.openid');
+
 
             Route::get('/{id}', 'OrderController@show')->name('api.order.show');
 
