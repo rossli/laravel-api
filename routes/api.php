@@ -25,7 +25,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::post('/auth/reset', 'AuthController@reset')->name('api.auth.reset');
     Route::post('/auth/sms-login', 'AuthController@smsLogin')->name('api.auth.sms-login');
 
-    Route::get('/openid', 'OrderController@getOpenid')->name('api.order.openid');
+    Route::get('/order/openid', 'OrderController@getOpenid')->name('api.order.openid');
 
     Route::get('/user/exists', 'UserController@exists')->name('api.user.check-mobile');
     //验证码
