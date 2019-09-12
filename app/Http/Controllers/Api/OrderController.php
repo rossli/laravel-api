@@ -134,7 +134,7 @@ class OrderController extends BaseController
             return $this->failed('订单创建错误,请联系管理员');
         }
         \DB::commit();
-        $this->dispatch(new CancelOrder($order->id, config('jkw.cancel_time')));
+        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
         return $this->success($order->id);
     }
 
@@ -174,7 +174,7 @@ class OrderController extends BaseController
             return back()->withErrors('订单创建错误,请联系管理员');
         }
         \DB::commit();
-        $this->dispatch(new CancelOrder($order->id, config('jkw.cancel_time')));
+        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
         return $this->success($order->id);
     }
 
@@ -214,7 +214,7 @@ class OrderController extends BaseController
             return back()->withErrors('订单创建错误,请联系管理员');
         }
         \DB::commit();
-        $this->dispatch(new CancelOrder($order->id, config('jkw.cancel_time')));
+        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
         return $this->success($order->id);
     }
 
