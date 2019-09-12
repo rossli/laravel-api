@@ -133,7 +133,7 @@ class CourseController extends BaseController
     public function join($id)
     {
         $user_id = request()->user()->id;
-        $course = Course::find($id);
+        $course = Course::where('is_free',1)->find($id);
         if ($course && $user_id) {
             CourseMember::create([
                 'user_id' => $user_id,

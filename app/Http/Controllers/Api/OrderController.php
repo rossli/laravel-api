@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\CancelOrder;
 use App\Models\Book;
 use App\Models\Course;
 use App\Models\Order;
@@ -31,7 +32,7 @@ class OrderController extends BaseController
 
     public function show($id)
     {
-        $order = Order::with('orderItem')->orderBy('updated_at','DESC')->find($id);
+        $order = Order::with('orderItem')->orderBy('updated_at', 'DESC')->find($id);
         if ($order) {
             $order_item_data = [];
             $order->orderItem->each(function ($item) use (&$order_item_data) {
@@ -133,6 +134,7 @@ class OrderController extends BaseController
             return $this->failed('订单创建错误,请联系管理员');
         }
         \DB::commit();
+        $this->dispatch(new CancelOrder($order->id, config('jkw.cancel_time')));
         return $this->success($order->id);
     }
 
@@ -172,6 +174,7 @@ class OrderController extends BaseController
             return back()->withErrors('订单创建错误,请联系管理员');
         }
         \DB::commit();
+        $this->dispatch(new CancelOrder($order->id, config('jkw.cancel_time')));
         return $this->success($order->id);
     }
 
@@ -205,12 +208,13 @@ class OrderController extends BaseController
                 'num' => 1,
                 'type' => ShoppingCart::TYPE_BOOK
             ]);
+
         } catch (Exception $e) {
             \DB::rollback();
-
             return back()->withErrors('订单创建错误,请联系管理员');
         }
         \DB::commit();
+        $this->dispatch(new CancelOrder($order->id, config('jkw.cancel_time')));
         return $this->success($order->id);
     }
 
