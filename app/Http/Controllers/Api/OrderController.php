@@ -31,7 +31,7 @@ class OrderController extends BaseController
 
     public function show($id)
     {
-        $order = Order::with('orderItem')->find($id);
+        $order = Order::with('orderItem')->orderBy('updated_at','DESC')->find($id);
         if ($order) {
             $order_item_data = [];
             $order->orderItem->each(function ($item) use (&$order_item_data) {
