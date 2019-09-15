@@ -22,11 +22,11 @@ class CourseController extends BaseController
         $data = [];
         $course->each(function ($item) use (&$data) {
             $data[] = [
-                'image' => config('jkw.cdn_domain') . '/' . $item->cover,
-                'title' => $item->title,
-                'id' => $item->id,
-                'is_free' => $item->is_free,
-                'price' => $item->price,
+                'image'       => config('jkw.cdn_domain') . '/' . $item->cover,
+                'title'       => $item->title,
+                'id'          => $item->id,
+                'is_free'     => $item->price == 0 || $item->is_free == 1,
+                'price'       => $item->price,
                 'is_finished' => $item->is_finished,
             ];
         });
@@ -44,11 +44,11 @@ class CourseController extends BaseController
         $data = [];
         $courses->each(function ($item) use (&$data) {
             $data[] = [
-                'image' => config('jkw.cdn_domain') . '/' . $item->cover,
-                'title' => $item->title,
-                'id' => $item->id,
-                'is_free' => $item->is_free,
-                'price' => $item->price,
+                'image'       => config('jkw.cdn_domain') . '/' . $item->cover,
+                'title'       => $item->title,
+                'id'          => $item->id,
+                'is_free'     => $item->price == 0 || $item->is_free == 1,
+                'price'       => $item->price,
                 'is_finished' => $item->is_finished,
             ];
         });
@@ -69,37 +69,37 @@ class CourseController extends BaseController
         $material = [];
         $course->task->each(function ($item) use (&$task) {
             $task[] = [
-                'id' => $item->id,
-                'title' => $item->title,
-                'is_free' => $item->is_free,
-                'type' => $item->type,
+                'id'       => $item->id,
+                'title'    => $item->title,
+                'is_free'  => $item->is_free,
+                'type'     => $item->type,
                 'media_id' => $item->media_id,
             ];
         });
         $course->material->each(function ($item) use (&$material) {
             $material[] = [
-                'id' => $item->id,
-                'title' => $item->title,
-                'size' => $item->size,
+                'id'          => $item->id,
+                'title'       => $item->title,
+                'size'        => $item->size,
                 'description' => $item->description,
             ];
         });
         $data = [
-            'image' => config('jkw.cdn_domain') . '/' . $course->cover,
-            'title' => $course->title,
-            'subtitle'        => $course->subtitle,
-            'id' => $course->id,
-            'is_free' => $course->is_free,
-            'price' => $course->price,
-            'is_finished' => $course->is_finished,
-            'student_num' => $course->student_num,
-            'student_add'=>$course->student_add,
-            'student_sum'=>$course->student_add+$course->student_num,
+            'image'        => config('jkw.cdn_domain') . '/' . $course->cover,
+            'title'        => $course->title,
+            'subtitle'     => $course->subtitle,
+            'id'           => $course->id,
+            'is_free'      => $course->price == 0 || $course->is_free == 1,
+            'price'        => $course->price,
+            'is_finished'  => $course->is_finished,
+            'student_num'  => $course->student_num,
+            'student_add'  => $course->student_add,
+            'student_sum'  => $course->student_add + $course->student_num,
             'origin_price' => $course->origin_price,
-            'summary' => $course->summary,
-            'short_intro' => $course->short_intro,
-            'task' => $task,
-            'material' => $material,
+            'summary'      => $course->summary,
+            'short_intro'  => $course->short_intro,
+            'task'         => $task,
+            'material'     => $material,
         ];
 
         return $this->success($data);
@@ -113,14 +113,14 @@ class CourseController extends BaseController
         $category->each(function ($item) use (&$data, &$i) {
             $course = $item->course;
             $course->each(function ($it) use (&$data, $i) {
-                $data[$i][] = [
-                    'image' => config('jkw.cdn_domain') . '/' . $it->cover,
-                    'title' => $it->title,
-                    'subtitle' => $it->subtitle,
-                    'id' => $it->id,
-                    'is_free' => $it->is_free,
-                    'price' => $it->price,
-                    'is_finished' => $it->is_finished,
+                $data[ $i ][] = [
+                    'image'        => config('jkw.cdn_domain') . '/' . $it->cover,
+                    'title'        => $it->title,
+                    'subtitle'     => $it->subtitle,
+                    'id'           => $it->id,
+                    'is_free'      => $it->price == 0 || $it->is_free == 1,
+                    'price'        => $it->price,
+                    'is_finished'  => $it->is_finished,
                     'origin_price' => $it->origin_price,
                 ];
             });
@@ -135,16 +135,22 @@ class CourseController extends BaseController
         $user_id = request()->user()->id;
         $course = Course::find($id);
         if ($course && $user_id) {
-            CourseMember::create([
-                'user_id' => $user_id,
-                'course_id' => $id
-            ]);
-            $course->student_num++;
-            $course->save();
+            $course_member = CourseMember::where('user_id', $user_id)->where('course_id', $id)->first();
+            if (!$course_member) {
+                CourseMember::create([
+                    'user_id'   => $user_id,
+                    'course_id' => $id,
+                ]);
+                $course->student_num++;
+                $course->save();
 
-            return $this->success('加入成功!');
+                return $this->success('加入成功!');
+            }
+
+            return $this->failed('您已加过此课程');
         }
-        return $this->failed('信息错误', 200, -1);
+
+        return $this->failed('信息错误', -1, 'FAIL');
 
     }
 }

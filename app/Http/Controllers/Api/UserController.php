@@ -130,6 +130,7 @@ class UserController extends BaseController
 
     public function smsCode(Request $request)
     {
+        info('sms:toSend');
         $data = $request->only(['ckey', 'captcha', 'mobile', 'method']);
 
         if (!Redis::get($request->input('ckey'))) {

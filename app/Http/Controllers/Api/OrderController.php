@@ -342,11 +342,6 @@ class OrderController extends BaseController
         return $this->success($data);
     }
 
-    public function confirmH5()
-    {
-        $order_id = request('id');
-        return view('web.order.confirm-h5', compact('order_id'));
-    }
 
     public function getOpenid()
     {
