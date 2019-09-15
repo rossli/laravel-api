@@ -33,7 +33,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::post('/user/sms-code', 'UserController@smsCode')->name('api.user.sms-code');
 
     Route::get('/banners', 'BannerController@index')->name('api.banners.index');
-    Route::get('/banners-H5', 'BannerController@indexH5')->name('api.banners.indexH5');
+    Route::get('/banners-h5', 'BannerController@indexH5')->name('api.banners.indexH5');
     Route::get('/course/list', 'CourseController@list')->name('api.course.list');
     Route::get('/course/recommend', 'CourseController@recommend')->name('api.course.recommend');
     Route::get('/course/open', 'CourseController@open')->name('api.course.open');
