@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\CancelOrder;
 use App\Models\Book;
 use App\Models\Course;
 use App\Models\Order;
@@ -31,7 +32,7 @@ class OrderController extends BaseController
 
     public function show($id)
     {
-        $order = Order::with('orderItem')->find($id);
+        $order = Order::with('orderItem')->orderBy('updated_at', 'DESC')->find($id);
         if ($order) {
             $order_item_data = [];
             $order->orderItem->each(function ($item) use (&$order_item_data) {
@@ -133,6 +134,7 @@ class OrderController extends BaseController
             return $this->failed('订单创建错误,请联系管理员');
         }
         \DB::commit();
+        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
         return $this->success($order->id);
     }
 
@@ -172,6 +174,7 @@ class OrderController extends BaseController
             return back()->withErrors('订单创建错误,请联系管理员');
         }
         \DB::commit();
+        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
         return $this->success($order->id);
     }
 
@@ -205,12 +208,13 @@ class OrderController extends BaseController
                 'num' => 1,
                 'type' => ShoppingCart::TYPE_BOOK
             ]);
+
         } catch (Exception $e) {
             \DB::rollback();
-
             return back()->withErrors('订单创建错误,请联系管理员');
         }
         \DB::commit();
+        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
         return $this->success($order->id);
     }
 
@@ -334,7 +338,7 @@ class OrderController extends BaseController
         info('pay_log:' . json_encode($result));
         $data = [];
 
-        $redirect_url = 'https://test.jkwedu.net/m#/order/confirm/' . $order_id . '?status=back';
+        $redirect_url = config('jkw.index_url') . '/m#/order/confirm/' . $order_id . '?status=back';
         $url = $result['mweb_url'] . '&redirect_url=' . urlencode($redirect_url);
         info('mweb_url:' . $url);
         $data['mweb_url'] = $url;
@@ -345,7 +349,7 @@ class OrderController extends BaseController
 
     public function getOpenid()
     {
-        $code = request('code','');
+        $code = request('code', '');
         $res = $this->getAccessToken($code);
 
         if (!isset($res->errcode)) {
@@ -362,10 +366,10 @@ class OrderController extends BaseController
         $url = 'https://api.weixin.qq.com/sns/oauth2/access_token';
 
         $param = [
-            'appid'        => config('wechat.official_account.default.app_id'),
-            'secret'       => config('wechat.official_account.default.secret'),
-            'code'         => $code,
-            'grant_type'   => 'authorization_code',
+            'appid' => config('wechat.official_account.default.app_id'),
+            'secret' => config('wechat.official_account.default.secret'),
+            'code' => $code,
+            'grant_type' => 'authorization_code',
         ];
 
         $request_url = $url . '?' . http_build_query($param);

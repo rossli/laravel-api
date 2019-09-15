@@ -25,7 +25,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::post('/auth/reset', 'AuthController@reset')->name('api.auth.reset');
     Route::post('/auth/sms-login', 'AuthController@smsLogin')->name('api.auth.sms-login');
 
-    Route::get('/openid', 'OrderController@getOpenid')->name('api.order.openid');
+    Route::get('/order/openid', 'OrderController@getOpenid')->name('api.order.openid');
 
     Route::get('/user/exists', 'UserController@exists')->name('api.user.check-mobile');
     //验证码
@@ -33,6 +33,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::post('/user/sms-code', 'UserController@smsCode')->name('api.user.sms-code');
 
     Route::get('/banners', 'BannerController@index')->name('api.banners.index');
+    Route::get('/banners-h5', 'BannerController@indexH5')->name('api.banners.indexH5');
     Route::get('/course/list', 'CourseController@list')->name('api.course.list');
     Route::get('/course/recommend', 'CourseController@recommend')->name('api.course.recommend');
     Route::get('/course/open', 'CourseController@open')->name('api.course.open');

@@ -22,7 +22,26 @@ class BannerController extends BaseController
         $banners->each(function ($item) use (&$data) {
             $data[] = [
                 'image' => config('jkw.cdn_domain') . '/' . $item->image,
-                'url'=>$item->url,
+                'url' => $item->url,
+            ];
+        });
+
+        return $this->success($data);
+    }
+
+    public function indexH5()
+    {
+        $banners = Banner::where([
+            ['pos', '=', 0],
+            ['enabled', '=', 1],
+            ['attr', '=', Banner::ATTR_H5],
+        ])->get();
+
+        $data = [];
+        $banners->each(function ($item) use (&$data) {
+            $data[] = [
+                'image' => config('jkw.cdn_domain') . '/' . $item->image,
+                'url' => $item->url,
             ];
         });
 
