@@ -171,7 +171,7 @@ class CourseController extends BaseController
 
     public function guide()
     {
-        $category = Category::with('course')->where('parent_id', Category::PARENT_1)->get();
+        $category = Category::with('course')->where('parent_id', 1)->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
             $course = $item->course;
