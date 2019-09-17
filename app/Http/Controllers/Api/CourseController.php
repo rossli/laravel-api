@@ -30,7 +30,7 @@ class CourseController extends BaseController
                 'image' => config('jkw.cdn_domain') . '/' . $item->cover,
                 'title' => $item->title,
                 'id' => $item->id,
-                'is_free' => $item->is_free,
+                'is_free' => $item->price == 0 || $item->is_free == 1,
                 'price' => $item->price,
                 'is_finished' => $item->is_finished,
             ];
@@ -56,7 +56,7 @@ class CourseController extends BaseController
                 'image' => config('jkw.cdn_domain') . '/' . $item->cover,
                 'title' => $item->title,
                 'id' => $item->id,
-                'is_free' => $item->is_free,
+                'is_free' => $item->price == 0 || $item->is_free == 1,
                 'price' => $item->price,
                 'is_finished' => $item->is_finished,
             ];
@@ -94,11 +94,12 @@ class CourseController extends BaseController
             ];
         });
         $data = [
+
             'image' => config('jkw.cdn_domain') . '/' . $course->cover,
             'title' => $course->title,
             'subtitle' => $course->subtitle,
             'id' => $course->id,
-            'is_free' => $course->is_free,
+            'is_free' => $course->price == 0 || $course->is_free == 1,
             'price' => $course->price,
             'is_finished' => $course->is_finished,
             'student_num' => $course->student_num,
@@ -127,7 +128,7 @@ class CourseController extends BaseController
                     'title' => $it->title,
                     'subtitle' => $it->subtitle,
                     'id' => $it->id,
-                    'is_free' => $it->is_free,
+                    'is_free' => $it->price == 0 || $it->is_free == 1,
                     'price' => $it->price,
                     'is_finished' => $it->is_finished,
                     'origin_price' => $it->origin_price,
@@ -144,16 +145,22 @@ class CourseController extends BaseController
         $user_id = request()->user()->id;
         $course = Course::where('is_free', 1)->find($id);
         if ($course && $user_id) {
-            CourseMember::create([
-                'user_id' => $user_id,
-                'course_id' => $id
-            ]);
-            $course->student_num++;
-            $course->save();
+            $course_member = CourseMember::where('user_id', $user_id)->where('course_id', $id)->first();
+            if (!$course_member) {
+                CourseMember::create([
+                    'user_id' => $user_id,
+                    'course_id' => $id,
+                ]);
+                $course->student_num++;
+                $course->save();
 
-            return $this->success('加入成功!');
+                return $this->success('加入成功!');
+            }
+
+            return $this->failed('您已加过此课程');
         }
-        return $this->failed('信息错误', 200, -1);
+
+        return $this->failed('信息错误', -1, 'FAIL');
 
     }
 }

@@ -45,6 +45,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
     Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
     Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
+    Route::get('sensitive','SensitiveController@index')->name('api.sensitive.index');
 
     Route::middleware('auth:api')->group(function () {
         Route::get('/users', 'UserController@index')->name('api.users.index');
@@ -83,6 +84,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/count', 'ShoppingCartController@count')->name('api.cart.count');
             Route::post('/delete', 'ShoppingCartController@delete')->name('api.cart.delete');
         });
+
+
 
     });
 
