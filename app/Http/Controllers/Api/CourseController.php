@@ -15,10 +15,15 @@ class CourseController extends BaseController
 {
 
     //公开课程
-    public function open()
+    public function open(Request $request)
     {
+        $all = $request->all;
         $category = Category::with('course')->find(9);
-        $course = $category->course->take(6);
+        if ($all) {
+            $course = $category->course;
+        } else {
+            $course = $category->course->take(6);
+        }
         $data = [];
         $course->each(function ($item) use (&$data) {
             $data[] = [
@@ -35,12 +40,16 @@ class CourseController extends BaseController
     }
 
     //推荐课程
-    public function recommend()
+    public function recommend(Request $request)
     {
+        $all = $request->all;
         $courses = Course::where([
             ['enabled', '=', '1'],
             ['is_recommend', '=', '1'],
-        ])->limit(6)->get();
+        ])->get();
+        if (!$all) {
+            $courses = $courses->take(6);
+        }
         $data = [];
         $courses->each(function ($item) use (&$data) {
             $data[] = [
@@ -87,14 +96,14 @@ class CourseController extends BaseController
         $data = [
             'image' => config('jkw.cdn_domain') . '/' . $course->cover,
             'title' => $course->title,
-            'subtitle'        => $course->subtitle,
+            'subtitle' => $course->subtitle,
             'id' => $course->id,
             'is_free' => $course->is_free,
             'price' => $course->price,
             'is_finished' => $course->is_finished,
             'student_num' => $course->student_num,
-            'student_add'=>$course->student_add,
-            'student_sum'=>$course->student_add+$course->student_num,
+            'student_add' => $course->student_add,
+            'student_sum' => $course->student_add + $course->student_num,
             'origin_price' => $course->origin_price,
             'summary' => $course->summary,
             'short_intro' => $course->short_intro,
@@ -133,7 +142,7 @@ class CourseController extends BaseController
     public function join($id)
     {
         $user_id = request()->user()->id;
-        $course = Course::where('is_free',1)->find($id);
+        $course = Course::where('is_free', 1)->find($id);
         if ($course && $user_id) {
             CourseMember::create([
                 'user_id' => $user_id,
