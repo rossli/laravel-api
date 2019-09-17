@@ -33,7 +33,8 @@ class CourseController extends BaseController
                 'is_free' => $item->price == 0 || $item->is_free == 1,
                 'price' => $item->price,
                 'is_finished' => $item->is_finished,
-                'subtitle' => $item->subtitle
+                'subtitle' => $item->subtitle,
+                'student_sum' => $item->student_add + $item->student_num,
             ];
         });
 
@@ -60,7 +61,8 @@ class CourseController extends BaseController
                 'is_free' => $item->price == 0 || $item->is_free == 1,
                 'price' => $item->price,
                 'is_finished' => $item->is_finished,
-                'subtitle' => $item->subtitle
+                'subtitle' => $item->subtitle,
+                'student_sum' => $item->student_add + $item->student_num,
             ];
         });
 
@@ -181,7 +183,8 @@ class CourseController extends BaseController
                     'is_free' => $item->price == 0 || $item->is_free == 1,
                     'price' => $item->price,
                     'is_finished' => $item->is_finished,
-                    'subtitle' => $item->subtitle
+                    'subtitle' => $item->subtitle,
+                    'student_sum' => $item->student_add + $item->student_num,
                 ];
             });
         });
