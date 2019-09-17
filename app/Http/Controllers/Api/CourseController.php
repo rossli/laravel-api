@@ -33,6 +33,7 @@ class CourseController extends BaseController
                 'is_free' => $item->price == 0 || $item->is_free == 1,
                 'price' => $item->price,
                 'is_finished' => $item->is_finished,
+                'subtitle' => $item->subtitle
             ];
         });
 
@@ -59,6 +60,7 @@ class CourseController extends BaseController
                 'is_free' => $item->price == 0 || $item->is_free == 1,
                 'price' => $item->price,
                 'is_finished' => $item->is_finished,
+                'subtitle' => $item->subtitle
             ];
         });
 
@@ -162,5 +164,28 @@ class CourseController extends BaseController
 
         return $this->failed('信息错误', -1, 'FAIL');
 
+    }
+
+
+    public function guide()
+    {
+        $category = Category::with('course')->where('parent_id', Category::PARENT_1)->get();
+        $data = [];
+        $category->each(function ($item) use (&$data) {
+            $course = $item->course;
+            $course->each(function ($item) use (&$data) {
+                $data[] = [
+                    'image' => config('jkw.cdn_domain') . '/' . $item->cover,
+                    'title' => $item->title,
+                    'id' => $item->id,
+                    'is_free' => $item->price == 0 || $item->is_free == 1,
+                    'price' => $item->price,
+                    'is_finished' => $item->is_finished,
+                    'subtitle' => $item->subtitle
+                ];
+            });
+        });
+
+        return $this->success($data);
     }
 }
