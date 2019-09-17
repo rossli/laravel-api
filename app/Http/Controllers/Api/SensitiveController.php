@@ -20,7 +20,7 @@ class SensitiveController extends BaseController
             $fc = new VicWord('igb');
             $arr = $fc->getWord($q);
             foreach ($arr as $val) {
-                $res = Sensitive::where('keyword','LIKE', '%'.$q.'%')->first();
+                $res = Sensitive::where('keyword','=', $q)->first();
                 if ($res) {
                     return $this->success([
                         'sensitive' => TRUE,
