@@ -84,6 +84,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::post('/delete', 'ShoppingCartController@delete')->name('api.cart.delete');
         });
 
+        Route::get('sensitive','SensitiveController@index')->name('api.sensitive.index');
+
     });
 
 });

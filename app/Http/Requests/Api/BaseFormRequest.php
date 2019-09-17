@@ -37,6 +37,7 @@ class BaseFormRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'status'  => 'error',
             'message' => $validator->getMessageBag()->first(),
+            'code'=>-1
         ]));
     }
 
