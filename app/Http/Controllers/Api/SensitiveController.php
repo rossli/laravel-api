@@ -16,17 +16,11 @@ class SensitiveController extends BaseController
         $q = mb_substr(request('q'),0,14);
 
         if ($q) {
-            define('_VIC_WORD_DICT_PATH_',storage_path('dict.igb'));
-            $fc = new VicWord('igb');
-            $arr = $fc->getWord($q);
-            foreach ($arr as $val) {
-                $res = Sensitive::where('keyword','=', $q)->first();
-                if ($res) {
-                    return $this->success([
-                        'sensitive' => TRUE,
-                    ]);
-                    break;
-                }
+            $res = Sensitive::where('keyword','=', $q)->first();
+            if ($res) {
+                return $this->success([
+                    'sensitive' => TRUE,
+                ]);
             }
             return $this->success([
                 'sensitive' => FALSE,
