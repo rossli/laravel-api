@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\CourseMember;
 use App\Models\CourseTask;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -16,11 +17,21 @@ class CourseTaskController extends BaseController
 
         $course_task = CourseTask::with('course', 'course.material', 'course.task')->find($request->id);
 
+
         if (!$course_task) {
             return $this->failed('课程错误,请联系管理员!');
         }
 
         $course = $course_task->course;
+        if (!$course->is_free) {
+            $course_member = CourseMember::where('course_id', $course->id)->where('user_id', request()->user()->id)->get();
+
+            if (!$course_member) {
+                return $this->failed('您还不能购买课程,不能观看哦!');
+            }
+
+        }
+
         $task = [];
         $material = [];
         $course->task->each(function ($item) use (&$task) {
@@ -58,7 +69,18 @@ class CourseTaskController extends BaseController
     {
         $user = request()->user();
 
-        $task = CourseTask::find($request->id);
+        $task = CourseTask::with('course')->find($request->id);
+
+        $course = $task->course;
+        if (!$course->is_free) {
+            $course_member = CourseMember::where('course_id', $course->id)->where('user_id', request()->user()->id)->get();
+
+            if (!$course_member) {
+                return $this->failed('您还不能购买课程,不能观看哦!');
+            }
+
+        }
+
         if (!$task) {
             return $this->failed('没有该课程!');
         }
