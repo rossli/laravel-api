@@ -43,9 +43,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/book', 'BookController@index')->name('api.book.index');
     Route::get('/book/list', 'BookController@list')->name('api.book.list');
     Route::get('/book/{id}', 'BookController@show')->name('api.book.show');
-    Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
-    Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
-    Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
+
     Route::get('sensitive','SensitiveController@index')->name('api.sensitive.index');
 
     Route::middleware('auth:api')->group(function () {
@@ -56,6 +54,9 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::get('/users/address','UserController@address')->name('api.user.address');
         Route::post('/users/update/address','UserController@updateAddress')->name('api.user.update.address');
         Route::post('/course/join/{id}', 'CourseController@join')->name('api.course.join');
+        Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
+        Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
+        Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
 
         Route::prefix('me')->group(function () {
             Route::get('/course', 'MeController@course')->name('api.me.course');
