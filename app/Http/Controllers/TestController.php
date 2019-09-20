@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GroupGoods;
 use Illuminate\Http\Request;
 
 class TestController extends Controller
@@ -13,7 +14,9 @@ class TestController extends Controller
      */
     public function index()
     {
-        
+
+        $groupGoods = GroupGoods::with('goodsable')->first();
+        dd($groupGoods->goodsable);
         dd(234);
     }
 

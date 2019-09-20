@@ -111,7 +111,7 @@ class CourseController extends BaseController
             'origin_price' => $course->origin_price,
             'summary' => $course->summary,
             'short_intro' => $course->short_intro,
-            'is_group'=>$course->is_group,
+            'is_group' => $course->is_group,
             'task' => $task,
             'material' => $material,
         ];
@@ -147,27 +147,31 @@ class CourseController extends BaseController
     public function join($id)
     {
         $user_id = request()->user()->id;
-        $course = Course::where('is_free', 1)->find($id);
-        if ($course && $user_id) {
-            $course_member = CourseMember::where('user_id', $user_id)->where('course_id', $id)->first();
-            if (!$course_member) {
-                CourseMember::create([
-                    'user_id' => $user_id,
-                    'course_id' => $id,
-                ]);
-                $course->student_num++;
-                $course->save();
-
-                return $this->success('加入成功!');
-            }
-
-            return $this->failed('您已加过此课程');
+        $course = Course::find($id);
+        if (!$course) {
+            return $this->failed('参数错误');
+        }
+        //判断是否是免费课程
+        if (!$course->canJoin()) {
+            return $this->failed('此课程非免费课程,请购买课程');
         }
 
-        return $this->failed('信息错误', -1, 'FAIL');
+        //判断是否是课程学员
+        $course_member = CourseMember::where('user_id', $user_id)->where('course_id', $id)->first();
+        if (!$course_member) {
+            CourseMember::create([
+                'user_id' => $user_id,
+                'course_id' => $id,
+            ]);
+            $course->student_num++;
+            $course->save();
+
+            return $this->success('加入成功!');
+        }
+
+        return $this->failed('您已是此课程学员');
 
     }
-
 
     public function guide()
     {
