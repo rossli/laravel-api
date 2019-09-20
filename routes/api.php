@@ -46,6 +46,9 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
 
     Route::get('/group-good/list','GroupGoodsController@list')->name('api.group-goods.list');
     Route::get('/group-goods','GroupGoodsController@show')->name('api.group-goods.show');
+    Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
+    Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
+    Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
 
     Route::get('sensitive','SensitiveController@index')->name('api.sensitive.index');
 
