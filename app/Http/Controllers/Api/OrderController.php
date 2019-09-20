@@ -40,23 +40,23 @@ class OrderController extends BaseController
             $order_item_data = [];
             $order->orderItem->each(function ($item) use (&$order_item_data) {
                 $order_item_data[] = [
-                    'num'                 => $item->num,
-                    'course_title'        => $item->course_title,
-                    'course_price'        => number_format($item->course_price, 2),
+                    'num' => $item->num,
+                    'course_title' => $item->course_title,
+                    'course_price' => number_format($item->course_price, 2),
                     'course_origin_price' => number_format($item->course_origin_price, 2),
-                    'course_id'           => $item->course_id,
-                    'course_cover'        => config('jkw.cdn_domain') . '/' . $item->course_cover,
+                    'course_id' => $item->course_id,
+                    'course_cover' => config('jkw.cdn_domain') . '/' . $item->course_cover,
                 ];
             });
             $data = [
-                'order_id'         => $order->id,
-                'order_sn'         => $order->order_sn,
-                'total_fee'        => number_format($order->total_fee, 2),
+                'order_id' => $order->id,
+                'order_sn' => $order->order_sn,
+                'total_fee' => number_format($order->total_fee, 2),
                 'coupon_deduction' => number_format($order->coupon_deduction, 2),
-                'created_at'       => $order->created_at,
-                'updated_at'       => $order->updated_at,
-                'order_item'       => $order_item_data,
-                'type'             => $order->type,
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at,
+                'order_item' => $order_item_data,
+                'type' => $order->type,
             ];
 
             return $this->success($data);
@@ -94,39 +94,39 @@ class OrderController extends BaseController
         \DB::beginTransaction();
         try {
             $order = Order::create([
-                'order_sn'     => $order_sn,
-                'total_fee'    => $sum * 100,
+                'order_sn' => $order_sn,
+                'total_fee' => $sum * 100,
                 'wait_pay_fee' => $sum * 100,
-                'user_id'      => Request()->user()->id,
+                'user_id' => Request()->user()->id,
             ]);
             $carts->each(function ($item) use ($order, $order_sn) {
                 if ($item->type == ShoppingCart::TYPE_BOOK) {
                     $book = Book::find($item->goods_id);
                     OrderItem::create([
-                        'order_id'            => $order->id,
-                        'order_sn'            => $order_sn,
-                        'user_id'             => Request()->user()->id,
-                        'course_id'           => $book->id,
-                        'course_price'        => $book->price * 100,
+                        'order_id' => $order->id,
+                        'order_sn' => $order_sn,
+                        'user_id' => Request()->user()->id,
+                        'course_id' => $book->id,
+                        'course_price' => $book->price * 100,
                         'course_origin_price' => $book->origin_price * 100,
-                        'course_title'        => $book->title,
-                        'course_cover'        => $book->cover,
-                        'num'                 => $item->number,
-                        'type'                => $item->type,
+                        'course_title' => $book->title,
+                        'course_cover' => $book->cover,
+                        'num' => $item->number,
+                        'type' => $item->type,
                     ]);
                 } else {
                     $course = Course::find($item->goods_id);
                     OrderItem::create([
-                        'order_id'            => $order->id,
-                        'order_sn'            => $order_sn,
-                        'user_id'             => Request()->user()->id,
-                        'course_id'           => $course->id,
-                        'course_price'        => $course->price * 100,
+                        'order_id' => $order->id,
+                        'order_sn' => $order_sn,
+                        'user_id' => Request()->user()->id,
+                        'course_id' => $course->id,
+                        'course_price' => $course->price * 100,
                         'course_origin_price' => $course->origin_price * 100,
-                        'course_title'        => $course->title,
-                        'course_cover'        => $course->cover,
-                        'num'                 => $item->number,
-                        'type'                => $item->type,
+                        'course_title' => $course->title,
+                        'course_cover' => $course->cover,
+                        'num' => $item->number,
+                        'type' => $item->type,
                     ]);
                 }
 
@@ -156,23 +156,23 @@ class OrderController extends BaseController
         \DB::beginTransaction();
         try {
             $order = Order::create([
-                'order_sn'     => $order_sn,
-                'total_fee'    => $course->price * 100,
+                'order_sn' => $order_sn,
+                'total_fee' => $course->price * 100,
                 'wait_pay_fee' => $course->price * 100,
-                'user_id'      => $request->user()->id,
-                'type'         => Order::TYPE_NORMAL,
+                'user_id' => $request->user()->id,
+                'type' => Order::TYPE_NORMAL,
             ]);
             OrderItem::create([
-                'order_id'            => $order->id,
-                'order_sn'            => $order_sn,
-                'user_id'             => $request->user()->id,
-                'course_id'           => $course->id,
-                'course_price'        => $course->price * 100,
+                'order_id' => $order->id,
+                'order_sn' => $order_sn,
+                'user_id' => $request->user()->id,
+                'course_id' => $course->id,
+                'course_price' => $course->price * 100,
                 'course_origin_price' => $course->origin_price,
-                'course_title'        => $course->title,
-                'course_cover'        => $course->cover,
-                'num'                 => 1,
-                'type'                => ShoppingCart::TYPE_COURSE,
+                'course_title' => $course->title,
+                'course_cover' => $course->cover,
+                'num' => 1,
+                'type' => ShoppingCart::TYPE_COURSE,
             ]);
         } catch (Exception $e) {
             \DB::rollback();
@@ -199,23 +199,23 @@ class OrderController extends BaseController
         \DB::beginTransaction();
         try {
             $order = Order::create([
-                'order_sn'     => $order_sn,
-                'total_fee'    => $book->price * 100,
+                'order_sn' => $order_sn,
+                'total_fee' => $book->price * 100,
                 'wait_pay_fee' => $book->price * 100,
-                'user_id'      => $request->user()->id,
-                'type'         => Order::TYPE_BOOK,
+                'user_id' => $request->user()->id,
+                'type' => Order::TYPE_BOOK,
             ]);
             OrderItem::create([
-                'order_id'            => $order->id,
-                'order_sn'            => $order_sn,
-                'user_id'             => $request->user()->id,
-                'course_id'           => $book->id,
-                'course_price'        => $book->price * 100,
+                'order_id' => $order->id,
+                'order_sn' => $order_sn,
+                'user_id' => $request->user()->id,
+                'course_id' => $book->id,
+                'course_price' => $book->price * 100,
                 'course_origin_price' => $book->origin_price,
-                'course_title'        => $book->title,
-                'course_cover'        => $book->cover,
-                'num'                 => 1,
-                'type'                => ShoppingCart::TYPE_BOOK,
+                'course_title' => $book->title,
+                'course_cover' => $book->cover,
+                'num' => 1,
+                'type' => ShoppingCart::TYPE_BOOK,
             ]);
 
         } catch (Exception $e) {
@@ -237,32 +237,31 @@ class OrderController extends BaseController
         $order_item = [];
         $order->orderItem->each(function ($item) use (&$order_item) {
             $order_item[] = [
-                'cover'        => config('jkw.cdn_domain') . '/' . $item->course_cover,
+                'cover' => config('jkw.cdn_domain') . '/' . $item->course_cover,
                 'course_price' => $item->course_price,
-                'number'       => $item->num,
-                'course_id'    => $item->course_id,
+                'number' => $item->num,
+                'course_id' => $item->course_id,
                 'course_title' => $item->course_title,
             ];
         });
         $data = [
-            'total_fee'        => $order->total_fee,
-            'wait_pay_fee'     => $order->wait_pay_fee,
-            'type'             => $order->type,
+            'total_fee' => $order->total_fee,
+            'wait_pay_fee' => $order->wait_pay_fee,
+            'type' => $order->type,
             'coupon_deduction' => $order->coupon_deduction,
-            'item'             => $order_item,
+            'item' => $order_item,
         ];
 
         return $this->success($data);
     }
 
-    private function getPaymentApp()
-    : \EasyWeChat\Payment\Application
+    private function getPaymentApp(): \EasyWeChat\Payment\Application
     {
         $config = [
             // 必要配置
-            'app_id'     => config('wechat.payment.default.app_id'),
-            'mch_id'     => config('wechat.payment.default.mch_id'),
-            'key'        => config('wechat.payment.default.key'),   // API 密钥
+            'app_id' => config('wechat.payment.default.app_id'),
+            'mch_id' => config('wechat.payment.default.mch_id'),
+            'key' => config('wechat.payment.default.key'),   // API 密钥
             'notify_url' => config('wechat.payment.default.notify_url'),   // API
 
         ];
@@ -274,8 +273,7 @@ class OrderController extends BaseController
 
     private function getOrder($order_id)
     {
-        $order = Order::with('orderItem')->where('status', Order::STATUS_WAIT_PAY)->findOrFail($order_id);
-
+        $order = Order::with('orderItem')->where('status', Order::STATUS_WAIT_PAY)->find($order_id);
         return $order;
     }
 
@@ -294,31 +292,31 @@ class OrderController extends BaseController
 
                 $total_fee = env('APP_DEBUG') ? 1 : $order->wait_pay_fee * 100;
                 $result = $app->order->unify([
-                    'trade_type'       => $trade_type,
-                    'body'             => '师大教科文-订单支付',
-                    'out_trade_no'     => $order->order_sn,
-                    'total_fee'        => $total_fee,
+                    'trade_type' => $trade_type,
+                    'body' => '师大教科文-订单支付',
+                    'out_trade_no' => $order->order_sn,
+                    'total_fee' => $total_fee,
                     'spbill_create_ip' => request()->ip(), // 可选，如不传该参数，SDK 将会自动获取相应 IP 地址
-                    'openid'           => $openid,
+                    'openid' => $openid,
                 ]);
 
                 if ($result['result_code'] == '') {
                     PayLog::create([
                         'order_id' => $order->id,
                         'order_sn' => $order->order_sn,
-                        'appid'    => config('wechat.payment.default.app_id'),
-                        'mch_id'   => config('wechat.payment.default.mch_id'),
+                        'appid' => config('wechat.payment.default.app_id'),
+                        'mch_id' => config('wechat.payment.default.mch_id'),
 
-                        'cash_fee'  => $total_fee,
+                        'cash_fee' => $total_fee,
                         'nonce_str' => $result['nonce_str'],
 
                         'out_trade_no' => $order->order_sn,
-                        'result_code'  => $result['result_code'],
-                        'return_code'  => $result['return_code'],
-                        'sign'         => $result['sign'],
-                        'total_fee'    => $order->total_fee * 100,
-                        'trade_type'   => $result['trade_type'],
-                        'openid'       => $openid ?: '',
+                        'result_code' => $result['result_code'],
+                        'return_code' => $result['return_code'],
+                        'sign' => $result['sign'],
+                        'total_fee' => $order->total_fee * 100,
+                        'trade_type' => $result['trade_type'],
+                        'openid' => $openid ?: '',
                     ]);
 
                 }
@@ -334,6 +332,9 @@ class OrderController extends BaseController
         $app = $this->getPaymentApp();
         $order_id = request('id');
         $order = $this->getOrder($order_id);
+        if (!$order) {
+            return $this->failed('订单错误,请联系管理员', -1);
+        }
         $result = $this->unifiy($order, 'JSAPI', $openid);
         if ($result['result_code'] !== '') {
             return back()->withErrors('订单错误,请联系管理员');
@@ -350,18 +351,21 @@ class OrderController extends BaseController
     {
         $order_id = request('id');
         $order = $this->getOrder($order_id);
+        if (!$order) {
+            return $this->failed('订单错误,请联系管理员', -1);
+        }
         $result = $this->unifiy($order, 'MWEB');
         if ($result['result_code'] !== 'SUCCESS') {
             return $this->failed('订单错误,请联系管理员', -1);
         }
         info('pay_log:' . json_encode($result));
         $data = [];
+        dd($data);
 
         $redirect_url = config('jkw.index_url') . '/m#/order/confirm/' . $order_id . '?status=back';
         $url = $result['mweb_url'] . '&redirect_url=' . urlencode($redirect_url);
         info('mweb_url:' . $url);
         $data['mweb_url'] = $url;
-
         return $this->success($data);
     }
 
@@ -384,9 +388,9 @@ class OrderController extends BaseController
         $url = 'https://api.weixin.qq.com/sns/oauth2/access_token';
 
         $param = [
-            'appid'      => config('wechat.official_account.default.app_id'),
-            'secret'     => config('wechat.official_account.default.secret'),
-            'code'       => $code,
+            'appid' => config('wechat.official_account.default.app_id'),
+            'secret' => config('wechat.official_account.default.secret'),
+            'code' => $code,
             'grant_type' => 'authorization_code',
         ];
 

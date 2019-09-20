@@ -21,7 +21,6 @@ class GroupGoodsController extends BaseController
         if ($group_goods) {
             $group_goods->each(function ($item) use (&$data) {
                 $model = [
-
                     'goodsable_id' => $item->goodsable_id,
                     'preferential_price' => $item->preferential_price,
                     'student_sum' => $item->student_add + $item->student_num,
@@ -29,16 +28,18 @@ class GroupGoodsController extends BaseController
                 if ($item->goodsable_type == GroupGoods::GOODS_TYPE_1) {
                     $books = $item->book;
                     $goods = [
-                        'goodsable_type' => 'course',
+                        'goodsable_type' => 'book',
                         'image' => config('jkw.cdn_domain') . '/' . $books->cover,
                         'title' => $books->title,
+                        'subtitle' => $books->subtitle,
                     ];
                 } else {
                     $course = $item->course;
                     $goods = [
-                        'goodsable_type' => 'book',
+                        'goodsable_type' => 'course',
                         'image' => config('jkw.cdn_domain') . '/' . $course->cover,
                         'title' => $course->title,
+                        'subtitle' => $course->subtitle,
                     ];
                 }
                 $data[] = array_merge($model, $goods);
