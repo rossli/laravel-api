@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Console\Commands\ModelMakeCommand;
 use App\Utils\Utils;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Resources\Json\Resource;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
@@ -67,6 +68,8 @@ class AppServiceProvider extends ServiceProvider
         Passport::useAuthCodeModel(AuthCode::class);
         Passport::usePersonalAccessClientModel(PersonalAccessClient::class);
 
-
+        Relation::morphMap([
+            'App\Course' => 'App\Models\Course',
+        ]);
     }
 }
