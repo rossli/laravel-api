@@ -18,7 +18,7 @@ class GroupGoodsController extends BaseController
             ->where('end_time', '>', now())
             ->where('enabled', 1)->get();
         $data = [];
-        if($group_goods){
+        if ($group_goods) {
             $group_goods->each(function ($item) use (&$data) {
                 $model = [
 
@@ -35,13 +35,13 @@ class GroupGoodsController extends BaseController
                     ];
                 } else {
                     $course = $item->course;
-                    $goods= [
+                    $goods = [
                         'goodsable_type' => 'book',
                         'image' => config('jkw.cdn_domain') . '/' . $course->cover,
                         'title' => $course->title,
                     ];
                 }
-                $data[]=array_merge($model,$goods);
+                $data[] = array_merge($model, $goods);
             });
         }
 
@@ -61,7 +61,7 @@ class GroupGoodsController extends BaseController
             'number' => $group_goods->number,
             'preferential_price' => $group_goods->preferential_price,
             'student_sum' => $group_goods->student_add + $group_goods->student_num,
-            'end_time' => $group_goods->end_time,
+            'end_time' => strtotime($group_goods->end_time) - time(),
         ];
         return $this->success($data);
     }

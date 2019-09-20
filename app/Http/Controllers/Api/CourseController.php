@@ -98,7 +98,6 @@ class CourseController extends BaseController
             ];
         });
         $data = [
-
             'image' => config('jkw.cdn_domain') . '/' . $course->cover,
             'title' => $course->title,
             'subtitle' => $course->subtitle,
@@ -112,6 +111,7 @@ class CourseController extends BaseController
             'origin_price' => $course->origin_price,
             'summary' => $course->summary,
             'short_intro' => $course->short_intro,
+            'is_group'=>$course->is_group,
             'task' => $task,
             'material' => $material,
         ];
