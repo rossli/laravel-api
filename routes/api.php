@@ -40,9 +40,12 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/open', 'CourseController@open')->name('api.course.open');
     Route::get('/course/{id}', 'CourseController@show')->name('api.course.show');
 
-    Route::get('/book', 'BookController@index')->name('api.book.index');
+    Route::get('/books', 'BookController@index')->name('api.book.index');
     Route::get('/book/list', 'BookController@list')->name('api.book.list');
-    Route::get('/book/{id}', 'BookController@show')->name('api.book.show');
+    Route::get('/books/{id}', 'BookController@show')->name('api.book.show');
+
+    Route::get('/group-good/list','GroupGoodsController@list')->name('api.group-goods.list');
+    Route::get('/group-goods','GroupGoodsController@show')->name('api.group-goods.show');
 
     Route::get('sensitive','SensitiveController@index')->name('api.sensitive.index');
 

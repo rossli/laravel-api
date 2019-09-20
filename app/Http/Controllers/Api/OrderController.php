@@ -83,7 +83,7 @@ class OrderController extends BaseController
             }
         });
         if ($str) {
-            return $this->success($str, -1);
+            return $this->failed($str, -1);
         }
         $sum = $book_price + $course_price;
         $order_sn = date('YmdHis') . (time() + Request()->user()->id);
@@ -143,7 +143,7 @@ class OrderController extends BaseController
         $course_id = $request->id;
         $course = Course::find($course_id);
         if (!$request->user()->canBuy($course_id)) {
-            return $this->success('您已购买过此课程!', -1);
+            return $this->failed('您已购买过此课程!', -1);
         }
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
         $order_sn = date('YmdHis') . (time() + $request->user()->id);
@@ -171,7 +171,7 @@ class OrderController extends BaseController
         } catch (Exception $e) {
             \DB::rollback();
 
-            return back()->withErrors('订单创建错误,请联系管理员');
+            return $this->failed('订单创建错误,请联系管理员',-1);
         }
         \DB::commit();
         dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
@@ -183,7 +183,7 @@ class OrderController extends BaseController
         $book_id = $request->id;
         $book = Book::find($book_id);
         if (!$book->num) {
-            return $this->success('库存不足,请联系管理员!', -1);
+            return $this->failed('库存不足,请联系管理员!', -1);
         }
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
         $order_sn = date('YmdHis') . (time() + $request->user()->id);
@@ -211,7 +211,7 @@ class OrderController extends BaseController
 
         } catch (Exception $e) {
             \DB::rollback();
-            return back()->withErrors('订单创建错误,请联系管理员');
+            return $this->failed('订单创建错误,请联系管理员',-1);
         }
         \DB::commit();
         dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
@@ -284,7 +284,7 @@ class OrderController extends BaseController
                 'openid' => $openid,
             ]);
 
-            if ($result['result_code'] == 'SUCCESS') {
+            if ($result['result_code'] == '') {
                 PayLog::create([
                     'order_id' => $order->id,
                     'order_sn' => $order->order_sn,
@@ -316,7 +316,7 @@ class OrderController extends BaseController
         $order_id = request('id');
         $order = $this->getOrder($order_id);
         $result = $this->unifiy($order, 'JSAPI', $openid);
-        if ($result['result_code'] !== 'SUCCESS') {
+        if ($result['result_code'] !== '') {
             return back()->withErrors('订单错误,请联系管理员');
         }
         $jssdk = $app->jssdk;
@@ -333,7 +333,7 @@ class OrderController extends BaseController
         $order = $this->getOrder($order_id);
         $result = $this->unifiy($order, 'MWEB');
         if ($result['result_code'] !== 'SUCCESS') {
-            return back()->withErrors('订单错误,请联系管理员');
+            return $this->failed('订单错误,请联系管理员',-1);
         }
         info('pay_log:' . json_encode($result));
         $data = [];
@@ -358,7 +358,7 @@ class OrderController extends BaseController
             ]);
         }
 
-        return $this->failed('参数错误');
+        return $this->failed('参数错误',-1);
     }
 
     private function getAccessToken($code)
