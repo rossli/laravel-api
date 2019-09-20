@@ -28,7 +28,7 @@ class BookController extends BaseController
     {
         $book = Book::findOrFail($request->id);
 
-        $data= [
+        $data = [
             'image' => config('jkw.cdn_domain') . '/' . $book->cover,
             'title' => $book->title,
             'id' => $book->id,
@@ -38,14 +38,14 @@ class BookController extends BaseController
             'summary' => $book->summary,
             'menu' => $book->menu,
             'num' => $book->num,
-            'student_num' => $book->student_num,
+            'student_num' => $book->student_num + $book->student_add,
         ];
         return $this->success($data);
     }
 
     public function list()
     {
-        $books = Book::where('enabled', 1)->orderBy('updated_at', 'DESC')->limit(6)->get();
+        $books = Book::where('enabled', 1)->orderBy('updated_at', 'DESC')->get();
         $data = [];
         $books->each(function ($item) use (&$data) {
             $data[] = [
@@ -54,7 +54,8 @@ class BookController extends BaseController
                 'subtitle' => $item->subtitle,
                 'id' => $item->id,
                 'price' => $item->price,
-                'origin_price'=>$item->origin_price,
+                'origin_price' => $item->origin_price,
+                'student_sum' => $item->student_num + $item->student_add,
             ];
         });
         return $this->success($data);

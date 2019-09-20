@@ -36,6 +36,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/banners-h5', 'BannerController@indexH5')->name('api.banners.indexH5');
     Route::get('/course/list', 'CourseController@list')->name('api.course.list');
     Route::get('/course/recommend', 'CourseController@recommend')->name('api.course.recommend');
+    Route::get('/course/guide', 'CourseController@guide')->name('api.course.guide');
     Route::get('/course/open', 'CourseController@open')->name('api.course.open');
     Route::get('/course/{id}', 'CourseController@show')->name('api.course.show');
 
@@ -46,6 +47,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
     Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
     Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
+
     Route::get('sensitive','SensitiveController@index')->name('api.sensitive.index');
 
     Route::middleware('auth:api')->group(function () {
@@ -56,6 +58,9 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::get('/users/address','UserController@address')->name('api.user.address');
         Route::post('/users/update/address','UserController@updateAddress')->name('api.user.update.address');
         Route::post('/course/join/{id}', 'CourseController@join')->name('api.course.join');
+        Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
+        Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
+        Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
 
         Route::prefix('me')->group(function () {
             Route::get('/course', 'MeController@course')->name('api.me.course');
