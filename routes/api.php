@@ -39,9 +39,10 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/open', 'CourseController@open')->name('api.course.open');
     Route::get('/course/{id}', 'CourseController@show')->name('api.course.show');
 
-    Route::get('/book', 'BookController@index')->name('api.book.index');
+    Route::get('/books', 'BookController@index')->name('api.book.index');
     Route::get('/book/list', 'BookController@list')->name('api.book.list');
-    Route::get('/book/{id}', 'BookController@show')->name('api.book.show');
+    Route::get('/books/{id}', 'BookController@show')->name('api.book.show');
+
     Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
     Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
     Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');

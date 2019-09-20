@@ -183,7 +183,7 @@ class OrderController extends BaseController
         $book_id = $request->id;
         $book = Book::find($book_id);
         if (!$book->num) {
-            return $this->success('库存不足,请联系管理员!', -1);
+            return $this->failed('库存不足,请联系管理员!');
         }
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
         $order_sn = date('YmdHis') . (time() + $request->user()->id);
