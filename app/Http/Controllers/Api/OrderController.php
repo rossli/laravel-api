@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Jobs\CancelOrder;
 use App\Models\Book;
 use App\Models\Course;
+use App\Models\GroupGoods;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PayLog;
@@ -144,6 +145,58 @@ class OrderController extends BaseController
         return $this->success($order->id);
     }
 
+    public function groupSubmit(Request $request)
+    {
+        $group_id = $request->id;
+        $group_goods = GroupGoods::with('goodsable')->find($group_id);
+        if (!$group_goods) {
+            return $this->failed('没有当前课程,请联系管理员');
+        }
+        $goods = $group_goods->goodsable;
+        if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
+            if (!$request->user()->canBuy($goods->id)) {
+                return $this->failed('您已购买过此课程!', -1);
+            }
+            $order_item_type = ShoppingCart::TYPE_COURSE;
+        } else {
+            if ($goods->num <= 0) {
+                return $this->failed('当前图书库存不足,请联系管理员!', -1);
+            }
+            $order_item_type = ShoppingCart::TYPE_BOOK;
+        }
+        //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
+        $order_sn = date('YmdHis') . (time() + $request->user()->id);
+        \DB::beginTransaction();
+        try {
+            $order = Order::create([
+                'order_sn' => $order_sn,
+                'total_fee' => $group_goods->preferential_price * 100,
+                'wait_pay_fee' => $group_goods->preferential_price * 100,
+                'user_id' => $request->user()->id,
+                'type' => Order::TYPE_GROUP,
+            ]);
+            OrderItem::create([
+                'order_id' => $order->id,
+                'order_sn' => $order_sn,
+                'user_id' => $request->user()->id,
+                'course_id' => $group_goods->id,
+                'course_price' => $group_goods->preferential_price * 100,
+                'course_origin_price' => $goods->price * 100,
+                'course_title' => $goods->title,
+                'course_cover' => $goods->cover,
+                'num' => 1,
+                'type' => $order_item_type,
+            ]);
+        } catch (Exception $e) {
+            return $this->failed('订单创建错误,请联系管理员', -1);
+            \DB::rollback();
+        }
+        \DB::commit();
+        return $this->success([
+            'order_id' => $order->id,
+        ]);
+    }
+
     public function courseSubmit(Request $request)
     {
         $course_id = $request->id;
@@ -168,7 +221,7 @@ class OrderController extends BaseController
                 'user_id' => $request->user()->id,
                 'course_id' => $course->id,
                 'course_price' => $course->price * 100,
-                'course_origin_price' => $course->origin_price,
+                'course_origin_price' => $course->origin_price * 100,
                 'course_title' => $course->title,
                 'course_cover' => $course->cover,
                 'num' => 1,

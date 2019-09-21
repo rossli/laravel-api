@@ -66,4 +66,25 @@ class GroupGoodsController extends BaseController
         ];
         return $this->success($data);
     }
+
+    public function confirm(Request $request)
+    {
+        $group_goods_id = $request->id;
+        $group_goods = GroupGoods::with('goodsable')->find($group_goods_id);
+        $goodsable = $group_goods->goodsable;
+        if ($group_goods) {
+            $data = [
+                'cover' => config('jkw.cdn_domain') . '/' . $goodsable->cover,
+                'title' => $goodsable->title,
+                'subtitle' => $goodsable->subtitle,
+                'goodsable_id' => $group_goods->id,
+                'goodsable_type' => $group_goods->goodsable_type,
+                'preferential_price' => $group_goods->preferential_price,
+                'student_sum' => $group_goods->student_add + $group_goods->student_num,
+            ];
+            return $this->success($data);
+        }
+        return $this->failed('不存在当前课程,请联系管理员', -1);
+
+    }
 }

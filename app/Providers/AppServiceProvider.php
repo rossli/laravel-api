@@ -70,6 +70,7 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::morphMap([
             'App\Course' => 'App\Models\Course',
+            'App\Book' => 'App\Models\Book',
         ]);
     }
 }

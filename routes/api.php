@@ -64,6 +64,9 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
         Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
 
+        Route::get('/group/students', 'GroupStudentController@index')->name('api.group-student.index');
+        Route::get('/group-good/confirm', 'GroupGoodsController@confirm')->name('api.group-goods.confirm');
+
         Route::prefix('me')->group(function () {
             Route::get('/course', 'MeController@course')->name('api.me.course');
             Route::get('/order', 'MeController@order')->name('api.me.order');
@@ -74,6 +77,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/book-submit', 'OrderController@bookSubmit')->name('api.order.book-submit');
             Route::get('/course-submit', 'OrderController@courseSubmit')->name('api.order.course-submit');
             Route::get('/cart-submit', 'OrderController@cartSubmit')->name('api.order.cart-submit');
+            Route::get('/group-submit', 'OrderController@groupSubmit')->name('api.order.group-submit');
             Route::get('/confirm', 'OrderController@confirm')->name('api.order.confirm');
             Route::get('/cancel/{id}', 'OrderController@cancel')->name('api.order.cancel');
             Route::get('/payment-wx', 'OrderController@paymentWx')->name('api.order.payment-wx');
