@@ -70,6 +70,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::prefix('me')->group(function () {
             Route::get('/course', 'MeController@course')->name('api.me.course');
             Route::get('/order', 'MeController@order')->name('api.me.order');
+            Route::get('/group', 'MeController@group')->name('api.me.group');
             Route::get('/is-student/{id}', 'MeController@isStudent')->name('api.me.isStudent');
         });
 

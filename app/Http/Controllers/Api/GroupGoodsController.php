@@ -69,8 +69,8 @@ class GroupGoodsController extends BaseController
 
     public function confirm(Request $request)
     {
-        $group_goods_id = $request->id;
-        $group_goods = GroupGoods::with('goodsable')->find($group_goods_id);
+        $goodsable_id = $request->id;
+        $group_goods = GroupGoods::with('goodsable')->where('goodsable_id', $goodsable_id)->first();
         $goodsable = $group_goods->goodsable;
         if ($group_goods) {
             $data = [

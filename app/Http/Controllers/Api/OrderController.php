@@ -147,8 +147,9 @@ class OrderController extends BaseController
 
     public function groupSubmit(Request $request)
     {
-        $group_id = $request->id;
-        $group_goods = GroupGoods::with('goodsable')->find($group_id);
+        $goodsable_id = $request->id;
+        $group_student_id = $request->group_student_id;
+        $group_goods = GroupGoods::with('goodsable')->where('goodsable_id', $goodsable_id)->first();
         if (!$group_goods) {
             return $this->failed('没有当前课程,请联系管理员');
         }
@@ -174,6 +175,7 @@ class OrderController extends BaseController
                 'wait_pay_fee' => $group_goods->preferential_price * 100,
                 'user_id' => $request->user()->id,
                 'type' => Order::TYPE_GROUP,
+                'group_student_id' => $group_student_id ?: 0,
             ]);
             OrderItem::create([
                 'order_id' => $order->id,
@@ -413,8 +415,6 @@ class OrderController extends BaseController
         }
         info('pay_log:' . json_encode($result));
         $data = [];
-        dd($data);
-
         $redirect_url = config('jkw.index_url') . '/m#/order/confirm/' . $order_id . '?status=back';
         $url = $result['mweb_url'] . '&redirect_url=' . urlencode($redirect_url);
         info('mweb_url:' . $url);
