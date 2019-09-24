@@ -6,6 +6,7 @@ use App\Jobs\CancelOrder;
 use App\Models\Book;
 use App\Models\Course;
 use App\Models\GroupGoods;
+use App\Models\GroupStudent;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PayLog;
@@ -149,15 +150,32 @@ class OrderController extends BaseController
     {
         $goodsable_id = $request->id;
         $group_student_id = $request->group_student_id;
-        $group_goods = GroupGoods::with('goodsable')->where('goodsable_id', $goodsable_id)->first();
+
+        $group_goods = GroupGoods::with('goodsable')->where('goodsable_id', $goodsable_id)->enabled()->first();
+
         if (!$group_goods) {
-            return $this->failed('没有当前课程,请联系管理员');
+            return $this->failed('当前课程没有参加团购');
         }
-        $goods = $group_goods->goodsable;
-        if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
-            if (!$request->user()->canBuy($goods->id)) {
-                return $this->failed('您已购买过此课程!', -1);
+
+        if ($group_student_id) {
+            $group_student = GroupStudent::find($group_student_id);
+            if ($group_student) {
+                if ($group_student->number + 1 >= $group_goods->number) {
+                    return $this->failed('当前团已满,请重新建团');
+                }
             }
+            return $this->failed('此团不存在,请重新建团!');
+        }
+
+
+        if (!$request->user()->canBuy($group_goods->id)) {
+            return $this->failed('您已参加过此团购,不能在参加了!', -1);
+        }
+
+
+        $goods = $group_goods->goodsable;
+
+        if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
             $order_item_type = ShoppingCart::TYPE_COURSE;
         } else {
             if ($goods->num <= 0) {
@@ -165,6 +183,7 @@ class OrderController extends BaseController
             }
             $order_item_type = ShoppingCart::TYPE_BOOK;
         }
+
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
         $order_sn = date('YmdHis') . (time() + $request->user()->id);
         \DB::beginTransaction();

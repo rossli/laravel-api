@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\CourseMaterial;
 use App\Models\CourseMember;
 use App\Models\CourseTask;
+use App\Models\GroupGoods;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -97,6 +98,18 @@ class CourseController extends BaseController
                 'description' => $item->description,
             ];
         });
+
+        if ($course->is_group) {
+            $group_goods = GroupGoods::where('goodsable_type', GroupGoods::GOODS_TYPE_0)
+                ->enabled()
+                ->where('goodsable_id', $id)->first();
+            if ($group_goods) {
+                $course->is_group = true;
+            } else {
+                $course->is_group = false;
+            }
+        }
+
         $data = [
             'image' => config('jkw.cdn_domain') . '/' . $course->cover,
             'title' => $course->title,
@@ -176,6 +189,29 @@ class CourseController extends BaseController
     public function guide()
     {
         $category = Category::with('course')->where('parent_id', 1)->get();
+        $data = [];
+        $category->each(function ($item) use (&$data) {
+            $course = $item->course;
+            $course->each(function ($item) use (&$data) {
+                $data[] = [
+                    'image' => config('jkw.cdn_domain') . '/' . $item->cover,
+                    'title' => $item->title,
+                    'id' => $item->id,
+                    'is_free' => $item->price == 0 || $item->is_free == 1,
+                    'price' => $item->price,
+                    'is_finished' => $item->is_finished,
+                    'subtitle' => $item->subtitle,
+                    'student_sum' => $item->student_add + $item->student_num,
+                ];
+            });
+        });
+
+        return $this->success($data);
+    }
+
+    public function kaobian()
+    {
+        $category = Category::with('course')->where('parent_id', 3)->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
             $course = $item->course;

@@ -13,10 +13,11 @@ class GroupGoodsController extends BaseController
     //列表
     public function list()
     {
-        $group_goods = GroupGoods::with('course', 'book')
-            ->where('start_time', '<', now())
-            ->where('end_time', '>', now())
-            ->where('enabled', 1)->get();
+        $group_goods = GroupGoods::with(['course' => function ($query) {
+            $query->where('is_group', 1);
+        }, 'book' => function ($query) {
+            $query->where('is_group', 1);
+        }])->enabled()->get();
         $data = [];
         if ($group_goods) {
             $group_goods->each(function ($item) use (&$data) {

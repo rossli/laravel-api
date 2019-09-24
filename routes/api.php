@@ -37,6 +37,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/list', 'CourseController@list')->name('api.course.list');
     Route::get('/course/recommend', 'CourseController@recommend')->name('api.course.recommend');
     Route::get('/course/guide', 'CourseController@guide')->name('api.course.guide');
+    Route::get('/course/kaobian', 'CourseController@kaobian')->name('api.course.kaobian');
     Route::get('/course/open', 'CourseController@open')->name('api.course.open');
     Route::get('/course/{id}', 'CourseController@show')->name('api.course.show');
 
