@@ -169,8 +169,15 @@ class OrderController extends BaseController
             $order = Order::where('user_id', $request->user_id)->where('group_student_id', $group_student_id)->where('status', Order::STATUS_PAID)->first();
 
             if ($order) {
-                return $this->failed('您已参加过此团购,不能在参加了!', -1);
+                return $this->failed('您已参加过此团购,不能在参加了!');
             }
+            if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
+                $course = Course::find($goodsable_id);
+                if (!Request()->user()->canBuy($item->goods_id)) {
+                    return $this->failed('您已购买过此课程,不能再次购买!');
+                }
+            }
+
         }
 
 
