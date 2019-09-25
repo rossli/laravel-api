@@ -308,14 +308,21 @@ class OrderController extends BaseController
     public function confirm(Request $request)
     {
         $order = Order::with('orderItem')->find($request->id);
+
         $order_item = [];
-        $order->orderItem->each(function ($item) use (&$order_item) {
+        $order->orderItem->each(function ($item) use (&$order_item, $order) {
+            $course_id = $item->course_id;
+            if ($order->type == Order::TYPE_GROUP) {
+                $group_goods = GroupGoods::find($course_id);
+                $course_id = $group_goods->goodsable_id;
+            }
             $order_item[] = [
                 'cover' => config('jkw.cdn_domain') . '/' . $item->course_cover,
                 'course_price' => $item->course_price,
                 'number' => $item->num,
-                'course_id' => $item->course_id,
+                'course_id' => $course_id,
                 'course_title' => $item->course_title,
+                'type' => $item->type,
             ];
         });
         $data = [
@@ -324,6 +331,7 @@ class OrderController extends BaseController
             'type' => $order->type,
             'coupon_deduction' => $order->coupon_deduction,
             'item' => $order_item,
+            'group_student_id' => $order->group_student_id,
         ];
 
         return $this->success($data);
