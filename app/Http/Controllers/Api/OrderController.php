@@ -160,7 +160,7 @@ class OrderController extends BaseController
         if ($group_student_id) {
             $group_student = GroupStudent::find($group_student_id);
             if ($group_student) {
-                if ($group_student->number + 1 >= $group_goods->number) {
+                if ($group_student->number >= $group_goods->number) {
                     return $this->failed('当前团已满,请重新建团');
                 }
             }
