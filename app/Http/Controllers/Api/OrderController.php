@@ -149,7 +149,7 @@ class OrderController extends BaseController
     public function groupSubmit(Request $request)
     {
         $goodsable_id = $request->id;
-        $group_student_id = $request->group_student_id;
+        $group_student_id = $request->group_student;
 
         $group_goods = GroupGoods::with('goodsable')->where('goodsable_id', $goodsable_id)->enabled()->first();
 
@@ -159,6 +159,7 @@ class OrderController extends BaseController
 
         if ($group_student_id) {
             $group_student = GroupStudent::find($group_student_id);
+            dd($group_student);
             if ($group_student) {
                 if ($group_student->number >= $group_goods->number) {
                     return $this->failed('当前团已满,请重新建团');
