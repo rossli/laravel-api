@@ -427,7 +427,7 @@ class OrderController extends BaseController
         }
         $result = $this->unifiy($order, 'JSAPI', $openid);
         if ($result['result_code'] !== 'SUCCESS') {
-            return back()->withErrors('订单错误,请联系管理员');
+            return $this->failed('订单错误,请联系管理员', -1);
         }
         $jssdk = $app->jssdk;
         $config = $jssdk->bridgeConfig($result['prepay_id']);
