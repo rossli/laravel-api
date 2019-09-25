@@ -390,7 +390,7 @@ class OrderController extends BaseController
                     'openid' => $openid,
                 ]);
 
-                if ($result['result_code'] == '') {
+                if ($result['result_code'] == 'SUCCESS') {
                     PayLog::create([
                         'order_id' => $order->id,
                         'order_sn' => $order->order_sn,
@@ -426,7 +426,7 @@ class OrderController extends BaseController
             return $this->failed('订单错误,请联系管理员', -1);
         }
         $result = $this->unifiy($order, 'JSAPI', $openid);
-        if ($result['result_code'] !== '') {
+        if ($result['result_code'] !== 'SUCCESS') {
             return back()->withErrors('订单错误,请联系管理员');
         }
         $jssdk = $app->jssdk;
