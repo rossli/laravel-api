@@ -149,9 +149,10 @@ class OrderController extends BaseController
     public function groupSubmit(Request $request)
     {
         $goodsable_id = $request->id;
-        $group_student_id = $request->group_student;
+        $group_student_id = $request->group_student_id;
 
         $group_goods = GroupGoods::with('goodsable')->where('goodsable_id', $goodsable_id)->enabled()->first();
+
 
         if (!$group_goods) {
             return $this->failed('当前课程没有参加团购');
@@ -159,22 +160,21 @@ class OrderController extends BaseController
 
         if ($group_student_id) {
             $group_student = GroupStudent::find($group_student_id);
-            dd($group_student);
-            if ($group_student) {
-                if ($group_student->number >= $group_goods->number) {
-                    return $this->failed('当前团已满,请重新建团');
-                }
-            }
-            return $this->failed('此团不存在,请重新建团!');
+            if (!$group_student) {
+                return $this->failed('此团不存在,请重新建团!');
 
-            $order = Order::where('user_id', $request->user_id)->where('group_student_id', $group_student_id)->where('status', Order::STATUS_PAID)->first();
+            }
+            if ($group_student->number >= $group_goods->number) {
+                return $this->failed('当前团已满,请重新建团');
+            }
+
+            $order = Order::where('user_id', Request()->user()->id)->where('group_student_id', $group_student_id)->where('status', Order::STATUS_PAID)->first();
 
             if ($order) {
                 return $this->failed('您已参加过此团购,不能在参加了!');
             }
             if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
-                $course = Course::find($goodsable_id);
-                if (!Request()->user()->canBuy($item->goods_id)) {
+                if (!Request()->user()->canBuy($goodsable_id)) {
                     return $this->failed('您已购买过此课程,不能再次购买!');
                 }
             }
