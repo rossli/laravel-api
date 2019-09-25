@@ -165,11 +165,12 @@ class OrderController extends BaseController
                 }
             }
             return $this->failed('此团不存在,请重新建团!');
-        }
 
+            $order = Order::where('user_id', $request->user_id)->where('group_student_id', $group_student_id)->where('status', Order::STATUS_PAID)->first();
 
-        if (!$request->user()->canBuy($group_goods->id)) {
-            return $this->failed('您已参加过此团购,不能在参加了!', -1);
+            if ($order) {
+                return $this->failed('您已参加过此团购,不能在参加了!', -1);
+            }
         }
 
 

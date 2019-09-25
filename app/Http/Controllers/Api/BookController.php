@@ -20,6 +20,7 @@ class BookController extends BaseController
                 'title' => $item->title,
                 'id' => $item->id,
                 'price' => $item->price,
+                'student_num' => $item->student_num + $item->student_add,
             ];
         });
         return $this->success($data);
