@@ -96,9 +96,10 @@ class MeController extends BaseController
                     'course_id', 'course_cover', 'num');
             }, 'groupStudent', 'groupStudent.groupGoods'
         ])->where('user_id', request()->user()->id)
-            ->where('type', Order::TYPE_GROUP)->where('status', Order::STATUS_PAID)->orderBy('id', 'DESC')->get();
+            ->where('type', Order::TYPE_GROUP)
+            ->whereIn('status', [Order::STATUS_PAID, Order::STATUS_FINISHED, Order::STATUS_DISPATCH])
+            ->orderBy('id', 'DESC')->get();
         $data = [];
-
         $order_sum = 0;
         $orders->each(function ($item) use ($order_sum, &$data) {
             $group_student = $item->groupStudent;
