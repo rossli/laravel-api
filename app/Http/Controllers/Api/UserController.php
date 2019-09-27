@@ -271,4 +271,17 @@ class UserController extends BaseController
 
         return $this->failed('用户不存在');
     }
+
+    public function loginTime()
+    {
+        $user = Request()->user();
+
+        if ($user) {
+            $user->login_time = now();
+            $user->save();
+            return $this->success('提交成功');
+        }
+
+        return $this->failed('用户不存在');
+    }
 }

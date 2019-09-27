@@ -16,7 +16,9 @@ class AuthController extends BaseController
         $user = User::create([
             'mobile' => $request->get('mobile'),
             'password' => bcrypt($request->get('password')),
-            'avatar'=>config('jkw.default_avatar'),
+            'avatar' => config('jkw.default_avatar'),
+            'nick_name' => 'jkw_' . time(),
+            'sex' => 0,
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
@@ -84,7 +86,6 @@ class AuthController extends BaseController
 
 
     }
-
 
 
 }
