@@ -70,7 +70,9 @@ class OrderController extends BaseController
     public function cartSubmit()
     {
         $carts = ShoppingCart::where('user_id', request()->user()->id)->get();
-
+        if (!$carts) {
+            return $this->failed('购物车里没有内容!');
+        }
 
         $book_price = 0;
         $course_price = 0;
@@ -78,7 +80,9 @@ class OrderController extends BaseController
         $carts->each(function ($item) use (&$book_price, &$course_price, &$str) {
             if ($item->type == ShoppingCart::TYPE_BOOK) {
 
-                $this->checkAddress();
+                if ($this->checkAddress()) {
+                    return $this->checkAddress();
+                }
 
                 $book = Book::find($item->goods_id);
                 if ($item->nubmer >= $book->num) {
@@ -192,7 +196,10 @@ class OrderController extends BaseController
         if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
             $order_item_type = ShoppingCart::TYPE_COURSE;
         } else {
-            $this->checkAddress();
+
+            if ($this->checkAddress()) {
+                return $this->checkAddress();
+            }
 
             if ($goods->num <= 0) {
                 return $this->failed('当前图书库存不足,请联系管理员!', -1);
@@ -281,8 +288,12 @@ class OrderController extends BaseController
     {
         $book_id = $request->id;
         $book = Book::find($book_id);
-
-        $this->checkAddress();
+        if (!$book) {
+            return $this->failed('当前商品不存在,请联系管理员!', -1);
+        }
+        if ($this->checkAddress()) {
+            return $this->checkAddress();
+        }
 
         if (!$book->num) {
             return $this->failed('库存不足,请联系管理员!', -1);
@@ -518,7 +529,7 @@ class OrderController extends BaseController
     public function checkAddress()
     {
         if (!request()->user()->receiver_mobile && !request()->user()->receiver_name && !request()->user()->province) {
-            return $this->failed('请添加地址,方便给您发货!');
+            return $this->failed('请添加地址,方便给您发货!', -1);
         }
     }
 
