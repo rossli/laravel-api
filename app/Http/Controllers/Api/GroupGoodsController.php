@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Course;
 use App\Models\GroupGoods;
+use App\Models\GroupStudent;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Arr;
@@ -55,15 +56,39 @@ class GroupGoodsController extends BaseController
     {
         $goodsable_id = $request->goodsable_id ?: 1;
         $goodsable_type = $request->goodsable_type ?: GroupGoods::GOODS_TYPE_1;
-        $group_goods = GroupGoods::where('goodsable_id', $goodsable_id)->where('goodsable_type', $goodsable_type)->where('enabled', 1)->first();
+
+
+
+
+        $group_goods = GroupGoods::with([
+            'groupStudent' => function ($query) {
+                $query->where('status', GroupStudent::STATUS_DOING);
+            }, 'groupStudent.user'
+        ])->where('goodsable_id', $goodsable_id)->where('goodsable_type', $goodsable_type)->where('enabled', 1)->first();
+
         if (!$group_goods) {
             return $this->failed('不存在该课程,请联系管理员!', -1, 'failed');
         }
+
+        $group_student = $group_goods->groupStudent;
+        $count = $group_student->count();
+        $group_student_data = [];
+        $group_student->each(function ($item) use (&$group_student_data) {
+            $user = $item->user;
+            $group_student_data[] = [
+                'group_student_id' => $item->id,
+                'number' => $item->number,
+                'user_avatar' => $user->avatar ? config('jkw.cdn_domain') . '/' . $user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
+                'nick_name' => $user->nick_name,
+            ];
+        });
         $data = [
             'number' => $group_goods->number,
             'preferential_price' => $group_goods->preferential_price,
             'student_sum' => $group_goods->student_add + $group_goods->student_num,
             'end_time' => strtotime($group_goods->end_time) - time(),
+            'group_student_data' => $group_student_data,
+            'count' => $count
         ];
         return $this->success($data);
     }
