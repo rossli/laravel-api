@@ -35,8 +35,11 @@ class OrderController extends BaseController
 
     public function show($id)
     {
-        $order = Order::with('orderItem')->orderBy('updated_at', 'DESC')->find($id);
+        $order = Order::with('orderItem')->find($id);
         if ($order) {
+            if ($order->user_id != request()->user()->id) {
+                return $this->failed('You are wrong! This order_id is not correct !');
+            }
             $order_item_data = [];
             $order->orderItem->each(function ($item) use (&$order_item_data) {
                 $order_item_data[] = [
@@ -60,9 +63,8 @@ class OrderController extends BaseController
             ];
 
             return $this->success($data);
-        } else {
-            return $this->failed('当前订单不存在');
         }
+        return $this->failed('当前订单不存在');
     }
 
     public function cartSubmit()
