@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\CourseMaterial;
 use App\Models\CourseMember;
 use App\Models\CourseTask;
+use App\Models\GroupGoods;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -27,13 +28,13 @@ class CourseController extends BaseController
         $data = [];
         $course->each(function ($item) use (&$data) {
             $data[] = [
-                'image'       => config('jkw.cdn_domain') . '/' . $item->cover,
-                'title'       => $item->title,
-                'id'          => $item->id,
-                'is_free'     => $item->price == 0 || $item->is_free == 1,
-                'price'       => $item->price,
+                'image' => config('jkw.cdn_domain') . '/' . $item->cover,
+                'title' => $item->title,
+                'id' => $item->id,
+                'is_free' => $item->price == 0 || $item->is_free == 1,
+                'price' => $item->price,
                 'is_finished' => $item->is_finished,
-                'subtitle'    => $item->subtitle,
+                'subtitle' => $item->subtitle,
                 'student_sum' => $item->student_add + $item->student_num,
             ];
         });
@@ -55,13 +56,13 @@ class CourseController extends BaseController
         $data = [];
         $courses->each(function ($item) use (&$data) {
             $data[] = [
-                'image'       => config('jkw.cdn_domain') . '/' . $item->cover,
-                'title'       => $item->title,
-                'id'          => $item->id,
-                'is_free'     => $item->price == 0 || $item->is_free == 1,
-                'price'       => $item->price,
+                'image' => config('jkw.cdn_domain') . '/' . $item->cover,
+                'title' => $item->title,
+                'id' => $item->id,
+                'is_free' => $item->price == 0 || $item->is_free == 1,
+                'price' => $item->price,
                 'is_finished' => $item->is_finished,
-                'subtitle'    => $item->subtitle,
+                'subtitle' => $item->subtitle,
                 'student_sum' => $item->student_add + $item->student_num,
             ];
         });
@@ -82,38 +83,50 @@ class CourseController extends BaseController
         $material = [];
         $course->task->each(function ($item) use (&$task) {
             $task[] = [
-                'id'       => $item->id,
-                'title'    => $item->title,
-                'is_free'  => $item->is_free,
-                'type'     => $item->type,
+                'id' => $item->id,
+                'title' => $item->title,
+                'is_free' => $item->is_free,
+                'type' => $item->type,
                 'media_id' => $item->media_id,
             ];
         });
         $course->material->each(function ($item) use (&$material) {
             $material[] = [
-                'id'          => $item->id,
-                'title'       => $item->title,
-                'size'        => $item->size,
+                'id' => $item->id,
+                'title' => $item->title,
+                'size' => $item->size,
                 'description' => $item->description,
             ];
         });
-        $data = [
 
-            'image'        => config('jkw.cdn_domain') . '/' . $course->cover,
-            'title'        => $course->title,
-            'subtitle'     => $course->subtitle,
-            'id'           => $course->id,
-            'is_free'      => $course->price == 0 || $course->is_free == 1,
-            'price'        => $course->price,
-            'is_finished'  => $course->is_finished,
-            'student_num'  => $course->student_num,
-            'student_add'  => $course->student_add,
-            'student_sum'  => $course->student_add + $course->student_num,
+        if ($course->is_group) {
+            $group_goods = GroupGoods::where('goodsable_type', GroupGoods::GOODS_TYPE_0)
+                ->enabled()
+                ->where('goodsable_id', $id)->first();
+            if ($group_goods) {
+                $course->is_group = true;
+            } else {
+                $course->is_group = false;
+            }
+        }
+
+        $data = [
+            'image' => config('jkw.cdn_domain') . '/' . $course->cover,
+            'title' => $course->title,
+            'subtitle' => $course->subtitle,
+            'id' => $course->id,
+            'is_free' => $course->price == 0 || $course->is_free == 1,
+            'price' => $course->price,
+            'is_finished' => $course->is_finished,
+            'student_num' => $course->student_num,
+            'student_add' => $course->student_add,
+            'student_sum' => $course->student_add + $course->student_num,
             'origin_price' => $course->origin_price,
-            'summary'      => $course->summary,
-            'short_intro'  => $course->short_intro,
-            'task'         => $task,
-            'material'     => $material,
+            'summary' => $course->summary,
+            'short_intro' => $course->short_intro,
+            'is_group' => $course->is_group,
+            'task' => $task,
+            'material' => $material,
         ];
 
         return $this->success($data);
@@ -127,14 +140,14 @@ class CourseController extends BaseController
         $category->each(function ($item) use (&$data, &$i) {
             $course = $item->course;
             $course->each(function ($it) use (&$data, $i) {
-                $data[ $i ][] = [
-                    'image'        => config('jkw.cdn_domain') . '/' . $it->cover,
-                    'title'        => $it->title,
-                    'subtitle'     => $it->subtitle,
-                    'id'           => $it->id,
-                    'is_free'      => $it->price == 0 || $it->is_free == 1,
-                    'price'        => $it->price,
-                    'is_finished'  => $it->is_finished,
+                $data[$i][] = [
+                    'image' => config('jkw.cdn_domain') . '/' . $it->cover,
+                    'title' => $it->title,
+                    'subtitle' => $it->subtitle,
+                    'id' => $it->id,
+                    'is_free' => $it->price == 0 || $it->is_free == 1,
+                    'price' => $it->price,
+                    'is_finished' => $it->is_finished,
                     'origin_price' => $it->origin_price,
                 ];
             });
@@ -160,7 +173,7 @@ class CourseController extends BaseController
         $course_member = CourseMember::where('user_id', $user_id)->where('course_id', $id)->first();
         if (!$course_member) {
             CourseMember::create([
-                'user_id'   => $user_id,
+                'user_id' => $user_id,
                 'course_id' => $id,
             ]);
             $course->student_num++;
@@ -181,13 +194,36 @@ class CourseController extends BaseController
             $course = $item->course;
             $course->each(function ($item) use (&$data) {
                 $data[] = [
-                    'image'       => config('jkw.cdn_domain') . '/' . $item->cover,
-                    'title'       => $item->title,
-                    'id'          => $item->id,
-                    'is_free'     => $item->price == 0 || $item->is_free == 1,
-                    'price'       => $item->price,
+                    'image' => config('jkw.cdn_domain') . '/' . $item->cover,
+                    'title' => $item->title,
+                    'id' => $item->id,
+                    'is_free' => $item->price == 0 || $item->is_free == 1,
+                    'price' => $item->price,
                     'is_finished' => $item->is_finished,
-                    'subtitle'    => $item->subtitle,
+                    'subtitle' => $item->subtitle,
+                    'student_sum' => $item->student_add + $item->student_num,
+                ];
+            });
+        });
+
+        return $this->success($data);
+    }
+
+    public function kaobian()
+    {
+        $category = Category::with('course')->where('parent_id', 3)->get();
+        $data = [];
+        $category->each(function ($item) use (&$data) {
+            $course = $item->course;
+            $course->each(function ($item) use (&$data) {
+                $data[] = [
+                    'image' => config('jkw.cdn_domain') . '/' . $item->cover,
+                    'title' => $item->title,
+                    'id' => $item->id,
+                    'is_free' => $item->price == 0 || $item->is_free == 1,
+                    'price' => $item->price,
+                    'is_finished' => $item->is_finished,
+                    'subtitle' => $item->subtitle,
                     'student_sum' => $item->student_add + $item->student_num,
                 ];
             });

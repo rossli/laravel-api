@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Book;
+use App\Models\GroupGoods;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -19,6 +20,7 @@ class BookController extends BaseController
                 'title' => $item->title,
                 'id' => $item->id,
                 'price' => $item->price,
+                'student_num' => $item->student_num + $item->student_add,
             ];
         });
         return $this->success($data);
@@ -26,7 +28,17 @@ class BookController extends BaseController
 
     public function show(Request $request)
     {
-        $book = Book::findOrFail($request->id);
+        $book = Book::find($request->id);
+        if ($book->is_group) {
+            $group_goods = GroupGoods::where('goodsable_type', GroupGoods::GOODS_TYPE_1)
+                ->enabled()
+                ->where('goodsable_id', $request->id)->first();
+            if ($group_goods) {
+                $book->is_group = true;
+            } else {
+                $book->is_group = false;
+            }
+        }
 
         $data = [
             'image' => config('jkw.cdn_domain') . '/' . $book->cover,
@@ -39,6 +51,7 @@ class BookController extends BaseController
             'menu' => $book->menu,
             'num' => $book->num,
             'student_num' => $book->student_num + $book->student_add,
+            'is_group' => $book->is_group,
         ];
         return $this->success($data);
     }
