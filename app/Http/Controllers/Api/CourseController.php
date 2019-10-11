@@ -136,13 +136,11 @@ class CourseController extends BaseController
 
     public function list()
     {
-        $category = Category::whereHas('course', function ($query) {
-            $query->where('enabled', 1);
-        })->get();
+        $category = Category::with('course')->get();
         $data = [];
         $i = 0;
         $category->each(function ($item) use (&$data, &$i) {
-            $course = $item->course;
+            $course = $item->course->where('enabled',1);
             $course->each(function ($it) use (&$data, $i) {
                 $data[$i][] = [
                     'image' => config('jkw.cdn_domain') . '/' . $it->cover,
