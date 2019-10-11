@@ -19,7 +19,9 @@ class CourseController extends BaseController
     public function open(Request $request)
     {
         $all = $request->all;
-        $category = Category::with('course')->find(9);
+        $category = Category::whereHas('course', function ($query) {
+            $query->where('enabled', 1);
+        })->find(9);
         if ($all) {
             $course = $category->course;
         } else {
@@ -78,7 +80,7 @@ class CourseController extends BaseController
                 $query->select('id', 'title', 'is_free', 'type', 'media_id', 'course_id');
             },
             'material',
-        ])->find($id);
+        ])->where('enabled', 1)->find($id);
         $task = [];
         $material = [];
         $course->task->each(function ($item) use (&$task) {
@@ -134,7 +136,9 @@ class CourseController extends BaseController
 
     public function list()
     {
-        $category = Category::with('course')->get();
+        $category = Category::whereHas('course', function ($query) {
+            $query->where('enabled', 1);
+        })->get();
         $data = [];
         $i = 0;
         $category->each(function ($item) use (&$data, &$i) {
@@ -160,7 +164,7 @@ class CourseController extends BaseController
     public function join($id)
     {
         $user_id = request()->user()->id;
-        $course = Course::find($id);
+        $course = Course::where('enabled', 1)->find($id);
         if (!$course) {
             return $this->failed('参数错误');
         }
@@ -188,7 +192,9 @@ class CourseController extends BaseController
 
     public function guide()
     {
-        $category = Category::with('course')->where('parent_id', 1)->get();
+        $category = Category::whereHas('course', function ($query) {
+            $query->where('enabled', 1);
+        })->where('parent_id', 1)->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
             $course = $item->course;
@@ -211,7 +217,9 @@ class CourseController extends BaseController
 
     public function kaobian()
     {
-        $category = Category::with('course')->where('parent_id', 3)->get();
+        $category = Category::whereHas('course', function ($query) {
+            $query->where('enabled', 1);
+        })->where('parent_id', 3)->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
             $course = $item->course;

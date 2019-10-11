@@ -28,7 +28,7 @@ class BookController extends BaseController
 
     public function show(Request $request)
     {
-        $book = Book::find($request->id);
+        $book = Book::where('enabled', 1)->find($request->id);
         if ($book->is_group) {
             $group_goods = GroupGoods::where('goodsable_type', GroupGoods::GOODS_TYPE_1)
                 ->enabled()
