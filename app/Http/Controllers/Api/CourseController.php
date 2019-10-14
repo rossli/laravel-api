@@ -140,7 +140,7 @@ class CourseController extends BaseController
         $data = [];
         $i = 0;
         $category->each(function ($item) use (&$data, &$i) {
-            $course = $item->course->where('enabled',1)->orderBy('updated_at','DESC');
+            $course = $item->course->where('enabled',1)->sortByDesc('updated_at');
             $course->each(function ($it) use (&$data, $i) {
                 $data[$i][] = [
                     'image' => config('jkw.cdn_domain') . '/' . $it->cover,
@@ -192,10 +192,10 @@ class CourseController extends BaseController
     {
         $category = Category::whereHas('course', function ($query) {
             $query->where('enabled', 1);
-        })->where('parent_id', 1)->orderBy('updated_at','DESC')->get();
+        })->where('parent_id', 1)->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
-            $course = $item->course;
+            $course = $item->course->sortByDesc('updated_at');
             $course->each(function ($item) use (&$data) {
                 $data[] = [
                     'image' => config('jkw.cdn_domain') . '/' . $item->cover,
@@ -217,10 +217,10 @@ class CourseController extends BaseController
     {
         $category = Category::whereHas('course', function ($query) {
             $query->where('enabled', 1);
-        })->where('parent_id', 3)->orderBy('updated_at','DESC')->get();
+        })->where('parent_id', 3)->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
-            $course = $item->course;
+            $course = $item->course->sortByDesc('updated_at');
             $course->each(function ($item) use (&$data) {
                 $data[] = [
                     'image' => config('jkw.cdn_domain') . '/' . $item->cover,
