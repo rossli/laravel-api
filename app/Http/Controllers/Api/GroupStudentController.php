@@ -46,7 +46,7 @@ class GroupStudentController extends BaseController
             'end_time' => date('Y-m-d', strtotime($groupGoods->end_time)),
             'preferential_price' => $groupGoods->preferential_price,
             'people' => $order->count(),
-            'is_finish' => $group_student->status == GroupStudent::STATUS_FINISHED || $groupGoods->number == $order->count(),
+            'is_finish' => $group_student->status == GroupStudent::STATUS_FINISHED || $groupGoods->number == $order->count() || (strtotime("+1 day", strtotime($group_student->created_at)) - time()) <= 0,
         ];
         $order->each(function ($item) use (&$data) {
             $user = $item->user;
