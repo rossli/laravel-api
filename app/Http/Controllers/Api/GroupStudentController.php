@@ -37,7 +37,8 @@ class GroupStudentController extends BaseController
             'goods_id' => $groupGoods->goodsable->id,
             'title' => $groupGoods->goodsable->title,
             'subtitle' => $groupGoods->goodsable->subtitle,
-            'enabled' => 1,
+            'img' => config('jkw.cdn_domain') . '/' . $groupGoods->goodsable->cover,
+            'enabled' => $enabled,
             'price' => $groupGoods->goodsable->price,
             'number' => $groupGoods->number,
             'time' => (strtotime("+1 day", strtotime($group_student->created_at)) - time()) * 1000,
@@ -45,7 +46,7 @@ class GroupStudentController extends BaseController
             'end_time' => date('Y-m-d', strtotime($groupGoods->end_time)),
             'preferential_price' => $groupGoods->preferential_price,
             'people' => $order->count(),
-            'is_finish' => 0,
+            'is_finish' => $group_student->status == GroupStudent::STATUS_FINISHED || $groupGoods->number == $order->count(),
         ];
         $order->each(function ($item) use (&$data) {
             $user = $item->user;

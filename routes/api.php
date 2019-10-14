@@ -41,6 +41,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/open', 'CourseController@open')->name('api.course.open');
     Route::get('/course/{id}', 'CourseController@show')->name('api.course.show');
 
+    Route::get('/order/wx-share', 'OrderController@wxShare')->name('api.order.wx-share');
+
     Route::get('/books', 'BookController@index')->name('api.book.index');
     Route::get('/book/list', 'BookController@list')->name('api.book.list');
     Route::get('/books/{id}', 'BookController@show')->name('api.book.show');
