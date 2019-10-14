@@ -57,9 +57,6 @@ class GroupGoodsController extends BaseController
         $goodsable_id = $request->goodsable_id ?: 1;
         $goodsable_type = $request->goodsable_type ?: GroupGoods::GOODS_TYPE_1;
 
-
-
-
         $group_goods = GroupGoods::with([
             'groupStudent' => function ($query) {
                 $query->where('status', GroupStudent::STATUS_DOING);
