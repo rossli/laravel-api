@@ -51,6 +51,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
     Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
 
+    Route::get('/groups/share/{id}','GroupStudentController@share')->name('api.group-student.share');
+
     Route::get('sensitive', 'SensitiveController@index')->name('api.sensitive.index');
 
     Route::middleware('auth:api')->group(function () {
@@ -66,7 +68,6 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
         Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
 
-        Route::get('/group/students', 'GroupStudentController@index')->name('api.group-student.index');
         Route::get('/group-good/confirm', 'GroupGoodsController@confirm')->name('api.group-goods.confirm');
 
         Route::prefix('me')->group(function () {

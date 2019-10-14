@@ -16,7 +16,7 @@ class BannerController extends BaseController
             ['pos', '=', 0],
             ['enabled', '=', 1],
             ['attr', '=', Banner::ATTR_MINI],
-        ])->get();
+        ])->orderBy('updated_at','DESC')->get();
 
         $data = [];
         $banners->each(function ($item) use (&$data) {
@@ -35,13 +35,14 @@ class BannerController extends BaseController
             ['pos', '=', 0],
             ['enabled', '=', 1],
             ['attr', '=', Banner::ATTR_H5],
-        ])->get();
+        ])->orderBy('updated_at','DESC')->get();
 
         $data = [];
         $banners->each(function ($item) use (&$data) {
             $data[] = [
                 'image' => config('jkw.cdn_domain') . '/' . $item->image,
                 'url' => $item->url,
+
             ];
         });
 

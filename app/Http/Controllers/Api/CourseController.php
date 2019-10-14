@@ -23,9 +23,9 @@ class CourseController extends BaseController
             $query->where('enabled', 1);
         })->find(9);
         if ($all) {
-            $course = $category->course;
+            $course = $category->course->sortByDesc('updated_at');
         } else {
-            $course = $category->course->take(6);
+            $course = $category->course->sortByDesc('updated_at')->take(6);
         }
         $data = [];
         $course->each(function ($item) use (&$data) {
@@ -51,7 +51,7 @@ class CourseController extends BaseController
         $courses = Course::where([
             ['enabled', '=', '1'],
             ['is_recommend', '=', '1'],
-        ])->get();
+        ])->orderBy('updated_at','DESC')->get();
         if (!$all) {
             $courses = $courses->take(6);
         }
@@ -140,7 +140,7 @@ class CourseController extends BaseController
         $data = [];
         $i = 0;
         $category->each(function ($item) use (&$data, &$i) {
-            $course = $item->course->where('enabled',1);
+            $course = $item->course->where('enabled',1)->orderBy('updated_at','DESC');
             $course->each(function ($it) use (&$data, $i) {
                 $data[$i][] = [
                     'image' => config('jkw.cdn_domain') . '/' . $it->cover,
@@ -192,7 +192,7 @@ class CourseController extends BaseController
     {
         $category = Category::whereHas('course', function ($query) {
             $query->where('enabled', 1);
-        })->where('parent_id', 1)->get();
+        })->where('parent_id', 1)->orderBy('updated_at','DESC')->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
             $course = $item->course;
@@ -217,7 +217,7 @@ class CourseController extends BaseController
     {
         $category = Category::whereHas('course', function ($query) {
             $query->where('enabled', 1);
-        })->where('parent_id', 3)->get();
+        })->where('parent_id', 3)->orderBy('updated_at','DESC')->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
             $course = $item->course;

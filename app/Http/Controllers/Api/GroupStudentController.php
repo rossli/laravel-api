@@ -9,31 +9,56 @@ use App\Http\Controllers\Controller;
 class GroupStudentController extends BaseController
 {
     //
-    public function index()
+
+    public function share(Request $request)
     {
-        $group_student = GroupStudent::with('group_goods', 'order', 'order.order_item')->where('user_id', request()->user()->id)->get();
+
+        $group_student_id = $request->id;
+        $group_student = GroupStudent::with('groupGoods', 'groupGoods.goodsable', 'order', 'order.user')->find($group_student_id);
+
         if (!$group_student) {
-            return $this->failed('信息错误,请联系管理员', -1);
+            return $this->failed('数据错误!');
+
         }
-        $data = [];
-        $group_student->each(function ($item) use (&$data) {
-            $order = $item->order;
-            $order->each(function ($it) use (&$data, $item) {
-                $order_item = $it->order_item;
-                $data[] = [
-                    'status' => $item->status,
-                    'type' => $order_item->type,
-                    'course_price' => $order_item->course_price,
-                    'course_origin_price' => $order_item->course_origin_price,
-                    'course_title' => $order_item->course_title,
-                    'course_cover' => config('jkw.cdn_domain') . '/' . $order_item->course_cover,
-                    'course_id' => $order_item->course_id,
+        $order = $group_student->order;
+
+        $groupGoods = $group_student->groupGoods;
+        $enabled = 0;
+        if ($groupGoods->enabled &&
+            $group_student->groupGoods->enabled &&
+            $groupGoods->start_time <= now() &&
+            $groupGoods->start_time > now() &&
+            $group_student->groupGoods->is_group &&
+            !$group_student->groupGoods->price) {
+            $enabled = 1;
+        }
+
+        $data = [
+            'goods_id' => $groupGoods->goodsable->id,
+            'title' => $groupGoods->goodsable->title,
+            'subtitle' => $groupGoods->goodsable->subtitle,
+            'enabled' => 1,
+            'price' => $groupGoods->goodsable->price,
+            'number' => $groupGoods->number,
+            'time' => (strtotime("+1 day", strtotime($group_student->created_at)) - time()) * 1000,
+            'start_time' => date('Y-m-d', strtotime($groupGoods->start_time)),
+            'end_time' => date('Y-m-d', strtotime($groupGoods->end_time)),
+            'preferential_price' => $groupGoods->preferential_price,
+            'people' => $order->count(),
+            'is_finish' => 0,
+        ];
+        $order->each(function ($item) use (&$data) {
+            $user = $item->user;
+            if ($user) {
+                $data['user'][] = [
+                    'nick_name' => $user->nick_name,
+                    'avatar' => $user->avatar ? config('jkw.cdn_domain') . '/' . $user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
                 ];
-            });
+            }
         });
+
         return $this->success($data);
     }
-
 
 
 }
