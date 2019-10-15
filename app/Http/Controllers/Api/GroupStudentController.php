@@ -32,7 +32,6 @@ class GroupStudentController extends BaseController
             $group_student->groupGoods->price) {
             $enabled = 1;
         }
-dd();
         $data = [
             'type'=>$groupGoods->goodsable_type,
             'goods_id' => $groupGoods->goodsable->id,
