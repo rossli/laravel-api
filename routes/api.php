@@ -25,12 +25,12 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::post('/auth/reset', 'AuthController@reset')->name('api.auth.reset');
     Route::post('/auth/sms-login', 'AuthController@smsLogin')->name('api.auth.sms-login');
 
-    Route::get('/order/openid', 'OrderController@getOpenid')->name('api.order.openid');
-
     Route::get('/user/exists', 'UserController@exists')->name('api.user.check-mobile');
     //验证码
     Route::get('/user/captcha', 'UserController@captcha')->name('api.user.captcha');
     Route::post('/user/sms-code', 'UserController@smsCode')->name('api.user.sms-code');
+
+    Route::get('/order/openid', 'OrderController@getOpenid')->name('api.order.openid');
 
     Route::get('/banners', 'BannerController@index')->name('api.banners.index');
     Route::get('/banners-h5', 'BannerController@indexH5')->name('api.banners.indexH5');
