@@ -34,6 +34,7 @@ class GroupStudentController extends BaseController
         }
 
         $data = [
+            'type'=>$groupGoods->goodsable_type,
             'goods_id' => $groupGoods->goodsable->id,
             'title' => $groupGoods->goodsable->title,
             'subtitle' => $groupGoods->goodsable->subtitle,
