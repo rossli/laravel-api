@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Jobs\CancelOrder;
 use App\Models\Book;
 use App\Models\Course;
+use App\Models\CourseMember;
 use App\Models\GroupGoods;
 use App\Models\GroupStudent;
 use App\Models\Order;
@@ -180,7 +181,9 @@ class OrderController extends BaseController
                 return $this->failed('您已参加过此团购,不能在参加了!');
             }
             if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
-                if (!Request()->user()->canBuy($goodsable_id)) {
+
+                $course_member = CourseMember::where('user_id', Request()->user()->id)->where('course_id', $goodsable_id)->get();
+                if ($course_member) {
                     return $this->failed('您已购买过此课程,不能再次购买!');
                 }
             }
