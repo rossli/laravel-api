@@ -185,9 +185,7 @@ class OrderController extends BaseController
 
         if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
 
-            $course_member = CourseMember::where('user_id', Request()->user()->id)->where('course_id', $goodsable_id)->get();
-
-            if ($course_member) {
+            if (!Request()->user()->canBuy($group_goods->id)) {
                 return $this->failed('您已购买过此课程,不能再次购买!');
             }
 
