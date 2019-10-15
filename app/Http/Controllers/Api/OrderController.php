@@ -380,6 +380,19 @@ class OrderController extends BaseController
         return $app;
     }
 
+
+    public function wxShare()
+    {
+        $config = [
+            'app_id' => config('wechat.official_account.default.app_id'),
+            'secret' => config('wechat.official_account.default.secret'),
+        ];
+        $app = Factory::officialAccount($config);
+        $jssdk = $app->jssdk->buildConfig(['updateAppMessageShareData', 'updateTimelineShareData']);
+
+        return $this->success($jssdk);
+    }
+
     private function getOrder($order_id)
     {
         $order = Order::with('orderItem')->where('status', Order::STATUS_WAIT_PAY)->find($order_id);

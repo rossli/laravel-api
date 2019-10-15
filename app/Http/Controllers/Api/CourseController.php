@@ -19,11 +19,13 @@ class CourseController extends BaseController
     public function open(Request $request)
     {
         $all = $request->all;
-        $category = Category::with('course')->find(9);
+        $category = Category::whereHas('course', function ($query) {
+            $query->where('enabled', 1);
+        })->find(9);
         if ($all) {
-            $course = $category->course;
+            $course = $category->course->sortByDesc('updated_at');
         } else {
-            $course = $category->course->take(6);
+            $course = $category->course->sortByDesc('updated_at')->take(6);
         }
         $data = [];
         $course->each(function ($item) use (&$data) {
@@ -49,7 +51,7 @@ class CourseController extends BaseController
         $courses = Course::where([
             ['enabled', '=', '1'],
             ['is_recommend', '=', '1'],
-        ])->get();
+        ])->orderBy('updated_at','DESC')->get();
         if (!$all) {
             $courses = $courses->take(6);
         }
@@ -78,7 +80,7 @@ class CourseController extends BaseController
                 $query->select('id', 'title', 'is_free', 'type', 'media_id', 'course_id');
             },
             'material',
-        ])->find($id);
+        ])->where('enabled', 1)->find($id);
         $task = [];
         $material = [];
         $course->task->each(function ($item) use (&$task) {
@@ -138,7 +140,7 @@ class CourseController extends BaseController
         $data = [];
         $i = 0;
         $category->each(function ($item) use (&$data, &$i) {
-            $course = $item->course;
+            $course = $item->course->where('enabled',1)->sortByDesc('updated_at');
             $course->each(function ($it) use (&$data, $i) {
                 $data[$i][] = [
                     'image' => config('jkw.cdn_domain') . '/' . $it->cover,
@@ -160,7 +162,7 @@ class CourseController extends BaseController
     public function join($id)
     {
         $user_id = request()->user()->id;
-        $course = Course::find($id);
+        $course = Course::where('enabled', 1)->find($id);
         if (!$course) {
             return $this->failed('参数错误');
         }
@@ -188,10 +190,12 @@ class CourseController extends BaseController
 
     public function guide()
     {
-        $category = Category::with('course')->where('parent_id', 1)->get();
+        $category = Category::whereHas('course', function ($query) {
+            $query->where('enabled', 1);
+        })->where('parent_id', 1)->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
-            $course = $item->course;
+            $course = $item->course->sortByDesc('updated_at');
             $course->each(function ($item) use (&$data) {
                 $data[] = [
                     'image' => config('jkw.cdn_domain') . '/' . $item->cover,
@@ -211,10 +215,12 @@ class CourseController extends BaseController
 
     public function kaobian()
     {
-        $category = Category::with('course')->where('parent_id', 3)->get();
+        $category = Category::whereHas('course', function ($query) {
+            $query->where('enabled', 1);
+        })->where('parent_id', 3)->get();
         $data = [];
         $category->each(function ($item) use (&$data) {
-            $course = $item->course;
+            $course = $item->course->sortByDesc('updated_at');
             $course->each(function ($item) use (&$data) {
                 $data[] = [
                     'image' => config('jkw.cdn_domain') . '/' . $item->cover,
