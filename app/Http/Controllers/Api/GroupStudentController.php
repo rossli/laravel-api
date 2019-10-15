@@ -29,10 +29,10 @@ class GroupStudentController extends BaseController
             $groupGoods->start_time <= now() &&
             $groupGoods->start_time > now() &&
             $group_student->groupGoods->is_group &&
-            !$group_student->groupGoods->price) {
+            $group_student->groupGoods->price) {
             $enabled = 1;
         }
-
+dd();
         $data = [
             'type'=>$groupGoods->goodsable_type,
             'goods_id' => $groupGoods->goodsable->id,
