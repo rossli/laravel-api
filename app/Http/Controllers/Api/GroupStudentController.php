@@ -25,15 +25,16 @@ class GroupStudentController extends BaseController
         $groupGoods = $group_student->groupGoods;
         $enabled = 0;
         if ($groupGoods->enabled &&
-            $group_student->groupGoods->enabled &&
             $groupGoods->start_time <= now() &&
-            $groupGoods->start_time > now() &&
-            $group_student->groupGoods->is_group &&
-            $group_student->groupGoods->price) {
+            $groupGoods->end_time > now() &&
+            $groupGoods->goodsable->is_group &&
+            $groupGoods->goodsable->enabled &&
+            $groupGoods->goodsable->price &&
+            !$groupGoods->goodsable->is_free) {
             $enabled = 1;
         }
         $data = [
-            'type'=>$groupGoods->goodsable_type,
+            'type' => $groupGoods->goodsable_type,
             'goods_id' => $groupGoods->goodsable->id,
             'title' => $groupGoods->goodsable->title,
             'subtitle' => $groupGoods->goodsable->subtitle,
