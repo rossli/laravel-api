@@ -9,6 +9,7 @@ use App\Models\CourseMaterial;
 use App\Models\CourseMember;
 use App\Models\CourseTask;
 use App\Models\GroupGoods;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -19,13 +20,11 @@ class CourseController extends BaseController
     public function open(Request $request)
     {
         $all = $request->all;
-        $category = Category::whereHas('course', function ($query) {
-            $query->where('enabled', 1);
-        })->find(9);
+        $category = Category::with('course')->find(9);
         if ($all) {
-            $course = $category->course->sortByDesc('updated_at');
+            $course = $category->course->where('enabled', 1)->sortByDesc('updated_at');
         } else {
-            $course = $category->course->sortByDesc('updated_at')->take(6);
+            $course = $category->course->where('enabled', 1)->sortByDesc('updated_at')->take(6);
         }
         $data = [];
         $course->each(function ($item) use (&$data) {
@@ -51,7 +50,7 @@ class CourseController extends BaseController
         $courses = Course::where([
             ['enabled', '=', '1'],
             ['is_recommend', '=', '1'],
-        ])->orderBy('updated_at','DESC')->get();
+        ])->orderBy('updated_at', 'DESC')->get();
         if (!$all) {
             $courses = $courses->take(6);
         }
@@ -136,11 +135,13 @@ class CourseController extends BaseController
 
     public function list()
     {
-        $category = Category::with('course')->get();
+        $category = Category::with(['course' => function ($query) {
+            $query->select('enabled', 'courses.updated_at', 'cover', 'title', 'subtitle', 'courses.id', 'price', 'is_free', 'is_finished', 'origin_price');
+        }])->get();
         $data = [];
         $i = 0;
         $category->each(function ($item) use (&$data, &$i) {
-            $course = $item->course->where('enabled',1)->sortByDesc('updated_at');
+            $course = $item->course->where('enabled', 1)->sortByDesc('updated_at');
             $course->each(function ($it) use (&$data, $i) {
                 $data[$i][] = [
                     'image' => config('jkw.cdn_domain') . '/' . $it->cover,

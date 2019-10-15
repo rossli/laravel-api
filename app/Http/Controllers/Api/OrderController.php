@@ -178,7 +178,7 @@ class OrderController extends BaseController
                 return $this->failed('您已参加过此团购,不能在参加了!');
             }
             if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
-                if (!Request()->user()->canBuy($goodsable_id)) {
+                if (!Request()->user()->canBuy($group_goods->id)) {
                     return $this->failed('您已购买过此课程,不能再次购买!');
                 }
             }
