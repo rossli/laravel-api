@@ -231,6 +231,8 @@ class OrderController extends BaseController
             \DB::rollback();
         }
         \DB::commit();
+        
+        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
         return $this->success([
             'order_id' => $order->id,
         ]);

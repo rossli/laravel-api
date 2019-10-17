@@ -37,6 +37,7 @@ class CancelOrder implements ShouldQueue
         if ($order) {
             $order->status = Order::STATUS_CANCEL;
             $order->cancel_type = Order::CANCEL_TYPE_AUTO;
+            $order->cancel_time = now();
             $order->save();
         }
     }
