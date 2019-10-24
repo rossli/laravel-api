@@ -128,6 +128,6 @@ return [
     //          //...
     //      ],
     // ],
-    'oauth_uri'=>'https://app.laoshiok.com',
+    'oauth_uri'=>env('OAUTH_URI','https://app.jkwedu.cn'),
     'scope'=>env('SNSAPI_SCOPE','snsapi_base')
 ];
