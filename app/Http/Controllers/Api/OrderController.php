@@ -158,8 +158,7 @@ class OrderController extends BaseController
         $goodsable_id = $request->id;
         $group_student_id = $request->group_student_id;
 
-        $group_goods = GroupGoods::with('goodsable')->where('goodsable_id', $goodsable_id)->enabled()->first();
-
+        $group_goods = GroupGoods::with('goodsable')->where('goodsable_type', $request->goodsable_type)->where('goodsable_id', $goodsable_id)->enabled()->first();
 
         if (!$group_goods) {
             return $this->failed('当前课程没有参加团购');
@@ -178,22 +177,20 @@ class OrderController extends BaseController
             $order = Order::where('user_id', Request()->user()->id)->where('group_student_id', $group_student_id)->where('status', Order::STATUS_PAID)->first();
 
             if ($order) {
-                return $this->failed('您已参加过此团购,不能在参加了!');
+                return $this->failed('您已参加过此团购,不能再参加了!');
             }
-            if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
 
-                $course_member = CourseMember::where('user_id', Request()->user()->id)->where('course_id', $goodsable_id)->get();
-                if ($course_member) {
-                    return $this->failed('您已购买过此课程,不能再次购买!');
-                }
-            }
 
         }
-
 
         $goods = $group_goods->goodsable;
 
         if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
+
+            if (!Request()->user()->canBuy($group_goods->id)) {
+                return $this->failed('您已购买过此课程,不能再次购买!');
+            }
+
             $order_item_type = ShoppingCart::TYPE_COURSE;
         } else {
 
@@ -236,6 +233,8 @@ class OrderController extends BaseController
             \DB::rollback();
         }
         \DB::commit();
+        
+        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
         return $this->success([
             'order_id' => $order->id,
         ]);

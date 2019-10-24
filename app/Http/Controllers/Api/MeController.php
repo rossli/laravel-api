@@ -14,7 +14,10 @@ class MeController extends BaseController
     //
     public function course()
     {
-        $course_members = CourseMember::with('course')->where([['user_id', '=', request()->user()->id]])->get();
+        $course_members = CourseMember::with(['course' => function ($query) {
+            $query->where('enabled', 1);
+        }])->where([['user_id', '=', request()->user()->id]])->orderBy('id', 'DESC')->get();
+
         $data = [];
         $course_members->each(function ($item) use (&$data) {
             if ($item->course) {
