@@ -102,9 +102,9 @@ class CourseTaskController extends BaseController
                                 break;
                             }
                         }
-                    } else {
-                        return $this->failed('当前没有直播或回放生成中!');
                     }
+
+                    return $this->failed('当前没有直播或回放生成中!');
 
                 case CourseTask::TYPE_PLAYBACK:
                     $res = Talkfun::liveGet($task->media_id);
