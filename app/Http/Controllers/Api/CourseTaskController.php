@@ -91,7 +91,7 @@ class CourseTaskController extends BaseController
             switch ($task->type) {
                 case CourseTask::TYPE_LIVE:
                     if ($task->start_time > now()) {
-                        return back()->withErrors('直播还未开始,请与' . $task->start_time . '再试');
+                        return $this->failed('直播还未开始,请与' . $task->start_time . '再试',-1);
                     }
                     $res = Talkfun::roomGetInfo($task->media_id);
                     if ($res['code'] == 0 && !empty($res['data'])) {
