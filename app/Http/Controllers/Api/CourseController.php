@@ -80,6 +80,9 @@ class CourseController extends BaseController
             },
             'material',
         ])->where('enabled', 1)->find($id);
+        if(!$course){
+            return $this->failed('没有当前课程');
+        }
         $task = [];
         $material = [];
         $course->task->each(function ($item) use (&$task) {
