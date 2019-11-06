@@ -37,6 +37,8 @@ class CourseController extends BaseController
                 'is_finished' => $item->is_finished,
                 'subtitle' => $item->subtitle,
                 'student_sum' => $item->student_add + $item->student_num,
+                'is_activity'=>$item->is_activity,
+                'origin_price'=>$item->origin_price,
             ];
         });
 
@@ -65,6 +67,8 @@ class CourseController extends BaseController
                 'is_finished' => $item->is_finished,
                 'subtitle' => $item->subtitle,
                 'student_sum' => $item->student_add + $item->student_num,
+                'is_activity'=>$item->is_activity,
+                'origin_price'=>$item->origin_price,
             ];
         });
 
@@ -129,6 +133,7 @@ class CourseController extends BaseController
             'summary' => $course->summary,
             'short_intro' => $course->short_intro,
             'is_group' => $course->is_group,
+            'is_activity'=>$course->is_activity,
             'task' => $task,
             'material' => $material,
         ];
@@ -139,7 +144,7 @@ class CourseController extends BaseController
     public function list()
     {
         $category = Category::with(['course' => function ($query) {
-            $query->select('enabled', 'courses.updated_at', 'cover', 'title', 'subtitle', 'courses.id', 'price', 'is_free', 'is_finished', 'origin_price');
+            $query->select('enabled', 'courses.updated_at', 'cover', 'title', 'subtitle', 'courses.id', 'price', 'is_free', 'is_finished', 'origin_price','is_activity');
         }])->get();
         $data = [];
         $i = 0;
@@ -155,6 +160,7 @@ class CourseController extends BaseController
                     'price' => $it->price,
                     'is_finished' => $it->is_finished,
                     'origin_price' => $it->origin_price,
+                    'is_activity'=>$it->is_activity,
                 ];
             });
             $i++;

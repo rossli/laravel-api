@@ -21,6 +21,7 @@ class BookController extends BaseController
                 'id' => $item->id,
                 'price' => $item->price,
                 'student_num' => $item->student_num + $item->student_add,
+                'is_activity'=>$item->is_activity,
             ];
         });
         return $this->success($data);
@@ -52,6 +53,7 @@ class BookController extends BaseController
             'num' => $book->num,
             'student_num' => $book->student_num + $book->student_add,
             'is_group' => $book->is_group,
+            'is_activity'=>$book->is_activity,
         ];
         return $this->success($data);
     }
@@ -69,6 +71,7 @@ class BookController extends BaseController
                 'price' => $item->price,
                 'origin_price' => $item->origin_price,
                 'student_sum' => $item->student_num + $item->student_add,
+                'is_activity'=>$item->is_activity,
             ];
         });
         return $this->success($data);
