@@ -29,7 +29,9 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     //验证码
     Route::get('/user/captcha', 'UserController@captcha')->name('api.user.captcha');
     Route::post('/user/sms-code', 'UserController@smsCode')->name('api.user.sms-code');
-
+    //微信登录
+    Route::get('wechat-login','WechatController@wechatLogin')->name('api.wechat.wechatLogin');
+    Route::get('wechat-info','WechatController@wechatInfo')->name('api.wechat.wechatInfo');
     Route::get('/order/openid', 'OrderController@getOpenid')->name('api.order.openid');
 
     Route::get('/banners', 'BannerController@index')->name('api.banners.index');
