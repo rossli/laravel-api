@@ -11,62 +11,50 @@ use App\Models\User;
 class WechatController extends BaseController
 {
      public function wechatLogin(){
-        $app=Factory::officialAccount(config('wechat'));
+        $app=Factory::officialAccount(config('wechat.official_account.default'));
         return $app->oauth->scopes(['snsapi_userinfo'])
              ->redirect();
+//         $app_id=config('wechat.official_account.default.app_id');
+//         $redirect_url=config('wechat.official_account.default.oauth.callback');
+//         $url="https://open.weixin.qq.com/connect/oauth2/authorize?appid='.$app_id.'&redirect_uri='.$redirect_url.'&response_type=code&scope=snsapi_base&state=#wechat_redirect";
+//         Utils::curl($url);
      }
-    public function auth(){
-
-        $app=Factory::officialAccount(config('wechat'));
+    public function wechatInfo(){
+        $app=Factory::officialAccount(config('wechat.official_account.default'));
         $user_info=$app->oauth->user()->toArray(); //获取用户授权信息
-        dd($user_info);
-        $request=Request::all();
-
         //判断在数据库当中是否存在openid
-        $user=User::where('openid','=',$user_info['openid'])->first();
+        $user=User::where('openid','=',$user_info['original']['openid'])->first();
         if(!$user){
             //如果user表不存在openid，则为新用户
             $create_data=[
-                'register_type'=>1,//1表示注册来源为pc扫码注册
-                'wechat_name'=>$user_info['nickname'],
-                'avatar'=>$user_info['headimgurl'],
-                'openid'=>$user_info['openid'],
-                'sex'=>$user_info['sex'],
-                'province'=>$user_info['province'],
-                'city'=>$user_info['city'],
+                'register_type'=>2,//2表示注册来源为微信网页登录
+                'wechat_name'=>$user_info['original']['nickname'],
+                'avatar'=>$user_info['original']['headimgurl'],
+                'openid'=>$user_info['original']['openid'],
+                'sex'=>$user_info['original']['sex'],
+                'province'=>$user_info['original']['province'],
+                'city'=>$user_info['original']['city'],
                 'login_time'=>now(),
             ];
             $user=User::create($create_data);
         }else{
             //如果微信个人信息有修改的情况，update user表的数据
             $update_data=[
-                'register_type'=>1,//1表示注册来源为pc扫码注册
-                'wechat_name'=>$user_info['nickname'],
-                'avatar'=>$user_info['headimgurl'],
-                'openid'=>$user_info['openid'],
-                'sex'=>$user_info['sex'],
-                'province'=>$user_info['province'],
-                'city'=>$user_info['city'],
+                'wechat_name'=>$user_info['original']['nickname'],
+                'avatar'=>$user_info['original']['headimgurl'],
+                'openid'=>$user_info['original']['openid'],
+                'sex'=>$user_info['original']['sex'],
+                'province'=>$user_info['original']['province'],
+                'city'=>$user_info['original']['city'],
                 'login_time'=>now(),
             ];
-            User::where('openid',$user_info['openid'])->update($update_data);
+            User::where('openid',$user_info['original']['openid'])->update($update_data);
         }
         //生成token
-        Auth::login($user, TRUE);
-        return redirect()->route('web.index.index');
-
-        return redirect()->to($request['state'].'?token='.$res['token']); //授权完成之后跳转会去
+        $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+        return $this->success([
+            'token' => $token,
+        ]);
     }
-  /**
-   * 微信登录
-   */
-//   public function wechatLogin(){
-//      $redirect_url="http://jkwedu-api.com/api/v1/wechat-info";
-//      $url="https://open.weixin.qq.com/connect/oauth2/authorize?appid=".config('wechat.official_account.app_id')."&".$redirect_url."&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
-//      Utils::curl($url);
-//   }
-   public function wechatInfo(Request $request){
-       dd($request);
-   }
 
 }
