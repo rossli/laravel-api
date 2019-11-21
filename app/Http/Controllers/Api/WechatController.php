@@ -14,10 +14,6 @@ class WechatController extends BaseController
         $app=Factory::officialAccount(config('wechat.official_account.default'));
         return $app->oauth->scopes(['snsapi_userinfo'])
              ->redirect();
-//         $app_id=config('wechat.official_account.default.app_id');
-//         $redirect_url=config('wechat.official_account.default.oauth.callback');
-//         $url="https://open.weixin.qq.com/connect/oauth2/authorize?appid='.$app_id.'&redirect_uri='.$redirect_url.'&response_type=code&scope=snsapi_base&state=#wechat_redirect";
-//         Utils::curl($url);
      }
     public function wechatInfo(){
         $app=Factory::officialAccount(config('wechat.official_account.default'));

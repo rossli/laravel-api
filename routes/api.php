@@ -32,6 +32,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     //微信登录
     Route::get('wechat-login','WechatController@wechatLogin')->name('api.wechat.wechatLogin');
     Route::get('wechat-info','WechatController@wechatInfo')->name('api.wechat.wechatInfo');
+
     Route::get('/order/openid', 'OrderController@getOpenid')->name('api.order.openid');
 
     Route::get('/banners', 'BannerController@index')->name('api.banners.index');
@@ -58,6 +59,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/groups/share/{id}','GroupStudentController@share')->name('api.group-student.share');
 
     Route::get('sensitive', 'SensitiveController@index')->name('api.sensitive.index');
+    //邀请微信二维码
+    Route::get('qrcode/{id}','QrcodeController@show')->name('api.qrcode.show');
 
     Route::middleware('auth:api')->group(function () {
         Route::get('/users', 'UserController@index')->name('api.users.index');
