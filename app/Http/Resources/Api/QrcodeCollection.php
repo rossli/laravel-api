@@ -6,6 +6,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class QrcodeCollection extends JsonResource
 {
+
     /**
      * Transform the resource into an array.
      *
@@ -15,13 +16,14 @@ class QrcodeCollection extends JsonResource
     public function toArray($request)
     {
         return [
-            'category_name' =>$this->qrcode_category,
+            'id' =>$this->id,
+            'category_name' =>$this->qrcodeCategory->name,
             'description' =>$this->description,
             'start_time' =>$this->start_time,
             'end_time' =>$this->end_time,
             'remark' =>$this->remark,
             'join_number'=>$this->number+$this->basic_number,
-            'image' => config('jkw.cdn_domain') . '/' . $this->image,
+            'image' => $this->image,
         ];
     }
 }
