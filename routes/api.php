@@ -61,6 +61,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('sensitive', 'SensitiveController@index')->name('api.sensitive.index');
     //邀请微信二维码
     Route::get('qrcode/{id}','QrcodeController@show')->name('api.qrcode.show');
+    //意见反馈
+    Route::post('suggest/create','SuggestController@create')->name('api.suggest.create');
 
     Route::middleware('auth:api')->group(function () {
         Route::get('/users', 'UserController@index')->name('api.users.index');
