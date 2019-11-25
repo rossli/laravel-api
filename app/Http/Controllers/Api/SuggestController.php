@@ -16,7 +16,9 @@ class SuggestController extends BaseController
      */
     public function index()
     {
-        //
+        $html = view('suggest.suggest');
+
+        return response($html)->getContent();
     }
 
     /**
@@ -29,8 +31,8 @@ class SuggestController extends BaseController
         $validator = Validator::make($request->all(),[
             'content'=>'required|min:10'
         ],[
-            'required'=>'内容不能为空',
-            'min'=>'内容过于简短'
+            'content.required'=>'内容不能为空',
+            'content.min'=>'内容过于简短'
         ]);
         if($validator->fails()){
             return $this->failed($validator->errors()->first());
