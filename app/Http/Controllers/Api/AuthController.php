@@ -7,6 +7,7 @@ use App\Http\Requests\Api\RegisterRequest;
 use App\Http\Requests\Api\ResetRequest;
 use App\Http\Requests\Api\SmsLoginRequest;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends BaseController
@@ -83,6 +84,33 @@ class AuthController extends BaseController
         return $this->success([
             'token' => $token,
         ]);
+    }
+
+    public function wxLogin(Request $request)
+    {
+        if ($request->openid) {
+            $user = User::where('openid', $request->openid)->first();
+            if (!$user) {
+                $user = User::create([
+                    'openid' => $request->openid,
+                    'avatar' => config('jkw.default_avatar'),
+                    'nick_name' => 'jkw_' . time(),
+                    'sex' => 0,
+                ]);
+            }
+            $user->login_time = now();
+            $user->save();
+
+            $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+
+            return $this->success([
+                'token' => $token,
+            ]);
+
+        }
+
+        $response = '用户不存在';
+        return $this->failed($response, 422);
 
 
     }
