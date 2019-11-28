@@ -15,3 +15,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/test', 'TestController@index')->name('web.test');
+Route::get('/suggest/list', 'SuggestController@list')->name('suggest.list');

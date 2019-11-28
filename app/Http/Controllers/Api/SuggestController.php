@@ -16,8 +16,7 @@ class SuggestController extends BaseController
      */
     public function index()
     {
-        $html = view('suggest.suggest');
-
+        $html = view('suggest.index');
         return response($html)->getContent();
     }
 
@@ -28,33 +27,45 @@ class SuggestController extends BaseController
      */
     public function create(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'content'=>'required|min:10'
-        ],[
-            'content.required'=>'内容不能为空',
-            'content.min'=>'内容过于简短'
+        $validator = Validator::make($request->all(), [
+            'content' => 'required|min:8',
+            'contact' => 'required'
+        ], [
+            'content.required' => '内容不能为空',
+            'content.min' => '内容过于简短',
+            'contact.required' => '请输入您的联系方式'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->failed($validator->errors()->first());
         }
-        $result=Suggest::create($request->all());
+        $result = Suggest::create($request->all());
+
         //发送模板消息
         $app = Factory::officialAccount(config('wechat.official_account.default'));
-         $app->template_message->send([
-             'touser' => 'o_ysnwFSWlmpHXi1tWeMs8hH_4TM',
-             'template_id' => 'tBOIXW5-RmCaWZIV-KSW5ORuocqpSYVA9BoiVMdOrjs',
-             'url' => 'www.baidu.com',
-             'data' => [
-                 '通知' => 'bug通知',
-             ],
-         ]);
-        return $this->success();
+        $admin = ['o_ysnwFSWlmpHXi1tWeMs8hH_4TM', 'o_ysnwFHdBWTZ0gmeaAFx6aRh_10', 'o_ysnwMa8RsUaaQkk-HdftfXa7p0'];
+        foreach ($admin as $item) {
+            $app->template_message->send([
+                'touser' => $item,
+                'template_id' => 'CaC_wtfBzuII_vrYrewwPFnYPyj5UvbfooIMCJkzJVs',
+                'url' => route('suggest.list'),
+                'data' => [
+                    'keyword1' =>  "问题反馈",
+                    'keyword2' => Suggest::TYPE[$result->type],
+                    'keyword3' => '技术部',
+                    'keyword4' => '技术部',
+                ],
+            ]);
+        }
+
+        return $this->success('感谢您的反馈,我们将尽快处理!');
+
+
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -65,7 +76,7 @@ class SuggestController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -76,7 +87,7 @@ class SuggestController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -87,8 +98,8 @@ class SuggestController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -99,7 +110,7 @@ class SuggestController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

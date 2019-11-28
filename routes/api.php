@@ -63,7 +63,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     //邀请微信二维码
     Route::get('qrcode/{id}','QrcodeController@show')->name('api.qrcode.show');
     //意见反馈
-    Route::get('suggest/index','SuggestController@index')->name('api.suggest.index');
+    Route::get('suggest','SuggestController@index')->name('api.suggest.index');
     Route::post('suggest/create','SuggestController@create')->name('api.suggest.create');
 
     Route::middleware('auth:api')->group(function () {
