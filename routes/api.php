@@ -89,6 +89,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         });
 
         Route::prefix('order')->group(function () {
+            Route::get('/check-address', 'OrderController@checkAddress')->name('api.order.check-address');
             Route::get('/book-submit', 'OrderController@bookSubmit')->name('api.order.book-submit');
             Route::get('/course-submit', 'OrderController@courseSubmit')->name('api.order.course-submit');
             Route::get('/cart-submit', 'OrderController@cartSubmit')->name('api.order.cart-submit');
@@ -97,7 +98,6 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/cancel/{id}', 'OrderController@cancel')->name('api.order.cancel');
             Route::get('/payment-wx', 'OrderController@paymentWx')->name('api.order.payment-wx');
             Route::get('/payment-h5', 'OrderController@paymentH5')->name('api.order.payment-h5');
-            Route::get('/check-address', 'OrderController@checkAddress')->name('api.order.check-address');
 
             Route::get('/{id}', 'OrderController@show')->name('api.order.show');
 
