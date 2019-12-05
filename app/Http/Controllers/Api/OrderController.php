@@ -543,6 +543,7 @@ class OrderController extends BaseController
         if (!request()->user()->receiver_mobile && !request()->user()->receiver_name && !request()->user()->province) {
             return $this->failed('请添加地址,方便给您发货!', -1);
         }
+        return $this->success('已有地址');
     }
 
 }
