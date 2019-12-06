@@ -82,6 +82,9 @@ class OrderController extends BaseController
         $str = NULL;
         $carts->each(function ($item) use (&$book_price, &$course_price, &$str) {
             if ($item->type == ShoppingCart::TYPE_BOOK) {
+                if ($this->checkAddress()) {
+                    return $this->checkAddress();
+                }
                 $book = Book::find($item->goods_id);
                 if ($item->nubmer >= $book->num) {
                     $str = '当前图书库存不足,请联系管理员';
