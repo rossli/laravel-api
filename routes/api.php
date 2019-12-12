@@ -53,8 +53,9 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
 
     Route::get('/group-good/list', 'GroupGoodsController@list')->name('api.group-goods.list');
     Route::get('/group-goods', 'GroupGoodsController@show')->name('api.group-goods.show');
-    Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
-    Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
+
+    Route::get('/course/task/open-course', 'CourseTaskController@openCourse')->name('api.course-task.open-course');
+
     Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
 
     Route::get('/groups/share/{id}','GroupStudentController@share')->name('api.group-student.share');
@@ -65,6 +66,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     //意见反馈
     Route::get('suggest','SuggestController@index')->name('api.suggest.index');
     Route::post('suggest/create','SuggestController@create')->name('api.suggest.create');
+
+
 
     Route::middleware('auth:api')->group(function () {
         Route::get('/users', 'UserController@index')->name('api.users.index');

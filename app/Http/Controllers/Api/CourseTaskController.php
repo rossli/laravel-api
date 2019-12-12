@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\CourseMember;
 use App\Models\CourseTask;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Rachel\TalkfunSdk\Facades\Talkfun;
@@ -11,6 +12,39 @@ use Rachel\TalkfunSdk\Facades\Talkfun;
 class CourseTaskController extends BaseController
 {
     //
+
+    public function openCourse(Request $request)
+    {
+        $courseTask = CourseTask::with('teacher')
+            ->where('enabled', 1)
+            ->where('is_open', 1)
+            ->orderBy('end_time', 'DESC')->get();
+
+        if ($request->limit) {
+            $courseTask = $courseTask->take(4);
+        }
+
+        $data = [];
+
+        $courseTask->each(function ($item) use (&$data) {
+            $teacher = $item->teacher;
+
+            $data[] = [
+                'id'=>$item->id,
+                'cover' => config('jkw.cdn_domain') . '/' . $teacher->image,
+                'name' => $teacher->name,
+                'rank' => Teacher::RANK_NAME[$teacher->rank],
+                'title' => $item->title,
+                'start_time' => $item->start_time,
+                'end_time' => $item->end_time,
+                'video_poster' => config('jkw.cdn_domain') . '/' .$item->video_poster,
+                'type' => $item->type,
+            ];
+        });
+
+        return $this->success($data);
+
+    }
 
     public function video(Request $request)
     {
@@ -91,7 +125,7 @@ class CourseTaskController extends BaseController
             switch ($task->type) {
                 case CourseTask::TYPE_LIVE:
                     if ($task->start_time > now()) {
-                        return $this->failed('直播还未开始,请与' . $task->start_time . '再试',-1);
+                        return $this->failed('直播还未开始,请与' . $task->start_time . '再试', -1);
                     }
                     $res = Talkfun::roomGetInfo($task->media_id);
                     if ($res['code'] == 0 && !empty($res['data'])) {
