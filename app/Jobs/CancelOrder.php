@@ -38,7 +38,7 @@ class CancelOrder implements ShouldQueue
         if ($order) {
             $user=User::find('user_id');
             if($user){
-                $user->currency=$order->coupon_deduction/100;
+                $user->currency+=$order->coupon_deduction/100;
                 $user->save();
             }
 
