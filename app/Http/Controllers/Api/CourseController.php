@@ -136,6 +136,7 @@ class CourseController extends BaseController
             'is_activity'=>$course->is_activity,
             'task' => $task,
             'material' => $material,
+            'is_currency'=>$course->is_currency
         ];
 
         return $this->success($data);

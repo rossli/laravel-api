@@ -7,6 +7,7 @@ use App\Http\Requests\Api\RegisterRequest;
 use App\Http\Requests\Api\ResetRequest;
 use App\Http\Requests\Api\SmsLoginRequest;
 use App\Models\User;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,18 +15,30 @@ class AuthController extends BaseController
 {
     public function register(RegisterRequest $request)
     {
+        $from_user_id = $request->get('from_user_id');
+        if($from_user_id){
+            $from_user_id=Utils::hashids_decode($from_user_id);
+            $from_user_id=$from_user_id[0];
+            $user=User::find($from_user_id);
+            if($user){
+                $user->currency++;
+                $user->save();
+            }
+        }
         $user = User::create([
             'mobile' => $request->get('mobile'),
             'password' => bcrypt($request->get('password')),
             'avatar' => config('jkw.default_avatar'),
             'nick_name' => 'jkw_' . time(),
             'sex' => 0,
+            'from_user_id'=>$from_user_id??0,
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
             'token' => $token,
+            'code'=>Utils::hashids_encode($user->id)
         ]);
     }
 
@@ -37,7 +50,7 @@ class AuthController extends BaseController
 
             if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-                $response = ['token' => $token];
+                $response = ['token' => $token, 'code'=>Utils::hashids_encode($user->id)];
                 return $this->success($response);
             } else {
                 $response = '密码错误';
@@ -66,6 +79,7 @@ class AuthController extends BaseController
 
         return $this->success([
             'token' => $token,
+            'code'=>Utils::hashids_encode($user->id)
         ]);
 
     }
@@ -83,6 +97,7 @@ class AuthController extends BaseController
 
         return $this->success([
             'token' => $token,
+            'code'=>Utils::hashids_encode($user->id)
         ]);
     }
 
@@ -91,11 +106,22 @@ class AuthController extends BaseController
         if ($request->openid) {
             $user = User::where('openid', $request->openid)->first();
             if (!$user) {
+                $from_user_id = $request->get('from_user_id');
+                if($from_user_id){
+                    $from_user_id=Utils::hashids_decode($from_user_id);
+                    $from_user_id=$from_user_id[0];
+                    $user=User::find($from_user_id);
+                    if($user){
+                        $user->currency++;
+                        $user->save();
+                    }
+                }
                 $user = User::create([
                     'openid' => $request->openid,
                     'avatar' => config('jkw.default_avatar'),
                     'nick_name' => 'jkw_' . time(),
                     'sex' => 0,
+                    'from_user_id'=>$from_user_id??0,
                 ]);
             }
             $user->login_time = now();
@@ -105,6 +131,7 @@ class AuthController extends BaseController
 
             return $this->success([
                 'token' => $token,
+                'code'=>Utils::hashids_encode($user->id)
             ]);
 
         }

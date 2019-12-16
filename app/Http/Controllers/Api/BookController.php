@@ -54,6 +54,7 @@ class BookController extends BaseController
             'student_num' => $book->student_num + $book->student_add,
             'is_group' => $book->is_group,
             'is_activity'=>$book->is_activity,
+            'is_currency'=>$book->is_currency
         ];
         return $this->success($data);
     }

@@ -88,7 +88,9 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/course', 'MeController@course')->name('api.me.course');
             Route::get('/order', 'MeController@order')->name('api.me.order');
             Route::get('/group', 'MeController@group')->name('api.me.group');
-            Route::get('/is-student/{id}', 'MeController@isStudent')->name('api.me.isStudent');
+            Route::get('/is-student/{id}', 'MeController@isStudent')->name('api.me.is-student');
+            Route::get('/from-user','MeController@fromUser')->name('api.me.from-user');
+            Route::get('/currency','MeController@currency')->name('api.me.currency');
         });
 
         Route::prefix('order')->group(function () {

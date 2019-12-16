@@ -12,6 +12,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PayLog;
 use App\Models\ShoppingCart;
+use App\Models\User;
+use App\Utils\Utils;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -103,6 +105,13 @@ class OrderController extends BaseController
         }
         $sum = $book_price + $course_price;
         $order_sn = date('YmdHis') . (time() + Request()->user()->id);
+        $from_user_id=request()->from_user_id;
+        if($from_user_id){
+            $from_user_id=Utils::hashids_decode($from_user_id);
+            if($from_user_id){
+                $from_user_id=$from_user_id[0];
+            }
+        }
         \DB::beginTransaction();
         try {
             $order = Order::create([
@@ -110,6 +119,7 @@ class OrderController extends BaseController
                 'total_fee' => $sum * 100,
                 'wait_pay_fee' => $sum * 100,
                 'user_id' => Request()->user()->id,
+                'from_user_id'=>$from_user_id??0
             ]);
             $carts->each(function ($item) use ($order, $order_sn) {
                 if ($item->type == ShoppingCart::TYPE_BOOK) {
@@ -207,6 +217,14 @@ class OrderController extends BaseController
             $order_item_type = ShoppingCart::TYPE_BOOK;
         }
 
+        $from_user_id=$request->from_user_id;
+        if($from_user_id){
+            $from_user_id=Utils::hashids_decode($from_user_id);
+            if($from_user_id){
+                $from_user_id=$from_user_id[0];
+            }
+        }
+
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
         $order_sn = date('YmdHis') . (time() + $request->user()->id);
         \DB::beginTransaction();
@@ -218,6 +236,7 @@ class OrderController extends BaseController
                 'user_id' => $request->user()->id,
                 'type' => Order::TYPE_GROUP,
                 'group_student_id' => $group_student_id ?: 0,
+                'from_user_id'=>$from_user_id??0
             ]);
             OrderItem::create([
                 'order_id' => $order->id,
@@ -247,19 +266,39 @@ class OrderController extends BaseController
     {
         $course_id = $request->id;
         $course = Course::find($course_id);
+
         if (!$request->user()->canBuy($course_id)) {
             return $this->failed('您已购买过此课程!', -1);
         }
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
         $order_sn = date('YmdHis') . (time() + $request->user()->id);
+
+        $from_user_id=$request->from_user_id;
+        if($from_user_id){
+            $from_user_id=Utils::hashids_decode($from_user_id);
+            if($from_user_id){
+                $from_user_id=$from_user_id[0];
+            }
+        }
+
+        $is_currency=$request->is_currency;
+        $coupon_deduction=0;
+        if($is_currency && $course->price>$request->user()->currency){
+            $user=$request->user();
+            $coupon_deduction=$user->currency*100;
+            $user->currency=0;
+            $user->save();
+        }
         \DB::beginTransaction();
         try {
             $order = Order::create([
                 'order_sn' => $order_sn,
                 'total_fee' => $course->price * 100,
-                'wait_pay_fee' => $course->price * 100,
+                'wait_pay_fee' => $course->price * 100-$coupon_deduction,
                 'user_id' => $request->user()->id,
                 'type' => Order::TYPE_NORMAL,
+                'from_user_id'=>$from_user_id??0,
+                'coupon_deduction'=>$coupon_deduction
             ]);
             OrderItem::create([
                 'order_id' => $order->id,
@@ -300,6 +339,25 @@ class OrderController extends BaseController
         if (!$book->num) {
             return $this->failed('库存不足,请联系管理员!', -1);
         }
+
+
+        $from_user_id=$request->from_user_id;
+        if($from_user_id){
+            $from_user_id=Utils::hashids_decode($from_user_id);
+            if($from_user_id){
+                $from_user_id=$from_user_id[0];
+            }
+        }
+
+        $is_currency=$request->is_currency;
+        $coupon_deduction=0;
+        if($is_currency && $book->price>$request->user()->currency){
+            $user=$request->user();
+            $coupon_deduction=$user->currency*100;
+            $user->currency=0;
+            $user->save();
+        }
+
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
         $order_sn = date('YmdHis') . (time() + $request->user()->id);
         \DB::beginTransaction();
@@ -307,9 +365,11 @@ class OrderController extends BaseController
             $order = Order::create([
                 'order_sn' => $order_sn,
                 'total_fee' => $book->price * 100,
-                'wait_pay_fee' => $book->price * 100,
+                'wait_pay_fee' => $book->price * 100-$coupon_deduction,
                 'user_id' => $request->user()->id,
                 'type' => Order::TYPE_BOOK,
+                'coupon_deduction'=>$coupon_deduction,
+                 'from_user_id'=>$from_user_id??0,
             ]);
             OrderItem::create([
                 'order_id' => $order->id,

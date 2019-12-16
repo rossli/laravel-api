@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -35,6 +36,12 @@ class CancelOrder implements ShouldQueue
         //
         $order = Order::where('status', Order::STATUS_WAIT_PAY)->where('id', $this->order_id)->first();
         if ($order) {
+            $user=User::find('user_id');
+            if($user){
+                $user->currency=$order->coupon_deduction/100;
+                $user->save();
+            }
+
             $order->status = Order::STATUS_CANCEL;
             $order->cancel_type = Order::CANCEL_TYPE_AUTO;
             $order->cancel_time = now();

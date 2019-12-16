@@ -6,6 +6,8 @@ use App\Models\CourseMember;
 use App\Models\GroupGoods;
 use App\Models\GroupStudent;
 use App\Models\Order;
+use App\Models\User;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 
 class MeController extends BaseController
@@ -144,5 +146,27 @@ class MeController extends BaseController
         });
 
         return $this->success($data);
+    }
+
+    public function fromUser()
+    {
+        $user=User::where('from_user_id',request()->user()->id)->get();
+
+        $data=[];
+        if($user){
+            $user->each(function ($item) use(&$data){
+                $data[]=[
+                    'avatar'=>config('jkw.cdn_domain') . '/' . $item->avatar,
+                    'nick_name'=>$item->nick_name,
+                    'created_at'=>date_format($item->created_at,'Y-m-d H:i:s')
+                ];
+            });
+        }
+        return $this->success($data);
+    }
+
+    public function currency()
+    {
+        return $this->success(request()->user()->currency);
     }
 }
