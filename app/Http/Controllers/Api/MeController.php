@@ -169,4 +169,9 @@ class MeController extends BaseController
     {
         return $this->success(request()->user()->currency);
     }
+
+    public function code()
+    {
+        return $this->success(Utils::hashids_encode(request()->user()->id));
+    }
 }
