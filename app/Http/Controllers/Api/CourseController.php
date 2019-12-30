@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\Api\CourseCollection;
 use App\Models\Category;
+use App\Models\Comment;
 use App\Models\Course;
 use App\Models\CourseMaterial;
 use App\Models\CourseMember;
@@ -12,6 +13,8 @@ use App\Models\GroupGoods;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class CourseController extends BaseController
 {
@@ -246,6 +249,54 @@ class CourseController extends BaseController
             });
         });
 
+        return $this->success($data);
+    }
+    /**
+     * 一个课程下的评论列表
+     * @return mixed
+     */
+    public function comments(Request $request)
+    {
+        $validator=Validator::make($request->all(),[
+            'course_id'  => 'required',
+        ],[
+            'course_id.required'=>'course_id不能为空',
+        ]);
+        if ($validator->fails()) {
+            return $this->failed($validator->errors()->first());
+        }
+        $comment=Comment::with(['course' => function($query){
+            $query->select('id','practical_score','easy_score','logic_score','scores');
+        },'user' =>function($query){
+            $query->select('id','name','mobile','binding_mobile','avatar','wechat_avatar');
+        },'like' => function($query){
+            $query->select('type_id','status');
+        }])->orderBy('created_at','DESC')->where('course_id',$request->input('course_id'))->get();
+        if (request()->user()) {
+            $is_comment = request()->user()->isComment($request->input('course_id'));
+        } else {
+            $is_comment = FALSE;
+        }
+        $data=[
+            'is_comment' =>$is_comment
+        ];
+        foreach($comment as $item){
+            $data[]=[
+                'course_id' => $item->course_id,
+                'content' => $item->content,
+                'practical_score' => $item->course->practical_score,
+                'easy_score' => $item->course->easy_score,
+                'logic_score' => $item->course->logic_score,
+                'totle_scores' => $item->course->scores,
+                'scores' => $item->scores,
+                'user_name' => $item->user->name,
+                'avatar' => $item->user->avatar,
+                'wechat_avatar' => $item->user->wechat_avatar,
+                'is_like' => empty($item->like->status) ? 0 : 1,  //这条评论是否点过赞,1表示赞，0或者没有表示没赞
+                'created_at' => $item->created_at,
+                'updated_at' => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
+            ];
+        }
         return $this->success($data);
     }
 }
