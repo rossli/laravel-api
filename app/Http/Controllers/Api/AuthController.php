@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\BindMobileRequest;
 use App\Http\Requests\Api\LoginRequest;
 use App\Http\Requests\Api\RegisterRequest;
 use App\Http\Requests\Api\ResetRequest;
@@ -16,11 +17,11 @@ class AuthController extends BaseController
     public function register(RegisterRequest $request)
     {
         $from_user_id = $request->get('from_user_id');
-        if($from_user_id){
-            $from_user_id=Utils::hashids_decode($from_user_id);
-            $from_user_id=$from_user_id[0];
-            $user=User::find($from_user_id);
-            if($user){
+        if ($from_user_id) {
+            $from_user_id = Utils::hashids_decode($from_user_id);
+            $from_user_id = $from_user_id[0];
+            $user = User::find($from_user_id);
+            if ($user) {
                 $user->currency++;
                 $user->save();
             }
@@ -31,14 +32,14 @@ class AuthController extends BaseController
             'avatar' => config('jkw.default_avatar'),
             'nick_name' => 'jkw_' . time(),
             'sex' => 0,
-            'from_user_id'=>$from_user_id??0,
+            'from_user_id' => $from_user_id ?? 0,
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
             'token' => $token,
-            'code'=>Utils::hashids_encode($user->id)
+            'code' => Utils::hashids_encode($user->id)
         ]);
     }
 
@@ -50,7 +51,7 @@ class AuthController extends BaseController
 
             if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-                $response = ['token' => $token, 'code'=>Utils::hashids_encode($user->id)];
+                $response = ['token' => $token, 'code' => Utils::hashids_encode($user->id)];
                 return $this->success($response);
             } else {
                 $response = '密码错误';
@@ -79,7 +80,7 @@ class AuthController extends BaseController
 
         return $this->success([
             'token' => $token,
-            'code'=>Utils::hashids_encode($user->id)
+            'code' => Utils::hashids_encode($user->id)
         ]);
 
     }
@@ -97,7 +98,7 @@ class AuthController extends BaseController
 
         return $this->success([
             'token' => $token,
-            'code'=>Utils::hashids_encode($user->id)
+            'code' => Utils::hashids_encode($user->id)
         ]);
     }
 
@@ -105,25 +106,7 @@ class AuthController extends BaseController
     {
         if ($request->openid) {
             $user = User::where('openid', $request->openid)->first();
-            if (!$user) {
-                $from_user_id = $request->get('from_user_id');
-                if($from_user_id){
-                    $from_user_id=Utils::hashids_decode($from_user_id);
-                    $from_user_id=$from_user_id[0];
-                    $user=User::find($from_user_id);
-                    if($user){
-                        $user->currency++;
-                        $user->save();
-                    }
-                }
-                $user = User::create([
-                    'openid' => $request->openid,
-                    'avatar' => config('jkw.default_avatar'),
-                    'nick_name' => 'jkw_' . time(),
-                    'sex' => 0,
-                    'from_user_id'=>$from_user_id??0,
-                ]);
-            }
+
             $user->login_time = now();
             $user->save();
 
@@ -131,16 +114,64 @@ class AuthController extends BaseController
 
             return $this->success([
                 'token' => $token,
-                'code'=>Utils::hashids_encode($user->id)
+                'code' => Utils::hashids_encode($user->id)
             ]);
 
         }
 
         $response = '用户不存在';
         return $this->failed($response, 422);
-
-
     }
 
+    public function isBind(Request $request)
+    {
+        $isBind = false;
+        if ($request->openid) {
+            $user = User::where('openid', $request->openid)->first();
+            if ($user) {
+                if ($user->binding_mobile) {
+                    $isBind = true;
+                }
+            }
+        }
+        $data = [
+            'isBind' => $isBind
+        ];
+        return $this->success($data);
+    }
+
+    public function bindMobile(BindMobileRequest $request)
+    {
+        $user = User::where('openid', $request->openid)->first();
+        if (!$user) {
+            $from_user_id = $request->get('from_user_id');
+            if ($from_user_id) {
+                $from_user_id = Utils::hashids_decode($from_user_id);
+                $from_user_id = $from_user_id[0];
+                $user = User::find($from_user_id);
+                if ($user) {
+                    $user->currency++;
+                    $user->save();
+                }
+            }
+            $user = User::create([
+                'openid' => $request->openid,
+                'avatar' => config('jkw.default_avatar'),
+                'nick_name' => 'jkw_' . time(),
+                'sex' => 0,
+                'from_user_id' => $from_user_id ?? 0,
+            ]);
+        }
+        $user->binding_mobile = $request->mobile;
+        $user->login_time = now();
+        $user->save();
+
+        $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+
+        return $this->success([
+            'token' => $token,
+            'code' => Utils::hashids_encode($user->id)
+        ]);
+    }
 
 }

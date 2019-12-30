@@ -25,6 +25,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::post('/auth/reset', 'AuthController@reset')->name('api.auth.reset');
     Route::post('/auth/sms-login', 'AuthController@smsLogin')->name('api.auth.sms-login');
     Route::post('/auth/wx-login', 'AuthController@wxLogin')->name('api.auth.wx-login');
+    Route::get('/auth/is-bind', 'AuthController@isBind')->name('api.auth.is-bind');
+    Route::post('/auth/bind-mobile', 'AuthController@bindMobile')->name('api.auth.bind-mobile');
 
     Route::get('/user/exists', 'UserController@exists')->name('api.user.check-mobile');
     //验证码
