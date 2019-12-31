@@ -43,9 +43,9 @@ class CommentController extends BaseController
             'logic_score.required' => '逻辑清晰的评分不能为空',
             'content.required'=>'评论内容不能为空',
         ]);
-        $score1 = intval($request->input('practical_score'));
-        $score2 = intval($request->input('easy_score'));
-        $score3 = intval($request->input('logic_score'));
+        $score1 = (int)$request->input('practical_score');
+        $score2 = (int)$request->input('easy_score');
+        $score3 = (int)$request->input('logic_score');
         $scores= number_format(($score1 + $score2 + $score3)/3,'2');
         if ($validator->fails()) {
             return $this->failed($validator->errors()->first());
