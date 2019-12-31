@@ -30,33 +30,37 @@ class BookController extends BaseController
     public function show(Request $request)
     {
         $book = Book::where('enabled', 1)->find($request->id);
-        if ($book->is_group) {
-            $group_goods = GroupGoods::where('goodsable_type', GroupGoods::GOODS_TYPE_1)
-                ->enabled()
-                ->where('goodsable_id', $request->id)->first();
-            if ($group_goods) {
-                $book->is_group = true;
-            } else {
-                $book->is_group = false;
+        if($book){
+            if ($book->is_group) {
+                $group_goods = GroupGoods::where('goodsable_type', GroupGoods::GOODS_TYPE_1)
+                    ->enabled()
+                    ->where('goodsable_id', $request->id)->first();
+                if ($group_goods) {
+                    $book->is_group = true;
+                } else {
+                    $book->is_group = false;
+                }
             }
+            $data = [
+                'image' => config('jkw.cdn_domain') . '/' . $book->cover,
+                'title' => $book->title,
+                'id' => $book->id,
+                'price' => $book->price,
+                'subtitle' => $book->subtitle,
+                'origin_price' => $book->origin_price,
+                'summary' => $book->summary,
+                'menu' => $book->menu,
+                'num' => $book->num,
+                'student_num' => $book->student_num + $book->student_add,
+                'is_group' => $book->is_group,
+                'is_activity'=>$book->is_activity,
+                'is_currency'=>$book->is_currency
+            ];
+            return $this->success($data);
         }
 
-        $data = [
-            'image' => config('jkw.cdn_domain') . '/' . $book->cover,
-            'title' => $book->title,
-            'id' => $book->id,
-            'price' => $book->price,
-            'subtitle' => $book->subtitle,
-            'origin_price' => $book->origin_price,
-            'summary' => $book->summary,
-            'menu' => $book->menu,
-            'num' => $book->num,
-            'student_num' => $book->student_num + $book->student_add,
-            'is_group' => $book->is_group,
-            'is_activity'=>$book->is_activity,
-            'is_currency'=>$book->is_currency
-        ];
-        return $this->success($data);
+        return $this->failed('没有当前图书');
+
     }
 
     public function list()
