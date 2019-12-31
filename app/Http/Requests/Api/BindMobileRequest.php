@@ -26,7 +26,7 @@ class BindMobileRequest extends BaseFormRequest
                 'required',
                 Rule::in(['bind']),
             ],
-            'mobile' => ['required','mobile'],
+            'mobile' => ['required','mobile','unique:users,binding_mobile'],
             'sms' => ['required','sms_captcha'],
             'openid'=>['required']
         ];
@@ -38,6 +38,7 @@ class BindMobileRequest extends BaseFormRequest
             'mobile.required' => '手机号必填',
             'openid.required' => 'openid必填',
             'mobile.mobile' => '手机号不正确',
+            'mobile.unique' => '手机号已经绑定其他微信了,请换一个手机号绑定',
             'method.required' => 'method 必填',
             'method.in'     => 'method 必须是 bind',
             'sms.required' => '短信验证码必填',
