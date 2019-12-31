@@ -271,7 +271,9 @@ class CourseController extends BaseController
             $query->select('id','name','mobile','binding_mobile','avatar','wechat_avatar');
         },'like' => function($query){
             $query->select('type_id','status');
-        }])->orderBy('created_at','DESC')->where('course_id',$request->input('course_id'))->get();
+        }])->orderBy('created_at','DESC')
+            ->where('course_id',$request->input('course_id'))
+            ->where('enabled',1)->get();
         if (request()->user()) {
             $is_comment = request()->user()->isComment($request->input('course_id'));
         } else {

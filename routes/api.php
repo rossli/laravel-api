@@ -128,7 +128,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     });
     Route::prefix('comment')->group(function (){  //评论相关
         Route::post('store','CommentController@store')->name('api.comment.store')->middleware('auth:api');
-        Route::post('update','CommentController@update')->name('api.comment.update')->middleware('auth:api');
+//        Route::post('update','CommentController@update')->name('api.comment.update')->middleware('auth:api');
         Route::post('like/store','LikeController@store')->name('api.comment-like.store')->middleware('auth:api');
     });
 

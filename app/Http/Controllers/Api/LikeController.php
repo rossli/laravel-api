@@ -33,6 +33,9 @@ class LikeController extends BaseController
         ])->first();
 
         $comment=Comment::where('id',$request->input('type_id'))->first();
+        if(!$comment){
+            return $this->failed('该评论不存在或已被禁用');
+        }
         if($like){
             $is_like = request()->user()->isLike($request->input('type_id'));
             if($is_like == TRUE){ //点过赞,则取消赞

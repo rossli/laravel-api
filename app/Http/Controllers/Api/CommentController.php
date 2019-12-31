@@ -75,7 +75,7 @@ class CommentController extends BaseController
                 DB::rollBack();
                 return $this->failed('添加失败');
             }
-            return $this->success(1);
+            return $this->success();
         } catch (\Exception $e) {
             return $this->failed('添加失败');
         }
