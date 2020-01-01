@@ -19,6 +19,9 @@ class CommentController extends BaseController
     public function store(Request $request){
 
         $user = $request->user();
+        if(!$user){
+            return $this->failed('您还未登录!');
+        }
         $courseMember=CourseMember::where([  //该用户是否加入该课程
             ['user_id','=',$user->id],
             ['course_id','=', $request->input('course_id')]
