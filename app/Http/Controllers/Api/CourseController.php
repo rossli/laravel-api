@@ -10,6 +10,7 @@ use App\Models\CourseMaterial;
 use App\Models\CourseMember;
 use App\Models\CourseTask;
 use App\Models\GroupGoods;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -283,6 +284,9 @@ class CourseController extends BaseController
             'is_comment' =>$is_comment
         ];
         foreach($comment as $item){
+            if($request->user()){
+                $is_like = $request->user()->isLike($item);
+            }
             $data[]=[
                 'course_id' => $item->course_id,
                 'content' => $item->content,
@@ -295,6 +299,7 @@ class CourseController extends BaseController
                 'avatar' => $item->user->avatar,
                 'wechat_avatar' => $item->user->wechat_avatar,
                 'is_like' => empty($item->like->status) ? 0 : 1,  //这条评论是否点过赞,1表示赞，0或者没有表示没赞
+//                'is_like' => $request->user()->isLike($item->id) ? 1 : 0,
                 'created_at' => $item->created_at,
                 'updated_at' => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
             ];

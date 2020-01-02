@@ -68,10 +68,10 @@ class CommentController extends BaseController
                 Comment::create($insert_data);
                 $course = Course::findOrFail($request->input('course_id'));
                 //计算课程的平均得分跟综合分数
-                $course->practical_score = number_format(Comment::avg('practical_score'),'2');
-                $course->easy_score = number_format(Comment::avg('easy_score'),'2');
-                $course->logic_score = number_format(Comment::avg('logic_score'),'2');
-                $course->scores = number_format(Comment::avg('scores'),'2');
+                $course->practical_score = number_format(Comment::where('course_id',$course->id)->avg('practical_score'),'2');
+                $course->easy_score = number_format(Comment::where('course_id',$course->id)->avg('easy_score'),'2');
+                $course->logic_score = number_format(Comment::where('course_id',$course->id)->avg('logic_score'),'2');
+                $course->scores = number_format(Comment::where('course_id',$course->id)->avg('scores'),'2');
                 $course->save();
                 DB::commit();
             }catch (\Exception $e){
