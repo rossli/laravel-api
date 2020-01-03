@@ -46,7 +46,7 @@ class LikeController extends BaseController
                 }catch (\Exception $e){
                     return $this->failed($e->getMessage());
                 }
-                return $this->success(['like' => 0]);  //like=0 或者empty表示取消赞或者未点赞
+                return $this->success(['like' => 0,'like_num'=> $comment->like_num]);  //like=0 或者empty表示取消赞或者未点赞
             }else if($is_like == FALSE) { //取消了赞，则改为点赞
                 try {
                     $like->status = 1;
@@ -55,7 +55,7 @@ class LikeController extends BaseController
                 }catch (\Exception $e){
                     return $this->failed($e->getMessage());
                 }
-                return $this->success(['like' => 1]);  //like=1 表示已点赞的状态
+                return $this->success(['like' => 1,'like_num'=> $comment->like_num]);  //like=1 表示已点赞的状态
             }
         }else{
             try{
@@ -66,7 +66,7 @@ class LikeController extends BaseController
                     'status'  => 1
                 ]);
                 $comment->increment('like_num',1);
-                return $this->success(['like' => 1]);
+                return $this->success(['like' => 1,'like_num'=> $comment->like_num]);
             }catch (\Exception $e){
                 return $this->failed('点赞失败');
             }

@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 class CourseController extends BaseController
 {
 
@@ -275,17 +275,17 @@ class CourseController extends BaseController
         }])->orderBy('created_at','DESC')
             ->where('course_id',$request->input('course_id'))
             ->where('enabled',1)->get();
-        if (request()->user()) {
-            $is_comment = request()->user()->isComment($request->input('course_id'));
+        if (Auth::check()) {
+            $is_comment = Auth::user()->isComment($request->input('course_id'));
         } else {
             $is_comment = FALSE;
         }
         $data=[
-            'is_comment' =>$is_comment
+          'is_comment' =>$is_comment
         ];
         foreach($comment as $item){
-            if($request->user()){
-                $is_like = $request->user()->isLike($item);
+            if(Auth::user()){
+                $is_like = Auth::user()->isLike($item->id);
             }
             $data[]=[
                 'course_id' => $item->course_id,
@@ -298,8 +298,7 @@ class CourseController extends BaseController
                 'user_name' => $item->user->name,
                 'avatar' => $item->user->avatar,
                 'wechat_avatar' => $item->user->wechat_avatar,
-                'is_like' => empty($item->like->status) ? 0 : 1,  //这条评论是否点过赞,1表示赞，0或者没有表示没赞
-//                'is_like' => $request->user()->isLike($item->id) ? 1 : 0,
+                'is_like' => $is_like ? 1 : 0,
                 'created_at' => $item->created_at,
                 'updated_at' => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
             ];
