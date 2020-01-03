@@ -124,11 +124,12 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     });
     Route::prefix('courses')->group(function (){
         //该课程下的评论列表
-        Route::get('/comments','CourseController@comments')->name('api.courses.comments')->middleware('auth:api');
+        Route::get('/comments','CourseController@comments')->name('api.courses.comments');
+        //该课程下登录状态下的列表
+        Route::get('/my-comments','CourseController@myComments')->name('api.courses.my-comments')->middleware('auth:api');
     });
     Route::prefix('comment')->group(function (){  //评论相关
         Route::post('store','CommentController@store')->name('api.comment.store');
-//        Route::post('update','CommentController@update')->name('api.comment.update')->middleware('auth:api');
         Route::post('like/store','LikeController@store')->name('api.comment-like.store')->middleware('auth:api');
     });
 

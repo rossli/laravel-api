@@ -270,6 +270,43 @@ class CourseController extends BaseController
             $query->select('id','practical_score','easy_score','logic_score','scores');
         },'user' =>function($query){
             $query->select('id','name','mobile','binding_mobile','avatar','wechat_avatar');
+        }])->orderBy('created_at','DESC')
+            ->where('course_id',$request->input('course_id'))
+            ->where('enabled',1)->get();
+
+        foreach($comment as $item){
+            $data[]=[
+                'course_id' => $item->course_id,
+                'content' => $item->content,
+                'practical_score' => $item->course->practical_score,
+                'easy_score' => $item->course->easy_score,
+                'logic_score' => $item->course->logic_score,
+                'totle_scores' => $item->course->scores,
+                'scores' => $item->scores,
+                'user_name' => $item->user->name,
+                'avatar' => $item->user->avatar,
+                'wechat_avatar' => $item->user->wechat_avatar,
+                'created_at' => $item->created_at,
+                'updated_at' => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
+            ];
+        }
+        return $this->success($data);
+    }
+
+    public function myComments(Request $request)
+    {
+        $validator=Validator::make($request->all(),[
+            'course_id'  => 'required',
+        ],[
+            'course_id.required'=>'course_id不能为空',
+        ]);
+        if ($validator->fails()) {
+            return $this->failed($validator->errors()->first());
+        }
+        $comment=Comment::with(['course' => function($query){
+            $query->select('id','practical_score','easy_score','logic_score','scores');
+        },'user' =>function($query){
+            $query->select('id','name','mobile','binding_mobile','avatar','wechat_avatar');
         },'like' => function($query){
             $query->select('type_id','status');
         }])->orderBy('created_at','DESC')
@@ -281,7 +318,7 @@ class CourseController extends BaseController
             $is_comment = FALSE;
         }
         $data=[
-          'is_comment' =>$is_comment
+            'is_comment' =>$is_comment
         ];
         foreach($comment as $item){
             if(Auth::user()){
