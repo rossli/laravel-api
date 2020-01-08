@@ -277,24 +277,26 @@ class CourseController extends BaseController
         }])->orderBy('created_at','DESC')
             ->where('course_id',$request->input('course_id'))
             ->where('enabled',1)->get();
-
-        foreach($comment as $item){
-            $data[]=[
-                'course_id' => $item->course_id,
-                'id'=>$item->id,
-                'content' => $item->content,
-                'practical_score' => $item->course->practical_score,
-                'easy_score' => $item->course->easy_score,
-                'logic_score' => $item->course->logic_score,
-                'totle_scores' => $item->course->scores,
-                'scores' => $item->scores,
-                'user_name' => $item->user->nick_name,
-                'avatar' => $item->user->avatar ? config('jkw.cdn_domain') . '/' .  $item->user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
-                'wechat_avatar' => $item->user->wechat_avatar,
-                'created_at' => $item->created_at,
-                'updated_at' => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
-                'like_num'=>$item->like_num
-            ];
+        $data=[];
+        if($comment){
+            foreach($comment as $item){
+                $data[]=[
+                    'course_id' => $item->course_id,
+                    'id'=>$item->id,
+                    'content' => $item->content,
+                    'practical_score' => $item->course->practical_score,
+                    'easy_score' => $item->course->easy_score,
+                    'logic_score' => $item->course->logic_score,
+                    'totle_scores' => $item->course->scores,
+                    'scores' => $item->scores,
+                    'user_name' => $item->user->nick_name,
+                    'avatar' => $item->user->avatar ? config('jkw.cdn_domain') . '/' .  $item->user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
+                    'wechat_avatar' => $item->user->wechat_avatar,
+                    'created_at' => $item->created_at,
+                    'updated_at' => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
+                    'like_num'=>$item->like_num
+                ];
+            }
         }
         return $this->success($data);
     }
