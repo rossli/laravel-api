@@ -54,6 +54,7 @@ class CommentController extends BaseController
             return $this->failed($validator->errors()->first());
         }
         $insert_data=[
+            'type'       => $request->input('type')? $request->input('type'): 1,
             'course_id' => $request->input('course_id'),
             'user_id'   => $user->id,
             'practical_score' => $request->input('practical_score'),
@@ -61,6 +62,7 @@ class CommentController extends BaseController
             'logic_score'   => $request->input('logic_score'),
             'content'   => $request->input('content'),
             'scores'     =>$scores,
+            'enabled'         =>1,
         ];
         try {
             DB::beginTransaction();
