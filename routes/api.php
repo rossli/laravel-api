@@ -113,18 +113,15 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         });
 
         Route::prefix('cart')->group(function () {
-
             Route::post('/store', 'ShoppingCartController@store')->name('api.cart.store');
             Route::get('/', 'ShoppingCartController@index')->name('api.cart.index');
             Route::get('/count', 'ShoppingCartController@count')->name('api.cart.count');
             Route::post('/delete', 'ShoppingCartController@delete')->name('api.cart.delete');
         });
-
-
-    });
-    Route::prefix('courses')->group(function (){
-        //该课程下的评论列表
-        Route::get('/comments','CourseController@comments')->name('api.courses.comments');
+        Route::prefix('comment')->group(function (){  //评论相关
+            Route::post('store','CommentController@store')->name('api.comment.store');
+            Route::post('like/store','LikeController@store')->name('api.comment-like.store');
+        });
         //该课程下登录状态下的列表
         Route::get('/my-comments','CourseController@myComments')->name('api.courses.my-comments')->middleware('auth:api');
     });
@@ -132,6 +129,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::post('store','CommentController@store')->name('api.comment.store')->middleware('auth:api');
         Route::post('like/store','LikeController@store')->name('api.comment-like.store')->middleware('auth:api');
     });
-
+        //该课程下的评论列表
+        Route::get('/courses/comments','CourseController@comments')->name('api.courses.comments');
 });
 
