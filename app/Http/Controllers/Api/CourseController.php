@@ -303,6 +303,7 @@ class CourseController extends BaseController
 
     public function myComments(Request $request)
     {
+        $user = $request->user();
         $validator=Validator::make($request->all(),[
             'course_id'  => 'required',
         ],[
@@ -320,18 +321,12 @@ class CourseController extends BaseController
         }])->orderBy('created_at','DESC')
             ->where('course_id',$request->input('course_id'))
             ->where('enabled',1)->get();
-        if (Auth::check()) {
-            $is_comment = Auth::user()->isComment($request->input('course_id'));
-        } else {
-            $is_comment = FALSE;
-        }
+        $is_comment = $user->isComment($request->input('course_id'));
         $data=[
             'is_comment' =>$is_comment
         ];
         foreach($comment as $item){
-            if(Auth::user()){
-                $is_like = Auth::user()->isLike($item->id);
-            }
+            $is_like = $user->isLike($item->id);
             $data['list'][]=[
                 'course_id' => $item->course_id,
                 'id'=>$item->id,
