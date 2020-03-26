@@ -16,7 +16,7 @@ class AuthController extends BaseController
 {
     public function register(RegisterRequest $request)
     {
-        $from_user_id = $request->get('from_user_id');
+        $from_user_id = $request->get('from_user_id')??0;
         if ($from_user_id) {
             $from_user_id = Utils::hashids_decode($from_user_id);
             $from_user_id = $from_user_id[0];
