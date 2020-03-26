@@ -105,7 +105,7 @@ class OrderController extends BaseController
         }
         $sum = $book_price + $course_price;
         $order_sn = date('YmdHis') . (time() + Request()->user()->id);
-        $from_user_id=request()->from_user_id;
+        $from_user_id=request()->from_user_id??0;
         if($from_user_id){
             $from_user_id=Utils::hashids_decode($from_user_id);
             if($from_user_id){
@@ -169,7 +169,7 @@ class OrderController extends BaseController
     public function groupSubmit(Request $request)
     {
         $goodsable_id = $request->id;
-        $group_student_id = $request->group_student_id;
+        $group_student_id = $request->group_student_id??0;
 
         $group_goods = GroupGoods::with('goodsable')->where('goodsable_type', $request->goodsable_type)->where('goodsable_id', $goodsable_id)->enabled()->first();
 
@@ -273,7 +273,7 @@ class OrderController extends BaseController
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
         $order_sn = date('YmdHis') . (time() + $request->user()->id);
 
-        $from_user_id=$request->from_user_id;
+        $from_user_id=$request->from_user_id??0;
         if($from_user_id){
             $from_user_id=Utils::hashids_decode($from_user_id);
             if($from_user_id){
@@ -341,7 +341,7 @@ class OrderController extends BaseController
         }
 
 
-        $from_user_id=$request->from_user_id;
+        $from_user_id=$request->from_user_id??0;
 
         if($from_user_id){
             $from_user_id=Utils::hashids_decode($from_user_id);
