@@ -11,12 +11,14 @@ use App\Models\CourseMember;
 use App\Models\CourseTask;
 use App\Models\GroupGoods;
 use App\Models\User;
+use App\Utils\Utils;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+
 class CourseController extends BaseController
 {
 
@@ -33,16 +35,16 @@ class CourseController extends BaseController
         $data = [];
         $course->each(function ($item) use (&$data) {
             $data[] = [
-                'image' => config('jkw.cdn_domain') . '/' . $item->cover,
-                'title' => $item->title,
-                'id' => $item->id,
-                'is_free' => $item->price == 0 || $item->is_free == 1,
-                'price' => $item->price,
-                'is_finished' => $item->is_finished,
-                'subtitle' => $item->subtitle,
-                'student_sum' => $item->student_add + $item->student_num,
-                'is_activity'=>$item->is_activity,
-                'origin_price'=>$item->origin_price,
+                'image'        => config('jkw.cdn_domain') . '/' . $item->cover,
+                'title'        => $item->title,
+                'id'           => $item->id,
+                'is_free'      => $item->price == 0 || $item->is_free == 1,
+                'price'        => $item->price,
+                'is_finished'  => $item->is_finished,
+                'subtitle'     => $item->subtitle,
+                'student_sum'  => $item->student_add + $item->student_num,
+                'is_activity'  => $item->is_activity,
+                'origin_price' => $item->origin_price,
             ];
         });
 
@@ -63,16 +65,16 @@ class CourseController extends BaseController
         $data = [];
         $courses->each(function ($item) use (&$data) {
             $data[] = [
-                'image' => config('jkw.cdn_domain') . '/' . $item->cover,
-                'title' => $item->title,
-                'id' => $item->id,
-                'is_free' => $item->price == 0 || $item->is_free == 1,
-                'price' => $item->price,
-                'is_finished' => $item->is_finished,
-                'subtitle' => $item->subtitle,
-                'student_sum' => $item->student_add + $item->student_num,
-                'is_activity'=>$item->is_activity,
-                'origin_price'=>$item->origin_price,
+                'image'        => config('jkw.cdn_domain') . '/' . $item->cover,
+                'title'        => $item->title,
+                'id'           => $item->id,
+                'is_free'      => $item->price == 0 || $item->is_free == 1,
+                'price'        => $item->price,
+                'is_finished'  => $item->is_finished,
+                'subtitle'     => $item->subtitle,
+                'student_sum'  => $item->student_add + $item->student_num,
+                'is_activity'  => $item->is_activity,
+                'origin_price' => $item->origin_price,
             ];
         });
 
@@ -88,25 +90,25 @@ class CourseController extends BaseController
             },
             'material',
         ])->where('enabled', 1)->find($id);
-        if(!$course){
+        if (!$course) {
             return $this->failed('没有当前课程');
         }
         $task = [];
         $material = [];
         $course->task->each(function ($item) use (&$task) {
             $task[] = [
-                'id' => $item->id,
-                'title' => $item->title,
-                'is_free' => $item->is_free,
-                'type' => $item->type,
+                'id'       => $item->id,
+                'title'    => $item->title,
+                'is_free'  => $item->is_free,
+                'type'     => $item->type,
                 'media_id' => $item->media_id,
             ];
         });
         $course->material->each(function ($item) use (&$material) {
             $material[] = [
-                'id' => $item->id,
-                'title' => $item->title,
-                'size' => $item->size,
+                'id'          => $item->id,
+                'title'       => $item->title,
+                'size'        => $item->size,
                 'description' => $item->description,
             ];
         });
@@ -114,37 +116,38 @@ class CourseController extends BaseController
         if ($course->is_group) {
             $group_goods = GroupGoods::where('goodsable_type', GroupGoods::GOODS_TYPE_0)
                 ->enabled()
-                ->where('goodsable_id', $id)->first();
+                ->where('goodsable_id', $id)
+                ->first();
             if ($group_goods) {
-                $course->is_group = true;
+                $course->is_group = TRUE;
             } else {
-                $course->is_group = false;
+                $course->is_group = FALSE;
             }
         }
 
         $data = [
-            'image' => config('jkw.cdn_domain') . '/' . $course->cover,
-            'title' => $course->title,
-            'subtitle' => $course->subtitle,
-            'id' => $course->id,
-            'is_free' => $course->price == 0 || $course->is_free == 1,
-            'price' => $course->price,
-            'is_finished' => $course->is_finished,
-            'student_num' => $course->student_num,
-            'student_add' => $course->student_add,
-            'student_sum' => $course->student_add + $course->student_num,
-            'origin_price' => $course->origin_price,
-            'summary' => $course->summary,
-            'short_intro' => $course->short_intro,
-            'is_group' => $course->is_group,
-            'is_activity'=>$course->is_activity,
-            'task' => $task,
-            'material' => $material,
-            'is_currency'=>$course->is_currency,
-            'practical_score'=>$course->practical_score,
-            'easy_score'=>$course->easy_score,
-            'logic_score'=>$course->logic_score,
-            'scores'=>$course->scores,
+            'image'           => config('jkw.cdn_domain') . '/' . $course->cover,
+            'title'           => $course->title,
+            'subtitle'        => $course->subtitle,
+            'id'              => $course->id,
+            'is_free'         => $course->price == 0 || $course->is_free == 1,
+            'price'           => $course->price,
+            'is_finished'     => $course->is_finished,
+            'student_num'     => $course->student_num,
+            'student_add'     => $course->student_add,
+            'student_sum'     => $course->student_add + $course->student_num,
+            'origin_price'    => $course->origin_price,
+            'summary'         => $course->summary,
+            'short_intro'     => $course->short_intro,
+            'is_group'        => $course->is_group,
+            'is_activity'     => $course->is_activity,
+            'task'            => $task,
+            'material'        => $material,
+            'is_currency'     => $course->is_currency,
+            'practical_score' => $course->practical_score,
+            'easy_score'      => $course->easy_score,
+            'logic_score'     => $course->logic_score,
+            'scores'          => $course->scores,
         ];
 
         return $this->success($data);
@@ -152,24 +155,27 @@ class CourseController extends BaseController
 
     public function list()
     {
-        $category = Category::with(['course' => function ($query) {
-            $query->select('enabled', 'courses.updated_at', 'cover', 'title', 'subtitle', 'courses.id', 'price', 'is_free', 'is_finished', 'origin_price','is_activity');
-        }])->get();
+        $category = Category::with([
+            'course' => function ($query) {
+                $query->select('enabled', 'courses.updated_at', 'cover', 'title', 'subtitle', 'courses.id', 'price',
+                    'is_free', 'is_finished', 'origin_price', 'is_activity');
+            },
+        ])->get();
         $data = [];
         $i = 0;
         $category->each(function ($item) use (&$data, &$i) {
             $course = $item->course->where('enabled', 1)->sortByDesc('updated_at');
             $course->each(function ($it) use (&$data, $i) {
-                $data[$i][] = [
-                    'image' => config('jkw.cdn_domain') . '/' . $it->cover,
-                    'title' => $it->title,
-                    'subtitle' => $it->subtitle,
-                    'id' => $it->id,
-                    'is_free' => $it->price == 0 || $it->is_free == 1,
-                    'price' => $it->price,
-                    'is_finished' => $it->is_finished,
+                $data[ $i ][] = [
+                    'image'        => config('jkw.cdn_domain') . '/' . $it->cover,
+                    'title'        => $it->title,
+                    'subtitle'     => $it->subtitle,
+                    'id'           => $it->id,
+                    'is_free'      => $it->price == 0 || $it->is_free == 1,
+                    'price'        => $it->price,
+                    'is_finished'  => $it->is_finished,
                     'origin_price' => $it->origin_price,
-                    'is_activity'=>$it->is_activity,
+                    'is_activity'  => $it->is_activity,
                 ];
             });
             $i++;
@@ -194,7 +200,7 @@ class CourseController extends BaseController
         $course_member = CourseMember::where('user_id', $user_id)->where('course_id', $id)->first();
         if (!$course_member) {
             CourseMember::create([
-                'user_id' => $user_id,
+                'user_id'   => $user_id,
                 'course_id' => $id,
             ]);
             $course->student_num++;
@@ -217,13 +223,13 @@ class CourseController extends BaseController
             $course = $item->course->sortByDesc('updated_at');
             $course->each(function ($item) use (&$data) {
                 $data[] = [
-                    'image' => config('jkw.cdn_domain') . '/' . $item->cover,
-                    'title' => $item->title,
-                    'id' => $item->id,
-                    'is_free' => $item->price == 0 || $item->is_free == 1,
-                    'price' => $item->price,
+                    'image'       => config('jkw.cdn_domain') . '/' . $item->cover,
+                    'title'       => $item->title,
+                    'id'          => $item->id,
+                    'is_free'     => $item->price == 0 || $item->is_free == 1,
+                    'price'       => $item->price,
                     'is_finished' => $item->is_finished,
-                    'subtitle' => $item->subtitle,
+                    'subtitle'    => $item->subtitle,
                     'student_sum' => $item->student_add + $item->student_num,
                 ];
             });
@@ -242,13 +248,13 @@ class CourseController extends BaseController
             $course = $item->course->sortByDesc('updated_at');
             $course->each(function ($item) use (&$data) {
                 $data[] = [
-                    'image' => config('jkw.cdn_domain') . '/' . $item->cover,
-                    'title' => $item->title,
-                    'id' => $item->id,
-                    'is_free' => $item->price == 0 || $item->is_free == 1,
-                    'price' => $item->price,
+                    'image'       => config('jkw.cdn_domain') . '/' . $item->cover,
+                    'title'       => $item->title,
+                    'id'          => $item->id,
+                    'is_free'     => $item->price == 0 || $item->is_free == 1,
+                    'price'       => $item->price,
                     'is_finished' => $item->is_finished,
-                    'subtitle' => $item->subtitle,
+                    'subtitle'    => $item->subtitle,
                     'student_sum' => $item->student_add + $item->student_num,
                 ];
             });
@@ -256,94 +262,122 @@ class CourseController extends BaseController
 
         return $this->success($data);
     }
+
     /**
      * 一个课程下的评论列表
      * @return mixed
      */
     public function comments(Request $request)
     {
-        $validator=Validator::make($request->all(),[
-            'course_id'  => 'required',
-        ],[
-            'course_id.required'=>'course_id不能为空',
+        $validator = Validator::make($request->all(), [
+            'course_id' => 'required',
+        ], [
+            'course_id.required' => 'course_id不能为空',
         ]);
         if ($validator->fails()) {
             return $this->failed($validator->errors()->first());
         }
-        $comment=Comment::with(['course' => function($query){
-            $query->select('id','practical_score','easy_score','logic_score','scores');
-        },'user' =>function($query){
-            $query->select('id','name','mobile','nick_name','binding_mobile','avatar','wechat_avatar');
-        }])->orderBy('created_at','DESC')
-            ->where('course_id',$request->input('course_id'))
-            ->where('enabled',1)->get();
-        $data=[];
-        if($comment){
-            foreach($comment as $item){
-                $data[]=[
-                    'course_id' => $item->course_id,
-                    'id'=>$item->id,
-                    'content' => $item->content,
+        $comment = Comment::with([
+            'course' => function ($query) {
+                $query->select('id', 'practical_score', 'easy_score', 'logic_score', 'scores');
+            },
+            'user'   => function ($query) {
+                $query->select('id', 'name', 'mobile', 'nick_name', 'binding_mobile', 'avatar', 'wechat_avatar');
+            },
+        ])->orderBy('created_at', 'DESC')->where('course_id', $request->input('course_id'))->where('enabled', 1)->get();
+        $data = [];
+        if ($comment) {
+            foreach ($comment as $item) {
+                $data[] = [
+                    'course_id'       => $item->course_id,
+                    'id'              => $item->id,
+                    'content'         => $item->content,
                     'practical_score' => $item->course->practical_score,
-                    'easy_score' => $item->course->easy_score,
-                    'logic_score' => $item->course->logic_score,
-                    'totle_scores' => $item->course->scores,
-                    'scores' => $item->scores,
-                    'user_name' => $item->user->nick_name,
-                    'avatar' => $item->user->avatar ? config('jkw.cdn_domain') . '/' .  $item->user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
-                    'wechat_avatar' => $item->user->wechat_avatar,
-                    'created_at' => $item->created_at,
-                    'updated_at' => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
-                    'like_num'=>$item->like_num
+                    'easy_score'      => $item->course->easy_score,
+                    'logic_score'     => $item->course->logic_score,
+                    'totle_scores'    => $item->course->scores,
+                    'scores'          => $item->scores,
+                    'user_name'       => $item->user->nick_name,
+                    'avatar'          => $item->user->avatar ? config('jkw.cdn_domain') . '/' . $item->user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
+                    'wechat_avatar'   => $item->user->wechat_avatar,
+                    'created_at'      => $item->created_at,
+                    'updated_at'      => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
+                    'like_num'        => $item->like_num,
                 ];
             }
         }
+
         return $this->success($data);
     }
 
     public function myComments(Request $request)
     {
         $user = $request->user();
-        $validator=Validator::make($request->all(),[
-            'course_id'  => 'required',
-        ],[
-            'course_id.required'=>'course_id不能为空',
+        $validator = Validator::make($request->all(), [
+            'course_id' => 'required',
+        ], [
+            'course_id.required' => 'course_id不能为空',
         ]);
         if ($validator->fails()) {
             return $this->failed($validator->errors()->first());
         }
-        $comment=Comment::with(['course' => function($query){
-            $query->select('id','practical_score','easy_score','logic_score','scores');
-        },'user' =>function($query){
-            $query->select('id','name','mobile','nick_name','binding_mobile','avatar','wechat_avatar');
-        },'like' => function($query){
-            $query->select('type_id','status');
-        }])->orderBy('created_at','DESC')
-            ->where('course_id',$request->input('course_id'))
-            ->where('enabled',1)->get();
+        $comment = Comment::with([
+            'course' => function ($query) {
+                $query->select('id', 'practical_score', 'easy_score', 'logic_score', 'scores');
+            },
+            'user'   => function ($query) {
+                $query->select('id', 'name', 'mobile', 'nick_name', 'binding_mobile', 'avatar', 'wechat_avatar');
+            },
+            'like'   => function ($query) {
+                $query->select('type_id', 'status');
+            },
+        ])->orderBy('created_at', 'DESC')->where('course_id', $request->input('course_id'))->where('enabled', 1)->get();
         $is_comment = $user->isComment($request->input('course_id'));
-        $data=[
-            'is_comment' =>$is_comment
+        $data = [
+            'is_comment' => $is_comment,
         ];
-        foreach($comment as $item){
+        foreach ($comment as $item) {
             $is_like = $user->isLike($item->id);
-            $data['list'][]=[
-                'course_id' => $item->course_id,
-                'id'=>$item->id,
-                'content' => $item->content,
+            $data['list'][] = [
+                'course_id'       => $item->course_id,
+                'id'              => $item->id,
+                'content'         => $item->content,
                 'practical_score' => $item->course->practical_score,
-                'easy_score' => $item->course->easy_score,
-                'logic_score' => $item->course->logic_score,
-                'totle_scores' => $item->course->scores,
-                'scores' => $item->scores,
-                'user_name' => $item->user->nick_name,
-                'avatar' => $item->user->avatar ? config('jkw.cdn_domain') . '/' .  $item->user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
-                'wechat_avatar' => $item->user->wechat_avatar,
-                'is_like' => $is_like ? 1 : 0,
-                'created_at' => $item->created_at,
-                'updated_at' => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
+                'easy_score'      => $item->course->easy_score,
+                'logic_score'     => $item->course->logic_score,
+                'totle_scores'    => $item->course->scores,
+                'scores'          => $item->scores,
+                'user_name'       => $item->user->nick_name,
+                'avatar'          => $item->user->avatar ? config('jkw.cdn_domain') . '/' . $item->user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
+                'wechat_avatar'   => $item->user->wechat_avatar,
+                'is_like'         => $is_like ? 1 : 0,
+                'created_at'      => $item->created_at,
+                'updated_at'      => Carbon::parse($item->created_at)->diffForHumans($item->updated_at),
             ];
         }
+
+        return $this->success($data);
+    }
+
+    /**
+     * 分销课程列表
+     * @return mixed
+     */
+    public function promoteList()
+    {
+        $courses = Course::where('enabled', 1)->where('is_promote', 1)->get(['id', 'title', 'price', 'promote_fee']);
+        $user = request()->user();
+        $data = [];
+        $courses->each(static function ($item) use (&$data, $user) {
+            $data[] = [
+                'id'          => $item->id,
+                'title'       => $item->title,
+                'price'       => $item->price,
+                'promote_fee' => $item->promote_fee,
+                'url'         => config('jkw.u_index_url') . '/' . Utils::hashids_encode($user->id . '0' . $item->id),
+            ];
+        });
+
         return $this->success($data);
     }
 }

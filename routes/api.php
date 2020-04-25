@@ -33,8 +33,8 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/user/captcha', 'UserController@captcha')->name('api.user.captcha');
     Route::post('/user/sms-code', 'UserController@smsCode')->name('api.user.sms-code');
     //微信登录
-    Route::get('wechat-login','WechatController@wechatLogin')->name('api.wechat.wechatLogin');
-    Route::get('wechat-info','WechatController@wechatInfo')->name('api.wechat.wechatInfo');
+    Route::get('wechat-login', 'WechatController@wechatLogin')->name('api.wechat.wechatLogin');
+    Route::get('wechat-info', 'WechatController@wechatInfo')->name('api.wechat.wechatInfo');
 
     Route::get('/order/openid', 'OrderController@getOpenid')->name('api.order.openid');
 
@@ -60,16 +60,14 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
 
     Route::get('/course/material/{id}', 'CourseMaterialController@show')->name('api.course-material.show');
 
-    Route::get('/groups/share/{id}','GroupStudentController@share')->name('api.group-student.share');
+    Route::get('/groups/share/{id}', 'GroupStudentController@share')->name('api.group-student.share');
 
     Route::get('sensitive', 'SensitiveController@index')->name('api.sensitive.index');
     //邀请微信二维码
-    Route::get('qrcode/{id}','QrcodeController@show')->name('api.qrcode.show');
+    Route::get('qrcode/{id}', 'QrcodeController@show')->name('api.qrcode.show');
     //意见反馈
-    Route::get('suggest','SuggestController@index')->name('api.suggest.index');
-    Route::post('suggest/create','SuggestController@create')->name('api.suggest.create');
-
-
+    Route::get('suggest', 'SuggestController@index')->name('api.suggest.index');
+    Route::post('suggest/create', 'SuggestController@create')->name('api.suggest.create');
 
     Route::middleware('auth:api')->group(function () {
         Route::get('/users', 'UserController@index')->name('api.users.index');
@@ -91,9 +89,9 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/order', 'MeController@order')->name('api.me.order');
             Route::get('/group', 'MeController@group')->name('api.me.group');
             Route::get('/is-student/{id}', 'MeController@isStudent')->name('api.me.is-student');
-            Route::get('/from-user','MeController@fromUser')->name('api.me.from-user');
-            Route::get('/currency','MeController@currency')->name('api.me.currency');
-            Route::get('/code','MeController@code')->name('api.me.code');
+            Route::get('/from-user', 'MeController@fromUser')->name('api.me.from-user');
+            Route::get('/currency', 'MeController@currency')->name('api.me.currency');
+            Route::get('/code', 'MeController@code')->name('api.me.code');
         });
 
         Route::prefix('order')->group(function () {
@@ -118,18 +116,27 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/count', 'ShoppingCartController@count')->name('api.cart.count');
             Route::post('/delete', 'ShoppingCartController@delete')->name('api.cart.delete');
         });
-        Route::prefix('comment')->group(function (){  //评论相关
-            Route::post('store','CommentController@store')->name('api.comment.store');
-            Route::post('like/store','LikeController@store')->name('api.comment-like.store');
+        Route::prefix('comment')->group(function () {  //评论相关
+            Route::post('store', 'CommentController@store')->name('api.comment.store');
+            Route::post('like/store', 'LikeController@store')->name('api.comment-like.store');
         });
         //该课程下登录状态下的列表
-        Route::get('/courses/my-comments','CourseController@myComments')->name('api.courses.my-comments')->middleware('auth:api');
+        Route::get('/courses/my-comments', 'CourseController@myComments')
+            ->name('api.courses.my-comments')
+            ->middleware('auth:api');
+
+        //分销课程 列表
+        Route::get('/courses/promote-list', 'CourseController@promoteList')->name('api.courses.promote-list');
+
     });
-    Route::prefix('comment')->group(function (){  //评论相关
-        Route::post('store','CommentController@store')->name('api.comment.store')->middleware('auth:api');
-        Route::post('like/store','LikeController@store')->name('api.comment-like.store')->middleware('auth:api');
+    Route::prefix('comment')->group(function () {  //评论相关
+        Route::post('store', 'CommentController@store')->name('api.comment.store')->middleware('auth:api');
+        Route::post('like/store', 'LikeController@store')->name('api.comment-like.store')->middleware('auth:api');
     });
-        //该课程下的评论列表
-        Route::get('/courses/comments','CourseController@comments')->name('api.courses.comments');
+
+    //该课程下的评论列表
+    Route::get('/courses/comments', 'CourseController@comments')->name('api.courses.comments');
+
+
 });
 

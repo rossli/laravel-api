@@ -172,6 +172,6 @@ class MeController extends BaseController
 
     public function code()
     {
-        return $this->success(Utils::hashids_encode(request()->user()->id));
+        return $this->success(request()->user()->getHashCode());
     }
 }

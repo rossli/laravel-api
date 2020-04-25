@@ -48,27 +48,28 @@ class OrderController extends BaseController
             $order_item_data = [];
             $order->orderItem->each(function ($item) use (&$order_item_data) {
                 $order_item_data[] = [
-                    'num' => $item->num,
-                    'course_title' => $item->course_title,
-                    'course_price' => number_format($item->course_price, 2),
+                    'num'                 => $item->num,
+                    'course_title'        => $item->course_title,
+                    'course_price'        => number_format($item->course_price, 2),
                     'course_origin_price' => number_format($item->course_origin_price, 2),
-                    'course_id' => $item->course_id,
-                    'course_cover' => config('jkw.cdn_domain') . '/' . $item->course_cover,
+                    'course_id'           => $item->course_id,
+                    'course_cover'        => config('jkw.cdn_domain') . '/' . $item->course_cover,
                 ];
             });
             $data = [
-                'order_id' => $order->id,
-                'order_sn' => $order->order_sn,
-                'total_fee' => number_format($order->total_fee, 2),
+                'order_id'         => $order->id,
+                'order_sn'         => $order->order_sn,
+                'total_fee'        => number_format($order->total_fee, 2),
                 'coupon_deduction' => number_format($order->coupon_deduction, 2),
-                'created_at' => $order->created_at,
-                'updated_at' => $order->updated_at,
-                'order_item' => $order_item_data,
-                'type' => $order->type,
+                'created_at'       => $order->created_at,
+                'updated_at'       => $order->updated_at,
+                'order_item'       => $order_item_data,
+                'type'             => $order->type,
             ];
 
             return $this->success($data);
         }
+
         return $this->failed('当前订单不存在');
     }
 
@@ -105,50 +106,50 @@ class OrderController extends BaseController
         }
         $sum = $book_price + $course_price;
         $order_sn = date('YmdHis') . (time() + Request()->user()->id);
-        $from_user_id=request()->from_user_id??0;
-        if($from_user_id){
-            $from_user_id=Utils::hashids_decode($from_user_id);
-            if($from_user_id){
-                $from_user_id=$from_user_id[0];
+        $from_user_id = request()->from_user_id ?? 0;
+        if ($from_user_id) {
+            $from_user_id = Utils::hashids_decode($from_user_id);
+            if ($from_user_id) {
+                $from_user_id = $from_user_id[0];
             }
         }
         \DB::beginTransaction();
         try {
             $order = Order::create([
-                'order_sn' => $order_sn,
-                'total_fee' => $sum * 100,
+                'order_sn'     => $order_sn,
+                'total_fee'    => $sum * 100,
                 'wait_pay_fee' => $sum * 100,
-                'user_id' => Request()->user()->id,
-                'from_user_id'=>$from_user_id??0
+                'user_id'      => Request()->user()->id,
+                'from_user_id' => $from_user_id ?? 0,
             ]);
             $carts->each(function ($item) use ($order, $order_sn) {
                 if ($item->type == ShoppingCart::TYPE_BOOK) {
                     $book = Book::find($item->goods_id);
                     OrderItem::create([
-                        'order_id' => $order->id,
-                        'order_sn' => $order_sn,
-                        'user_id' => Request()->user()->id,
-                        'course_id' => $book->id,
-                        'course_price' => $book->price * 100,
+                        'order_id'            => $order->id,
+                        'order_sn'            => $order_sn,
+                        'user_id'             => Request()->user()->id,
+                        'course_id'           => $book->id,
+                        'course_price'        => $book->price * 100,
                         'course_origin_price' => $book->origin_price * 100,
-                        'course_title' => $book->title,
-                        'course_cover' => $book->cover,
-                        'num' => $item->number,
-                        'type' => $item->type,
+                        'course_title'        => $book->title,
+                        'course_cover'        => $book->cover,
+                        'num'                 => $item->number,
+                        'type'                => $item->type,
                     ]);
                 } else {
                     $course = Course::find($item->goods_id);
                     OrderItem::create([
-                        'order_id' => $order->id,
-                        'order_sn' => $order_sn,
-                        'user_id' => Request()->user()->id,
-                        'course_id' => $course->id,
-                        'course_price' => $course->price * 100,
+                        'order_id'            => $order->id,
+                        'order_sn'            => $order_sn,
+                        'user_id'             => Request()->user()->id,
+                        'course_id'           => $course->id,
+                        'course_price'        => $course->price * 100,
                         'course_origin_price' => $course->origin_price * 100,
-                        'course_title' => $course->title,
-                        'course_cover' => $course->cover,
-                        'num' => $item->number,
-                        'type' => $item->type,
+                        'course_title'        => $course->title,
+                        'course_cover'        => $course->cover,
+                        'num'                 => $item->number,
+                        'type'                => $item->type,
                     ]);
                 }
 
@@ -169,9 +170,13 @@ class OrderController extends BaseController
     public function groupSubmit(Request $request)
     {
         $goodsable_id = $request->id;
-        $group_student_id = $request->group_student_id??0;
+        $group_student_id = $request->group_student_id ?? 0;
 
-        $group_goods = GroupGoods::with('goodsable')->where('goodsable_type', $request->goodsable_type)->where('goodsable_id', $goodsable_id)->enabled()->first();
+        $group_goods = GroupGoods::with('goodsable')
+            ->where('goodsable_type', $request->goodsable_type)
+            ->where('goodsable_id', $goodsable_id)
+            ->enabled()
+            ->first();
 
         if (!$group_goods) {
             return $this->failed('当前课程没有参加团购');
@@ -187,7 +192,10 @@ class OrderController extends BaseController
                 return $this->failed('当前团已满,请重新建团');
             }
 
-            $order = Order::where('user_id', Request()->user()->id)->where('group_student_id', $group_student_id)->where('status', Order::STATUS_PAID)->first();
+            $order = Order::where('user_id', Request()->user()->id)
+                ->where('group_student_id', $group_student_id)
+                ->where('status', Order::STATUS_PAID)
+                ->first();
 
             if ($order) {
                 return $this->failed('您已参加过此团购,不能再参加了!');
@@ -217,11 +225,11 @@ class OrderController extends BaseController
             $order_item_type = ShoppingCart::TYPE_BOOK;
         }
 
-        $from_user_id=$request->from_user_id;
-        if($from_user_id){
-            $from_user_id=Utils::hashids_decode($from_user_id);
-            if($from_user_id){
-                $from_user_id=$from_user_id[0];
+        $from_user_id = $request->from_user_id;
+        if ($from_user_id) {
+            $from_user_id = Utils::hashids_decode($from_user_id);
+            if ($from_user_id) {
+                $from_user_id = $from_user_id[0];
             }
         }
 
@@ -230,33 +238,34 @@ class OrderController extends BaseController
         \DB::beginTransaction();
         try {
             $order = Order::create([
-                'order_sn' => $order_sn,
-                'total_fee' => $group_goods->preferential_price * 100,
-                'wait_pay_fee' => $group_goods->preferential_price * 100,
-                'user_id' => $request->user()->id,
-                'type' => Order::TYPE_GROUP,
+                'order_sn'         => $order_sn,
+                'total_fee'        => $group_goods->preferential_price * 100,
+                'wait_pay_fee'     => $group_goods->preferential_price * 100,
+                'user_id'          => $request->user()->id,
+                'type'             => Order::TYPE_GROUP,
                 'group_student_id' => $group_student_id ?: 0,
-                'from_user_id'=>$from_user_id??0
+                'from_user_id'     => $from_user_id ?? 0,
             ]);
             OrderItem::create([
-                'order_id' => $order->id,
-                'order_sn' => $order_sn,
-                'user_id' => $request->user()->id,
-                'course_id' => $group_goods->id,
-                'course_price' => $group_goods->preferential_price * 100,
+                'order_id'            => $order->id,
+                'order_sn'            => $order_sn,
+                'user_id'             => $request->user()->id,
+                'course_id'           => $group_goods->id,
+                'course_price'        => $group_goods->preferential_price * 100,
                 'course_origin_price' => $goods->price * 100,
-                'course_title' => $goods->title,
-                'course_cover' => $goods->cover,
-                'num' => 1,
-                'type' => $order_item_type,
+                'course_title'        => $goods->title,
+                'course_cover'        => $goods->cover,
+                'num'                 => 1,
+                'type'                => $order_item_type,
             ]);
         } catch (Exception $e) {
             return $this->failed('订单创建错误,请联系管理员', -1);
             \DB::rollback();
         }
         \DB::commit();
-        
+
         dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
+
         return $this->success([
             'order_id' => $order->id,
         ]);
@@ -264,53 +273,51 @@ class OrderController extends BaseController
 
     public function courseSubmit(Request $request)
     {
-        $course_id = $request->id;
+        $course_id = $request->get('id');
         $course = Course::find($course_id);
 
         if (!$request->user()->canBuy($course_id)) {
             return $this->failed('您已购买过此课程!', -1);
         }
-        //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
-        $order_sn = date('YmdHis') . (time() + $request->user()->id);
+        //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳
+        $order_sn = Utils::makeSn();
 
-        $from_user_id=$request->from_user_id??0;
-        if($from_user_id){
-            $from_user_id=Utils::hashids_decode($from_user_id);
-            if($from_user_id){
-                $from_user_id=$from_user_id[0];
-            }
+        $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
+        if ($from_user_id) {
+            $from_user_id = $from_user_id[0];
+        } else {
+            $from_user_id = 0;
         }
-
-        $is_currency=$request->is_currency;
-        $coupon_deduction=0;
-        if($is_currency && $course->price>$request->user()->currency){
-            $user=$request->user();
-            $coupon_deduction=$user->currency*100;
-            $user->currency=0;
+        $is_currency = $request->get('is_currency');
+        $coupon_deduction = 0;
+        if ($is_currency && $course->price > $request->user()->currency) {
+            $user = $request->user();
+            $coupon_deduction = $user->currency * 100;
+            $user->currency = 0;
             $user->save();
         }
         \DB::beginTransaction();
         try {
             $order = Order::create([
-                'order_sn' => $order_sn,
-                'total_fee' => $course->price * 100,
-                'wait_pay_fee' => $course->price * 100-$coupon_deduction,
-                'user_id' => $request->user()->id,
-                'type' => Order::TYPE_NORMAL,
-                'from_user_id'=>$from_user_id??0,
-                'coupon_deduction'=>$coupon_deduction
+                'order_sn'         => $order_sn,
+                'total_fee'        => $course->price * 100,
+                'wait_pay_fee'     => $course->price * 100 - $coupon_deduction,
+                'user_id'          => $request->user()->id,
+                'type'             => Order::TYPE_NORMAL,
+                'from_user_id'     => $from_user_id,
+                'coupon_deduction' => $coupon_deduction,
             ]);
             OrderItem::create([
-                'order_id' => $order->id,
-                'order_sn' => $order_sn,
-                'user_id' => $request->user()->id,
-                'course_id' => $course->id,
-                'course_price' => $course->price * 100,
+                'order_id'            => $order->id,
+                'order_sn'            => $order_sn,
+                'user_id'             => $request->user()->id,
+                'course_id'           => $course->id,
+                'course_price'        => $course->price * 100,
                 'course_origin_price' => $course->origin_price * 100,
-                'course_title' => $course->title,
-                'course_cover' => $course->cover,
-                'num' => 1,
-                'type' => ShoppingCart::TYPE_COURSE,
+                'course_title'        => $course->title,
+                'course_cover'        => $course->cover,
+                'num'                 => 1,
+                'type'                => ShoppingCart::TYPE_COURSE,
             ]);
         } catch (Exception $e) {
             \DB::rollback();
@@ -340,22 +347,21 @@ class OrderController extends BaseController
             return $this->failed('库存不足,请联系管理员!', -1);
         }
 
+        $from_user_id = $request->from_user_id ?? 0;
 
-        $from_user_id=$request->from_user_id??0;
-
-        if($from_user_id){
-            $from_user_id=Utils::hashids_decode($from_user_id);
-            if($from_user_id){
-                $from_user_id=$from_user_id[0];
+        if ($from_user_id) {
+            $from_user_id = Utils::hashids_decode($from_user_id);
+            if ($from_user_id) {
+                $from_user_id = $from_user_id[0];
             }
         }
 
-        $is_currency=$request->is_currency;
-        $coupon_deduction=0;
-        if($is_currency && $book->price>$request->user()->currency){
-            $user=$request->user();
-            $coupon_deduction=$user->currency*100;
-            $user->currency=0;
+        $is_currency = $request->is_currency;
+        $coupon_deduction = 0;
+        if ($is_currency && $book->price > $request->user()->currency) {
+            $user = $request->user();
+            $coupon_deduction = $user->currency * 100;
+            $user->currency = 0;
             $user->save();
         }
 
@@ -364,25 +370,25 @@ class OrderController extends BaseController
         \DB::beginTransaction();
         try {
             $order = Order::create([
-                'order_sn' => $order_sn,
-                'total_fee' => $book->price * 100,
-                'wait_pay_fee' => $book->price * 100-$coupon_deduction,
-                'user_id' => $request->user()->id,
-                'type' => Order::TYPE_BOOK,
-                'coupon_deduction'=>$coupon_deduction,
-                 'from_user_id'=>$from_user_id??0,
+                'order_sn'         => $order_sn,
+                'total_fee'        => $book->price * 100,
+                'wait_pay_fee'     => $book->price * 100 - $coupon_deduction,
+                'user_id'          => $request->user()->id,
+                'type'             => Order::TYPE_BOOK,
+                'coupon_deduction' => $coupon_deduction,
+                'from_user_id'     => $from_user_id ?? 0,
             ]);
             OrderItem::create([
-                'order_id' => $order->id,
-                'order_sn' => $order_sn,
-                'user_id' => $request->user()->id,
-                'course_id' => $book->id,
-                'course_price' => $book->price * 100,
+                'order_id'            => $order->id,
+                'order_sn'            => $order_sn,
+                'user_id'             => $request->user()->id,
+                'course_id'           => $book->id,
+                'course_price'        => $book->price * 100,
                 'course_origin_price' => $book->origin_price,
-                'course_title' => $book->title,
-                'course_cover' => $book->cover,
-                'num' => 1,
-                'type' => ShoppingCart::TYPE_BOOK,
+                'course_title'        => $book->title,
+                'course_cover'        => $book->cover,
+                'num'                 => 1,
+                'type'                => ShoppingCart::TYPE_BOOK,
             ]);
 
         } catch (Exception $e) {
@@ -410,33 +416,34 @@ class OrderController extends BaseController
                 $course_id = $group_goods->goodsable_id;
             }
             $order_item[] = [
-                'cover' => config('jkw.cdn_domain') . '/' . $item->course_cover,
+                'cover'        => config('jkw.cdn_domain') . '/' . $item->course_cover,
                 'course_price' => $item->course_price,
-                'number' => $item->num,
-                'course_id' => $course_id,
+                'number'       => $item->num,
+                'course_id'    => $course_id,
                 'course_title' => $item->course_title,
-                'type' => $item->type,
+                'type'         => $item->type,
             ];
         });
         $data = [
-            'total_fee' => $order->total_fee,
-            'wait_pay_fee' => $order->wait_pay_fee,
-            'type' => $order->type,
+            'total_fee'        => $order->total_fee,
+            'wait_pay_fee'     => $order->wait_pay_fee,
+            'type'             => $order->type,
             'coupon_deduction' => $order->coupon_deduction,
-            'item' => $order_item,
+            'item'             => $order_item,
             'group_student_id' => $order->group_student_id,
         ];
 
         return $this->success($data);
     }
 
-    private function getPaymentApp(): \EasyWeChat\Payment\Application
+    private function getPaymentApp()
+    : \EasyWeChat\Payment\Application
     {
         $config = [
             // 必要配置
-            'app_id' => config('wechat.payment.default.app_id'),
-            'mch_id' => config('wechat.payment.default.mch_id'),
-            'key' => config('wechat.payment.default.key'),   // API 密钥
+            'app_id'     => config('wechat.payment.default.app_id'),
+            'mch_id'     => config('wechat.payment.default.mch_id'),
+            'key'        => config('wechat.payment.default.key'),   // API 密钥
             'notify_url' => config('wechat.payment.default.notify_url'),   // API
 
         ];
@@ -445,7 +452,6 @@ class OrderController extends BaseController
 
         return $app;
     }
-
 
     public function wxShare()
     {
@@ -462,6 +468,7 @@ class OrderController extends BaseController
     private function getOrder($order_id)
     {
         $order = Order::with('orderItem')->where('status', Order::STATUS_WAIT_PAY)->find($order_id);
+
         return $order;
     }
 
@@ -480,31 +487,31 @@ class OrderController extends BaseController
 
                 $total_fee = env('APP_DEBUG') ? 1 : $order->wait_pay_fee * 100;
                 $result = $app->order->unify([
-                    'trade_type' => $trade_type,
-                    'body' => '师大教科文-订单支付',
-                    'out_trade_no' => $order->order_sn,
-                    'total_fee' => $total_fee,
+                    'trade_type'       => $trade_type,
+                    'body'             => '师大教科文-订单支付',
+                    'out_trade_no'     => $order->order_sn,
+                    'total_fee'        => $total_fee,
                     'spbill_create_ip' => request()->ip(), // 可选，如不传该参数，SDK 将会自动获取相应 IP 地址
-                    'openid' => $openid,
+                    'openid'           => $openid,
                 ]);
 
                 if ($result['result_code'] == 'SUCCESS') {
                     PayLog::create([
                         'order_id' => $order->id,
                         'order_sn' => $order->order_sn,
-                        'appid' => config('wechat.payment.default.app_id'),
-                        'mch_id' => config('wechat.payment.default.mch_id'),
+                        'appid'    => config('wechat.payment.default.app_id'),
+                        'mch_id'   => config('wechat.payment.default.mch_id'),
 
-                        'cash_fee' => $total_fee,
+                        'cash_fee'  => $total_fee,
                         'nonce_str' => $result['nonce_str'],
 
                         'out_trade_no' => $order->order_sn,
-                        'result_code' => $result['result_code'],
-                        'return_code' => $result['return_code'],
-                        'sign' => $result['sign'],
-                        'total_fee' => $order->total_fee * 100,
-                        'trade_type' => $result['trade_type'],
-                        'openid' => $openid ?: '',
+                        'result_code'  => $result['result_code'],
+                        'return_code'  => $result['return_code'],
+                        'sign'         => $result['sign'],
+                        'total_fee'    => $order->total_fee * 100,
+                        'trade_type'   => $result['trade_type'],
+                        'openid'       => $openid ?: '',
                     ]);
 
                 }
@@ -552,6 +559,7 @@ class OrderController extends BaseController
         $url = $result['mweb_url'] . '&redirect_url=' . urlencode($redirect_url);
         info('mweb_url:' . $url);
         $data['mweb_url'] = $url;
+
         return $this->success($data);
     }
 
@@ -574,9 +582,9 @@ class OrderController extends BaseController
         $url = 'https://api.weixin.qq.com/sns/oauth2/access_token';
 
         $param = [
-            'appid' => config('wechat.official_account.default.app_id'),
-            'secret' => config('wechat.official_account.default.secret'),
-            'code' => $code,
+            'appid'      => config('wechat.official_account.default.app_id'),
+            'secret'     => config('wechat.official_account.default.secret'),
+            'code'       => $code,
             'grant_type' => 'authorization_code',
         ];
 
