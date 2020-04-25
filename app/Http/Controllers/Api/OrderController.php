@@ -73,9 +73,14 @@ class OrderController extends BaseController
         return $this->failed('当前订单不存在');
     }
 
+    /**
+     * 从购物车下单
+     * @return mixed
+     */
     public function cartSubmit()
     {
-        $carts = ShoppingCart::where('user_id', request()->user()->id)->get();
+        $user = request()->user();
+        $carts = ShoppingCart::where('user_id', $user->id)->get();
         if (!$carts) {
             return $this->failed('购物车里没有内容!');
         }
@@ -83,52 +88,53 @@ class OrderController extends BaseController
         $book_price = 0;
         $course_price = 0;
         $str = NULL;
-        $carts->each(function ($item) use (&$book_price, &$course_price, &$str) {
-            if ($item->type == ShoppingCart::TYPE_BOOK) {
-                if ($this->checkAddress()) {
-                    return $this->checkAddress();
+        $carts->each(function ($item) use ($user, &$book_price, &$course_price, &$str) {
+            if ($item->type === ShoppingCart::TYPE_BOOK) {
+                if (!$this->checkAddress()) {
+                    return $this->failed('请添加地址,方便给您发货!', -1);
                 }
                 $book = Book::find($item->goods_id);
                 if ($item->nubmer >= $book->num) {
                     $str = '当前图书库存不足,请联系管理员';
+
+                    return FALSE;
                 }
                 $book_price += $book->price * $item->number;
             } else {
                 $course = Course::find($item->goods_id);
-                if (!Request()->user()->canBuy($item->goods_id)) {
+                if (!$user->canBuy($item->goods_id)) {
                     $str = '您已购买过此课程!';
+
+                    return FALSE;
                 }
                 $course_price += $course->price;
             }
         });
+
         if ($str) {
             return $this->failed($str, -1);
         }
+
         $sum = $book_price + $course_price;
-        $order_sn = date('YmdHis') . (time() + Request()->user()->id);
-        $from_user_id = request()->from_user_id ?? 0;
-        if ($from_user_id) {
-            $from_user_id = Utils::hashids_decode($from_user_id);
-            if ($from_user_id) {
-                $from_user_id = $from_user_id[0];
-            }
-        }
+        $order_sn = Utils::makeSn();
+        $from_user_id = $this->getFromUserId(request()->get('from_user_id'));
+
         \DB::beginTransaction();
         try {
             $order = Order::create([
                 'order_sn'     => $order_sn,
                 'total_fee'    => $sum * 100,
                 'wait_pay_fee' => $sum * 100,
-                'user_id'      => Request()->user()->id,
-                'from_user_id' => $from_user_id ?? 0,
+                'user_id'      => $user->id,
+                'from_user_id' => $from_user_id,
             ]);
-            $carts->each(function ($item) use ($order, $order_sn) {
-                if ($item->type == ShoppingCart::TYPE_BOOK) {
+            $carts->each(static function ($item) use ($user, $order) {
+                if ($item->type === ShoppingCart::TYPE_BOOK) {
                     $book = Book::find($item->goods_id);
                     OrderItem::create([
                         'order_id'            => $order->id,
-                        'order_sn'            => $order_sn,
-                        'user_id'             => Request()->user()->id,
+                        'order_sn'            => $order->order_sn,
+                        'user_id'             => $user->id,
                         'course_id'           => $book->id,
                         'course_price'        => $book->price * 100,
                         'course_origin_price' => $book->origin_price * 100,
@@ -141,8 +147,8 @@ class OrderController extends BaseController
                     $course = Course::find($item->goods_id);
                     OrderItem::create([
                         'order_id'            => $order->id,
-                        'order_sn'            => $order_sn,
-                        'user_id'             => Request()->user()->id,
+                        'order_sn'            => $order->order_sn,
+                        'user_id'             => $user->id,
                         'course_id'           => $course->id,
                         'course_price'        => $course->price * 100,
                         'course_origin_price' => $course->origin_price * 100,
@@ -160,9 +166,11 @@ class OrderController extends BaseController
             \DB::rollback();
 
             return $this->failed('订单创建错误,请联系管理员');
+
         }
         \DB::commit();
-        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
+
+        $this->getDelay($order);
 
         return $this->success($order->id);
     }
@@ -200,13 +208,11 @@ class OrderController extends BaseController
             if ($order) {
                 return $this->failed('您已参加过此团购,不能再参加了!');
             }
-
-
         }
 
         $goods = $group_goods->goodsable;
 
-        if ($group_goods->goodsable_type == GroupGoods::GOODS_TYPE_0) {
+        if ($group_goods->goodsable_type === GroupGoods::GOODS_TYPE_0) {
 
             if (!Request()->user()->canBuy($group_goods->id)) {
                 return $this->failed('您已购买过此课程,不能再次购买!');
@@ -215,8 +221,8 @@ class OrderController extends BaseController
             $order_item_type = ShoppingCart::TYPE_COURSE;
         } else {
 
-            if ($this->checkAddress()) {
-                return $this->checkAddress();
+            if (!$this->checkAddress()) {
+                return $this->failed('请添加地址,方便给您发货!', -1);
             }
 
             if ($goods->num <= 0) {
@@ -225,16 +231,10 @@ class OrderController extends BaseController
             $order_item_type = ShoppingCart::TYPE_BOOK;
         }
 
-        $from_user_id = $request->from_user_id;
-        if ($from_user_id) {
-            $from_user_id = Utils::hashids_decode($from_user_id);
-            if ($from_user_id) {
-                $from_user_id = $from_user_id[0];
-            }
-        }
+        $from_user_id = $this->getFromUserId($request->get('from_user_id'));
 
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
-        $order_sn = date('YmdHis') . (time() + $request->user()->id);
+        $order_sn = Utils::makeSn();
         \DB::beginTransaction();
         try {
             $order = Order::create([
@@ -244,7 +244,7 @@ class OrderController extends BaseController
                 'user_id'          => $request->user()->id,
                 'type'             => Order::TYPE_GROUP,
                 'group_student_id' => $group_student_id ?: 0,
-                'from_user_id'     => $from_user_id ?? 0,
+                'from_user_id'     => $from_user_id,
             ]);
             OrderItem::create([
                 'order_id'            => $order->id,
@@ -264,7 +264,7 @@ class OrderController extends BaseController
         }
         \DB::commit();
 
-        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
+        $this->getDelay($order);
 
         return $this->success([
             'order_id' => $order->id,
@@ -281,13 +281,7 @@ class OrderController extends BaseController
         }
         //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳
         $order_sn = Utils::makeSn();
-
-        $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
-        if ($from_user_id) {
-            $from_user_id = $from_user_id[0];
-        } else {
-            $from_user_id = 0;
-        }
+        $from_user_id = $this->getFromUserId($request->get('from_user_id'));
         $is_currency = $request->get('is_currency');
         $coupon_deduction = 0;
         if ($is_currency && $course->price > $request->user()->currency) {
@@ -325,7 +319,7 @@ class OrderController extends BaseController
             return $this->failed('订单创建错误,请联系管理员', -1);
         }
         \DB::commit();
-        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
+        $this->getDelay($order);
 
         return $this->success([
             'order_id' => $order->id,
@@ -339,22 +333,16 @@ class OrderController extends BaseController
         if (!$book) {
             return $this->failed('当前商品不存在,请联系管理员!', -1);
         }
-        if ($this->checkAddress()) {
-            return $this->checkAddress();
+        if (!$this->checkAddress()) {
+            return $this->failed('请添加地址,方便给您发货!', -1);
         }
 
-        if (!$book->num) {
+        $num = 1;
+        if ($book->num - $num < 0) {
             return $this->failed('库存不足,请联系管理员!', -1);
         }
 
-        $from_user_id = $request->from_user_id ?? 0;
-
-        if ($from_user_id) {
-            $from_user_id = Utils::hashids_decode($from_user_id);
-            if ($from_user_id) {
-                $from_user_id = $from_user_id[0];
-            }
-        }
+        $from_user_id = $this->getFromUserId($request->get('from_user_id'));
 
         $is_currency = $request->is_currency;
         $coupon_deduction = 0;
@@ -365,8 +353,7 @@ class OrderController extends BaseController
             $user->save();
         }
 
-        //订单编号  当前时间(20190909112333)即19年9月9日11点23分33秒 + 时间戳 + user_id
-        $order_sn = date('YmdHis') . (time() + $request->user()->id);
+        $order_sn = Utils::makeSn();
         \DB::beginTransaction();
         try {
             $order = Order::create([
@@ -376,7 +363,7 @@ class OrderController extends BaseController
                 'user_id'          => $request->user()->id,
                 'type'             => Order::TYPE_BOOK,
                 'coupon_deduction' => $coupon_deduction,
-                'from_user_id'     => $from_user_id ?? 0,
+                'from_user_id'     => $from_user_id,
             ]);
             OrderItem::create([
                 'order_id'            => $order->id,
@@ -387,9 +374,11 @@ class OrderController extends BaseController
                 'course_origin_price' => $book->origin_price,
                 'course_title'        => $book->title,
                 'course_cover'        => $book->cover,
-                'num'                 => 1,
+                'num'                 => $num,
                 'type'                => ShoppingCart::TYPE_BOOK,
             ]);
+            $book->num--;
+            $book->save();
 
         } catch (Exception $e) {
             \DB::rollback();
@@ -397,7 +386,7 @@ class OrderController extends BaseController
             return $this->failed('订单创建错误,请联系管理员', -1);
         }
         \DB::commit();
-        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
+        $this->getDelay($order);
 
         return $this->success([
             'order_id' => $order->id,
@@ -612,9 +601,32 @@ class OrderController extends BaseController
 
     public function checkAddress()
     {
-        if (!request()->user()->receiver_mobile || !request()->user()->receiver_name || !request()->user()->province) {
-            return $this->failed('请添加地址,方便给您发货!', -1);
+        return request()->user()->receiver_mobile && request()->user()->receiver_name && request()->user()->province;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return int|mixed
+     */
+    private function getFromUserId($id = NULL)
+    {
+        $from_user_id = Utils::hashids_decode($id);
+        if ($from_user_id) {
+            $from_user_id = $from_user_id[0];
+        } else {
+            $from_user_id = 0;
         }
+
+        return $from_user_id;
+    }
+
+    /**
+     * @param $order
+     */
+    private function getDelay($order)
+    : void {
+        dispatch(new CancelOrder($order->id))->delay(now()->addMinutes(config('jkw.cancel_time')));
     }
 
 }

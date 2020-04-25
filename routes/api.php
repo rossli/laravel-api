@@ -96,10 +96,10 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
 
         Route::prefix('order')->group(function () {
             Route::get('/check-address', 'OrderController@checkAddress')->name('api.order.check-address');
-            Route::get('/book-submit', 'OrderController@bookSubmit')->name('api.order.book-submit');
-            Route::get('/course-submit', 'OrderController@courseSubmit')->name('api.order.course-submit');
-            Route::get('/cart-submit', 'OrderController@cartSubmit')->name('api.order.cart-submit');
-            Route::get('/group-submit', 'OrderController@groupSubmit')->name('api.order.group-submit');
+            Route::post('/book-submit', 'OrderController@bookSubmit')->name('api.order.book-submit');
+            Route::post('/course-submit', 'OrderController@courseSubmit')->name('api.orde.course-submit');
+            Route::post('/cart-submit', 'OrderController@cartSubmit')->name('api.order.cart-submit');
+            Route::post('/group-submit', 'OrderController@groupSubmit')->name('api.order.group-submit');
             Route::get('/confirm', 'OrderController@confirm')->name('api.order.confirm');
             Route::get('/cancel/{id}', 'OrderController@cancel')->name('api.order.cancel');
             Route::get('/payment-wx', 'OrderController@paymentWx')->name('api.order.payment-wx');
