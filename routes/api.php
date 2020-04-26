@@ -131,7 +131,6 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
 
         //分销课程 列表
         Route::get('/courses/promote-list', 'CourseController@promoteList')->name('api.courses.promote-list');
-
     });
     Route::prefix('comment')->group(function () {  //评论相关
         Route::post('store', 'CommentController@store')->name('api.comment.store')->middleware('auth:api');
