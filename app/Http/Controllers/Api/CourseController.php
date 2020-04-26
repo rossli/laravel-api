@@ -365,7 +365,7 @@ class CourseController extends BaseController
      */
     public function promoteList()
     {
-        $courses = Course::where('enabled', 1)->where('is_promote', 1)->get(['id', 'title', 'price', 'promote_fee']);
+        $courses = Course::where('enabled', 1)->where('is_promote', 1)->get(['id', 'title', 'price', 'promote_fee','cover']);
         $user = request()->user();
         $data = [];
         $courses->each(static function ($item) use (&$data, $user) {
@@ -374,6 +374,7 @@ class CourseController extends BaseController
                 'title'       => $item->title,
                 'price'       => $item->price,
                 'promote_fee' => $item->promote_fee,
+                'cover'       => config('jkw.cdn_domain').'/'.$item->cover?:'http://jkwedu-new.oss-cn-beijing.aliyuncs.com/images/0%E5%9F%BA%E7%A1%80%E8%AE%AD%E7%BB%83%E8%90%A5.png',
                 'url'         => config('jkw.u_index_url') . '/' . Utils::hashids_encode($user->id . '0' . $item->id),
             ];
         });
