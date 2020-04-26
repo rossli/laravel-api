@@ -21,7 +21,8 @@
         "overtrue/easy-sms": "^1.1",
         "overtrue/laravel-wechat": "~5.0",
         "predis/predis": "^1.1",
-        "rachel/talkfun-sdk": "^0.1.1"
+        "rachel/talkfun-sdk": "^0.1.1",
+        "ext-json": "*"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

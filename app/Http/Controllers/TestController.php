@@ -14,6 +14,16 @@ class TestController extends Controller
      */
     public function index()
     {
+        $a = '';
+        dd(isset($a));
+        $a = null;
+        $b = $a ?? 'ross';
+        $e = $a ?: 'ross';
+        dump($b);
+
+        $c = isset($d['hello']) ? $a : 'ross';
+        dd($c);
+        $from_user_id = request()->get('from_user_id') ?? 0;
 
         $groupGoods = GroupGoods::with('goodsable')->first();
         dd($groupGoods->goodsable);

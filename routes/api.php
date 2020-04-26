@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::class])->group(function () {
+Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::class])->group(static function () {
     //注册用户
     Route::post('/auth/register', 'AuthController@register')->name('api.auth.register');
     Route::post('/auth/login', 'AuthController@login')->name('api.auth.login');
@@ -92,14 +92,18 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/from-user', 'MeController@fromUser')->name('api.me.from-user');
             Route::get('/currency', 'MeController@currency')->name('api.me.currency');
             Route::get('/code', 'MeController@code')->name('api.me.code');
+
+            Route::get('/account', 'MeController@account')->name('api.me.account');
         });
 
         Route::prefix('order')->group(function () {
             Route::get('/check-address', 'OrderController@checkAddress')->name('api.order.check-address');
+
             Route::post('/book-submit', 'OrderController@bookSubmit')->name('api.order.book-submit');
             Route::post('/course-submit', 'OrderController@courseSubmit')->name('api.orde.course-submit');
             Route::post('/cart-submit', 'OrderController@cartSubmit')->name('api.order.cart-submit');
             Route::post('/group-submit', 'OrderController@groupSubmit')->name('api.order.group-submit');
+
             Route::get('/confirm', 'OrderController@confirm')->name('api.order.confirm');
             Route::get('/cancel/{id}', 'OrderController@cancel')->name('api.order.cancel');
             Route::get('/payment-wx', 'OrderController@paymentWx')->name('api.order.payment-wx');

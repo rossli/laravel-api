@@ -365,7 +365,7 @@ class CourseController extends BaseController
      */
     public function promoteList()
     {
-        $courses = Course::where('enabled', 1)->where('is_promote', 1)->get(['id', 'title', 'price', 'promote_fee']);
+        $courses = Course::where('enabled', 1)->where('is_promote', 1)->get(['id', 'title', 'price', 'promote_fee','cover']);
         $user = request()->user();
         $data = [];
         $courses->each(static function ($item) use (&$data, $user) {
@@ -375,6 +375,7 @@ class CourseController extends BaseController
                 'price'       => $item->price,
                 'promote_fee' => $item->promote_fee,
                 'url'         => config('jkw.u_index_url') . '/' . Utils::hashids_encode($user->id . '0' . $item->id),
+                'cover'         => $item->getCover(),
             ];
         });
 

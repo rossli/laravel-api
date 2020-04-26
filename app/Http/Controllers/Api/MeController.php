@@ -16,17 +16,19 @@ class MeController extends BaseController
     //
     public function course()
     {
-        $course_members = CourseMember::with(['course' => function ($query) {
-            $query->where('enabled', 1);
-        }])->where([['user_id', '=', request()->user()->id]])->orderBy('id', 'DESC')->get();
+        $course_members = CourseMember::with([
+            'course' => function ($query) {
+                $query->where('enabled', 1);
+            },
+        ])->where([['user_id', '=', request()->user()->id]])->orderBy('id', 'DESC')->get();
 
         $data = [];
         $course_members->each(function ($item) use (&$data) {
             if ($item->course) {
                 $data[] = [
                     'course_id' => $item->course_id,
-                    'image' => config('jkw.cdn_domain') . '/' . $item->course->cover,
-                    'title' => $item->course->title,
+                    'image'     => config('jkw.cdn_domain') . '/' . $item->course->cover,
+                    'title'     => $item->course->title,
                 ];
             }
 
@@ -63,30 +65,30 @@ class MeController extends BaseController
             $item->orderItem->each(function ($it) use (&$order_item_data, &$order_sum) {
                 $order_sum += $it->num;
                 $order_item_data[] = [
-                    'num' => $it->num,
-                    'course_title' => $it->course_title,
-                    'course_price' => number_format($it->course_price, 2),
+                    'num'                 => $it->num,
+                    'course_title'        => $it->course_title,
+                    'course_price'        => number_format($it->course_price, 2),
                     'course_origin_price' => number_format($it->course_origin_price, 2),
-                    'course_id' => $it->course_id,
-                    'course_cover' => config('jkw.cdn_domain') . '/' . $it->course_cover,
+                    'course_id'           => $it->course_id,
+                    'course_cover'        => config('jkw.cdn_domain') . '/' . $it->course_cover,
                 ];
             });
             $data[] = [
-                'order_id' => $item->id,
-                'order_sn' => $item->order_sn,
-                'total_fee' => number_format($item->total_fee, 2),
-                'coupon_deduction' => number_format($item->coupon_deduction, 2),
-                'has_paid_fee' => number_format($item->has_paid_fee, 2),
-                'status' => Order::STATUS_NAME[$item->status],
-                'type' => $item->type,
-                'paid_at' => $item->paid_at,
-                'cancel_reason' => $item->cancel_reason,
-                'logistics_number' => $item->logistics_number,
-                'logistics_company' => Order::LOGISTICS[$item->logistics_company],
-                'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at,
-                'order_item' => $order_item_data,
-                'sum_order' => $order_sum,
+                'order_id'          => $item->id,
+                'order_sn'          => $item->order_sn,
+                'total_fee'         => number_format($item->total_fee, 2),
+                'coupon_deduction'  => number_format($item->coupon_deduction, 2),
+                'has_paid_fee'      => number_format($item->has_paid_fee, 2),
+                'status'            => Order::STATUS_NAME[ $item->status ],
+                'type'              => $item->type,
+                'paid_at'           => $item->paid_at,
+                'cancel_reason'     => $item->cancel_reason,
+                'logistics_number'  => $item->logistics_number,
+                'logistics_company' => Order::LOGISTICS[ $item->logistics_company ],
+                'created_at'        => $item->created_at,
+                'updated_at'        => $item->updated_at,
+                'order_item'        => $order_item_data,
+                'sum_order'         => $order_sum,
             ];
         });
 
@@ -99,11 +101,15 @@ class MeController extends BaseController
             'orderItem' => function ($query) {
                 $query->select('order_id', 'user_id', 'course_origin_price', 'course_price', 'course_title',
                     'course_id', 'course_cover', 'num');
-            }, 'groupStudent', 'groupStudent.groupGoods'
-        ])->where('user_id', request()->user()->id)
+            },
+            'groupStudent',
+            'groupStudent.groupGoods',
+        ])
+            ->where('user_id', request()->user()->id)
             ->where('type', Order::TYPE_GROUP)
             ->whereIn('status', [Order::STATUS_PAID, Order::STATUS_FINISHED, Order::STATUS_DISPATCH])
-            ->orderBy('id', 'DESC')->get();
+            ->orderBy('id', 'DESC')
+            ->get();
         $data = [];
         $order_sum = 0;
         $orders->each(function ($item) use ($order_sum, &$data) {
@@ -117,30 +123,30 @@ class MeController extends BaseController
                 $group_goods = GroupGoods::find($it->course_id);
                 $order_sum += $it->num;
                 $order_item_data[] = [
-                    'num' => $it->num,
-                    'course_title' => $it->course_title,
-                    'course_price' => number_format($it->course_price, 2),
+                    'num'                 => $it->num,
+                    'course_title'        => $it->course_title,
+                    'course_price'        => number_format($it->course_price, 2),
                     'course_origin_price' => number_format($it->course_origin_price, 2),
-                    'course_id' => $group_goods->goodsable_id,
-                    'course_cover' => config('jkw.cdn_domain') . '/' . $it->course_cover,
+                    'course_id'           => $group_goods->goodsable_id,
+                    'course_cover'        => config('jkw.cdn_domain') . '/' . $it->course_cover,
                 ];
             });
             $data[] = [
-                'order_id' => $item->id,
-                'order_sn' => $item->order_sn,
-                'total_fee' => number_format($item->total_fee, 2),
-                'coupon_deduction' => number_format($item->coupon_deduction, 2),
-                'status' => GroupStudent::STATUS[$group_student->status],
-                'type' => $group_student->groupGoods->goodsable_type,
-                'paid_at' => $item->paid_at,
-                'cancel_reason' => $item->cancel_reason,
-                'logistics_number' => $item->logistics_number,
-                'logistics_company' => Order::LOGISTICS[$item->logistics_company],
-                'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at,
-                'order_item' => $order_item_data,
-                'num' => $group_student->number,
-                'group_student_id' => $group_student->id,
+                'order_id'          => $item->id,
+                'order_sn'          => $item->order_sn,
+                'total_fee'         => number_format($item->total_fee, 2),
+                'coupon_deduction'  => number_format($item->coupon_deduction, 2),
+                'status'            => GroupStudent::STATUS[ $group_student->status ],
+                'type'              => $group_student->groupGoods->goodsable_type,
+                'paid_at'           => $item->paid_at,
+                'cancel_reason'     => $item->cancel_reason,
+                'logistics_number'  => $item->logistics_number,
+                'logistics_company' => Order::LOGISTICS[ $item->logistics_company ],
+                'created_at'        => $item->created_at,
+                'updated_at'        => $item->updated_at,
+                'order_item'        => $order_item_data,
+                'num'               => $group_student->number,
+                'group_student_id'  => $group_student->id,
 
             ];
         });
@@ -150,18 +156,19 @@ class MeController extends BaseController
 
     public function fromUser()
     {
-        $user=User::where('from_user_id',request()->user()->id)->get();
+        $user = User::where('from_user_id', request()->user()->id)->get();
 
-        $data=[];
-        if($user){
-            $user->each(function ($item) use(&$data){
-                $data[]=[
-                    'avatar'=>config('jkw.cdn_domain') . '/' . $item->avatar,
-                    'nick_name'=>$item->nick_name,
-                    'created_at'=>date_format($item->created_at,'Y-m-d H:i:s')
+        $data = [];
+        if ($user) {
+            $user->each(function ($item) use (&$data) {
+                $data[] = [
+                    'avatar'     => config('jkw.cdn_domain') . '/' . $item->avatar,
+                    'nick_name'  => $item->nick_name,
+                    'created_at' => date_format($item->created_at, 'Y-m-d H:i:s'),
                 ];
             });
         }
+
         return $this->success($data);
     }
 
@@ -173,5 +180,25 @@ class MeController extends BaseController
     public function code()
     {
         return $this->success(request()->user()->getHashCode());
+    }
+
+    public function account()
+    {
+        $user = request()->user();
+        if (!$user->is_promoter) {
+            return $this->failed('您还不是推广合伙人,快快加入吧!');
+        }
+
+        $data = [
+            'user_id' => $user->id,
+            'nick_name' => $user->nick_name,
+            'avatar' => $user->getAvatar(),
+            'promote_fee'  => $user->promote_fee,
+            'can_withdraw' => $user->can_withdraw,
+            'withdrawn'    => $user->withdrawn,
+            'tobe_confirm' => $user->tobe_confirm,
+        ];
+
+        return $this->success($data);
     }
 }

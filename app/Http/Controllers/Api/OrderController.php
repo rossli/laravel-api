@@ -5,19 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Jobs\CancelOrder;
 use App\Models\Book;
 use App\Models\Course;
-use App\Models\CourseMember;
 use App\Models\GroupGoods;
 use App\Models\GroupStudent;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PayLog;
 use App\Models\ShoppingCart;
-use App\Models\User;
 use App\Utils\Utils;
+use EasyWeChat\Factory;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use EasyWeChat\Factory;
 use Illuminate\Support\Facades\Cache;
 use Jenssegers\Agent\Facades\Agent;
 
@@ -84,11 +81,14 @@ class OrderController extends BaseController
         if (!$carts) {
             return $this->failed('购物车里没有内容!');
         }
+        $from_user_id = $this->getFromUserId(request()->get('from_user_id'));
 
         $book_price = 0;
         $course_price = 0;
         $str = NULL;
-        $carts->each(function ($item) use ($user, &$book_price, &$course_price, &$str) {
+        $promote_fee = 0;
+        $carts->each(function ($item) use ($user, &$book_price, &$course_price, &$str, $from_user_id, &$promote_fee) {
+
             if ($item->type === ShoppingCart::TYPE_BOOK) {
                 if (!$this->checkAddress()) {
                     return $this->failed('请添加地址,方便给您发货!', -1);
@@ -100,6 +100,9 @@ class OrderController extends BaseController
                     return FALSE;
                 }
                 $book_price += $book->price * $item->number;
+                if ($from_user_id && $book->is_promote) {
+                    $promote_fee += $book->promote_fee;  //注意: 这里购买多本也按照一本计算分销费用
+                }
             } else {
                 $course = Course::find($item->goods_id);
                 if (!$user->canBuy($item->goods_id)) {
@@ -108,6 +111,9 @@ class OrderController extends BaseController
                     return FALSE;
                 }
                 $course_price += $course->price;
+                if ($from_user_id && $course->is_promote) {
+                    $promote_fee += $course->promote_fee;
+                }
             }
         });
 
@@ -117,7 +123,6 @@ class OrderController extends BaseController
 
         $sum = $book_price + $course_price;
         $order_sn = Utils::makeSn();
-        $from_user_id = $this->getFromUserId(request()->get('from_user_id'));
 
         \DB::beginTransaction();
         try {
@@ -127,6 +132,7 @@ class OrderController extends BaseController
                 'wait_pay_fee' => $sum * 100,
                 'user_id'      => $user->id,
                 'from_user_id' => $from_user_id,
+                'promote_fee' => $promote_fee,
             ]);
             $carts->each(static function ($item) use ($user, $order) {
                 if ($item->type === ShoppingCart::TYPE_BOOK) {
@@ -290,6 +296,10 @@ class OrderController extends BaseController
             $user->currency = 0;
             $user->save();
         }
+        $promote_fee = 0;
+        if ($from_user_id && $course->is_promote) {
+            $promote_fee += $course->promote_fee;
+        }
         \DB::beginTransaction();
         try {
             $order = Order::create([
@@ -300,6 +310,7 @@ class OrderController extends BaseController
                 'type'             => Order::TYPE_NORMAL,
                 'from_user_id'     => $from_user_id,
                 'coupon_deduction' => $coupon_deduction,
+                'promote_fee' => $promote_fee,
             ]);
             OrderItem::create([
                 'order_id'            => $order->id,
@@ -353,6 +364,10 @@ class OrderController extends BaseController
             $user->save();
         }
 
+        $promote_fee = 0;
+        if ($from_user_id && $book->is_promote) {
+            $promote_fee += $book->promote_fee;
+        }
         $order_sn = Utils::makeSn();
         \DB::beginTransaction();
         try {
@@ -364,6 +379,7 @@ class OrderController extends BaseController
                 'type'             => Order::TYPE_BOOK,
                 'coupon_deduction' => $coupon_deduction,
                 'from_user_id'     => $from_user_id,
+                'promote_fee' => $promote_fee,
             ]);
             OrderItem::create([
                 'order_id'            => $order->id,
@@ -398,7 +414,7 @@ class OrderController extends BaseController
         $order = Order::with('orderItem')->find($request->id);
 
         $order_item = [];
-        $order->orderItem->each(function ($item) use (&$order_item, $order) {
+        $order->orderItem->each(static function ($item) use (&$order_item, $order) {
             $course_id = $item->course_id;
             if ($order->type == Order::TYPE_GROUP) {
                 $group_goods = GroupGoods::find($course_id);

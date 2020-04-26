@@ -17,15 +17,9 @@ class AuthController extends BaseController
 
     public function register(RegisterRequest $request)
     {
-        $from_user_id = $request->get('from_user_id') ?? 0;
+        $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
         if ($from_user_id) {
-            $from_user_id = Utils::hashids_decode($from_user_id);
-            $from_user_id = $from_user_id[0];
-            $user = User::find($from_user_id);
-            if ($user) {
-                $user->currency++;
-                $user->save();
-            }
+            User::find($from_user_id[0])->increment('currency');
         }
         $user = User::create([
             'mobile'       => $request->get('mobile'),
@@ -33,7 +27,7 @@ class AuthController extends BaseController
             'avatar'       => config('jkw.default_avatar'),
             'nick_name'    => 'jkw_' . time(),
             'sex'          => 0,
-            'from_user_id' => $from_user_id ?? 0,
+            'from_user_id' => $from_user_id,
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
@@ -151,15 +145,9 @@ class AuthController extends BaseController
     {
         $user = User::where('openid', $request->openid)->first();
         if (!$user) {
-            $from_user_id = $request->get('from_user_id');
+            $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
             if ($from_user_id) {
-                $from_user_id = Utils::hashids_decode($from_user_id);
-                $from_user_id = $from_user_id[0];
-                $user = User::find($from_user_id);
-                if ($user) {
-                    $user->currency++;
-                    $user->save();
-                }
+                User::find($from_user_id[0])->increment('currency');
             }
             $user = User::create([
                 'openid'       => $request->openid,
