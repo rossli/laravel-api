@@ -93,7 +93,11 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/currency', 'MeController@currency')->name('api.me.currency');
             Route::get('/code', 'MeController@code')->name('api.me.code');
 
+            //分销账户
             Route::get('/account', 'MeController@account')->name('api.me.account');
+            //分销账户记录
+            Route::get('/account-records', 'MeController@accountRecord')->name('api.me.account-records');
+            //加入分销
             Route::post('/join-promote', 'MeController@joinPromote')->name('api.me.join-promote');
         });
 

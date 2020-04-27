@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\AccountRecord;
 use App\Models\CourseMember;
 use App\Models\GroupGoods;
 use App\Models\GroupStudent;
@@ -190,13 +191,15 @@ class MeController extends BaseController
         }
 
         $data = [
-            'user_id' => $user->id,
-            'nick_name' => $user->nick_name,
-            'avatar' => $user->getAvatar(),
-            'promote_fee'  => $user->promote_fee,
-            'can_withdraw' => $user->can_withdraw,
-            'withdrawn'    => $user->withdrawn,
-            'tobe_confirm' => $user->tobe_confirm,
+            'user_id'           => $user->id,
+            'nick_name'         => $user->nick_name,
+            'avatar'            => $user->getAvatar(),
+            'promote_fee'       => $user->promote_fee,   //累计收益
+            'can_withdraw'      => $user->can_withdraw,  //可提现
+            'withdrawn'         => $user->withdrawn,   //已提现
+            'tobe_confirm'      => $user->tobe_confirm,  //待确认
+            'invite_count'      => $user->getInviteCount(),
+            'invite_order_list' => $user->getInviteOrderList(),
         ];
 
         return $this->success($data);
@@ -204,12 +207,30 @@ class MeController extends BaseController
 
     public function joinPromote()
     {
-        $join = (int)request()->get('join',0) ? 1 : 0 ;
+        $join = (int) request()->get('join', 0) ? 1 : 0;
         $user = request()->user();
         $user->is_promoter = $join;
         $user->join_at = now();
         $user->save();
 
         return $this->success();
+    }
+
+    public function accountRecord()
+    {
+        $type = request()->get('type', 0);
+        $data = [];
+
+        AccountRecord::where('user_id', request()->user()->id)->where('type', $type)->get()->each(static function ($item
+        ) use (&$data) {
+            $data[] = [
+                'type'       => $item->type,
+                'type_name'  => $item->getTypeName(),
+                'money'      => $item->money,
+                'created_at' => $item->created_at->toDateTimeString(),
+            ];
+        });
+
+        return $this->success($data);
     }
 }
