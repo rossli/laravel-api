@@ -46,7 +46,7 @@ class AuthController extends BaseController
 
             if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-                $response = ['token' => $token, 'code' => $user->getHashCode()];
+                $response = ['token' => $token, 'code' => $user->getHashCode(),'is_promoter'=>$user->is_promoter];
 
                 return $this->success($response);
             }
