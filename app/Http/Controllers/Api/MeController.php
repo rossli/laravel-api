@@ -233,4 +233,11 @@ class MeController extends BaseController
 
         return $this->success($data);
     }
+
+    public function promoteOrders()
+    {
+        $data =request()->user()->getInviteOrderList();
+
+        return $this->success($data);
+    }
 }
