@@ -94,6 +94,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/code', 'MeController@code')->name('api.me.code');
 
             Route::get('/account', 'MeController@account')->name('api.me.account');
+            Route::post('/join-promote', 'MeController@joinPromote')->name('api.me.join-promote');
         });
 
         Route::prefix('order')->group(function () {

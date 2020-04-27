@@ -201,4 +201,15 @@ class MeController extends BaseController
 
         return $this->success($data);
     }
+
+    public function joinPromote()
+    {
+        $join = (int)request()->get('join',0) ? 1 : 0 ;
+        $user = request()->user();
+        $user->is_promoter = $join;
+        $user->join_at = now();
+        $user->save();
+
+        return $this->success();
+    }
 }

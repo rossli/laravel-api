@@ -381,4 +381,6 @@ class CourseController extends BaseController
 
         return $this->success($data);
     }
+
+
 }
