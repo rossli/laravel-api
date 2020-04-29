@@ -382,5 +382,29 @@ class CourseController extends BaseController
         return $this->success($data);
     }
 
+    /**
+     * 分类列表
+     * @param {int}$project:项目参数
+     */
+
+    public function courseType($project=0)
+    {
+        $courses=Course::where('project',$project)->where('enabled',1)->select('id','title','subtitle','cover')->paginate(20);
+        $data=[
+            'lastPage'=>$courses->lastPage(),
+            'page'=>$courses->currentPage(),
+        ];
+        $coursesItems=$courses->items();
+        foreach ($coursesItems as $item) {
+            $data['course'][]=[
+                'id'=>$item->id,
+                'cover'=>config('jkw.cdn_domain').'/'.$item->cover,
+                'title'=>$item->title,
+                'subtitle'=>$item->subtitle
+            ];
+        }
+        return $this->success($data);
+    }
+
 
 }

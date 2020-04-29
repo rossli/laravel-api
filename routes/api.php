@@ -46,6 +46,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     Route::get('/course/kaobian', 'CourseController@kaobian')->name('api.course.kaobian');
     Route::get('/course/open', 'CourseController@open')->name('api.course.open');
     Route::get('/course/{id}', 'CourseController@show')->name('api.course.show');
+    Route::get('/courses-type/{project?}', 'CourseController@courseType')->name('api.course.course-type');
 
     Route::get('/order/wx-share', 'OrderController@wxShare')->name('api.order.wx-share');
 
