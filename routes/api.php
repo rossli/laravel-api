@@ -78,6 +78,7 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::get('/users/login-time', 'UserController@loginTime')->name('api.users.login-time');
         Route::get('/users/address', 'UserController@address')->name('api.user.address');
         Route::post('/users/update/address', 'UserController@updateAddress')->name('api.user.update.address');
+
         Route::post('/course/join/{id}', 'CourseController@join')->name('api.course.join');
         Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
         Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
