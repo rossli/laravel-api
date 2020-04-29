@@ -46,7 +46,12 @@ class AuthController extends BaseController
 
             if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-                $response = ['token' => $token, 'code' => $user->getHashCode(),'is_promoter'=>$user->is_promoter];
+                $response = [
+                    'token'       => $token,
+                    'code'        => $user->getHashCode(),
+                    'is_promoter' => $user->is_promoter,
+                    'url'         => config('jkw.u_index_url') . '/' . Utils::hashids_encode($user->id),
+                ];
 
                 return $this->success($response);
             }
@@ -168,7 +173,5 @@ class AuthController extends BaseController
             'code'  => Utils::hashids_encode($user->id),
         ]);
     }
-
-
 
 }
