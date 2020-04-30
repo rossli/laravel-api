@@ -87,7 +87,6 @@ class AuthController extends BaseController
         return $this->success([
             'token' => $token,
             'code'  => Utils::hashids_encode($user->id),
-            'is_promoter'=>$user->is_promoter
         ]);
 
     }
@@ -108,7 +107,6 @@ class AuthController extends BaseController
         return $this->success([
             'token' => $token,
             'code'  => Utils::hashids_encode($user->id),
-            'is_promoter'=>$user->is_promoter
         ]);
     }
 
@@ -125,7 +123,6 @@ class AuthController extends BaseController
             return $this->success([
                 'token' => $token,
                 'code'  => Utils::hashids_encode($user->id),
-                'is_promoter'=>$user->is_promoter
             ]);
 
         }
@@ -178,7 +175,6 @@ class AuthController extends BaseController
         return $this->success([
             'token' => $token,
             'code'  => Utils::hashids_encode($user->id),
-            'is_promoter'=>$user->is_promoter
         ]);
     }
 

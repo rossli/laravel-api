@@ -21,7 +21,8 @@ class UserController extends BaseController
     public function index(Request $request)
     {
         $user = new UserResource($request->user());
-        $data = [
+        /*
+         * $data = [
             "id" => $user->id,
             "email" => $user->email,
             "mobile" => $user->mobile,
@@ -53,7 +54,17 @@ class UserController extends BaseController
             "address" => $user->address,
             "created_at" => $user->created_at,
             "updated_at" => $user->updated_at,
-
+            'is_promoter' => $user->is_promoter,
+            'url'         => config('jkw.u_index_url') . '/' . Utils::hashids_encode($user->id),
+        ];
+        */
+        $data = [
+            "id" => $user->id,
+            "nick_name" => $user->nick_name,
+            "wechat_name" => $user->wechat_name,
+            "avatar" => $user->avatar ? config('jkw.cdn_domain') . '/' . $user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
+            'is_promoter' => $user->is_promoter,
+            'url'         => config('jkw.u_index_url') . '/' . Utils::hashids_encode($user->id),
         ];
 
         return $this->success($data);
