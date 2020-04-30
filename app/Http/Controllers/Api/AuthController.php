@@ -152,30 +152,35 @@ class AuthController extends BaseController
 
     public function bindMobile(BindMobileRequest $request)
     {
-        $user = User::where('openid', $request->openid)->first();
-        if (!$user) {
-            $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
-            if ($from_user_id) {
-                User::find($from_user_id[0])->increment('currency');
+        $isMobile=User::where('mobile',$request->mobile)->first();
+        if(!$isMobile){
+            $user = User::where('openid', $request->openid)->first();
+            if (!$user) {
+                $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
+                if ($from_user_id) {
+                    User::find($from_user_id[0])->increment('currency');
+                }
+                $user = User::create([
+                    'openid'       => $request->openid,
+                    'avatar'       => config('jkw.default_avatar'),
+                    'nick_name'    => 'jkw_' . time(),
+                    'sex'          => 0,
+                    'from_user_id' => $from_user_id ?? 0,
+                ]);
             }
-            $user = User::create([
-                'openid'       => $request->openid,
-                'avatar'       => config('jkw.default_avatar'),
-                'nick_name'    => 'jkw_' . time(),
-                'sex'          => 0,
-                'from_user_id' => $from_user_id ?? 0,
+            $user->binding_mobile = $request->mobile;
+            $user->login_time = now();
+            $user->save();
+
+            $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+
+            return $this->success([
+                'token' => $token,
+                'code'  => Utils::hashids_encode($user->id),
             ]);
         }
-        $user->binding_mobile = $request->mobile;
-        $user->login_time = now();
-        $user->save();
+        return $this->failed('该号码已经有课程,请使用此号码进行登录!');
 
-        $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-
-        return $this->success([
-            'token' => $token,
-            'code'  => Utils::hashids_encode($user->id),
-        ]);
     }
 
 }

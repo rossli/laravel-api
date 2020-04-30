@@ -412,7 +412,6 @@ class OrderController extends BaseController
     public function confirm(Request $request)
     {
         $order = Order::with('orderItem')->find($request->id);
-
         $order_item = [];
         $order->orderItem->each(static function ($item) use (&$order_item, $order) {
             $course_id = $item->course_id;
