@@ -53,7 +53,7 @@ class BannerController extends BaseController
     {
         $banner=Banner::where([
             ['pos','=',Banner::ME],
-            ['enabled','=','1'],
+            ['enabled','=','3'],
             ['attr', '=', Banner::ATTR_H5]
         ])->orderBy('updated_at','DESC')->first();
         if($banner){
