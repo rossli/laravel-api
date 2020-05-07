@@ -86,7 +86,7 @@ class CourseController extends BaseController
 
         $course = Course::with([
             'task' => function ($query) {
-                $query->select('id', 'title', 'is_free', 'type', 'media_id', 'course_id');
+                $query->where('enabled',1)->select('enabled','id', 'title', 'is_free', 'type', 'media_id', 'course_id');
             },
             'material',
         ])->where('enabled', 1)->find($id);
