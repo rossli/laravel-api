@@ -163,7 +163,7 @@ class AuthController extends BaseController
             $user = User::where('openid', $request->openid)->first();
             if (!$user) {
                 $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
-                if ($from_user_id) {
+                if (count($from_user_id)) {
                     User::find($from_user_id[0])->increment('currency');
                 }
                 $user = User::create([
@@ -171,7 +171,7 @@ class AuthController extends BaseController
                     'avatar' => config('jkw.default_avatar'),
                     'nick_name' => 'jkw_' . time(),
                     'sex' => 0,
-                    'from_user_id' => $from_user_id ?? 0,
+                    'from_user_id' => $from_user_id!==[] ?:0,
                 ]);
             }
             $user->binding_mobile = $request->mobile;
