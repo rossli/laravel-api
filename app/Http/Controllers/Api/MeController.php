@@ -263,6 +263,7 @@ class MeController extends BaseController
             return $this->failed('已达到企业账户日提现限额,请明日再来');
         }
 
+
         if ($amount < $minimum_amount = config('jkw.withdraw_amount')) {
             return $this->failed('提现金额不能少于' . $minimum_amount . '元');
         }
