@@ -110,8 +110,8 @@ return [
              'app_id'             => env('WECHAT_PAYMENT_APPID', ''),
              'mch_id'             => env('WECHAT_PAYMENT_MCH_ID', 'your-mch-id'),
              'key'                => env('WECHAT_PAYMENT_KEY', 'key-for-signature'),
-             'cert_path'          => env('WECHAT_PAYMENT_CERT_PATH', 'path/to/cert/apiclient_cert.pem'),    // XXX: 绝对路径！！！！
-             'key_path'           => env('WECHAT_PAYMENT_KEY_PATH', 'path/to/cert/apiclient_key.pem'),      // XXX: 绝对路径！！！！
+             'cert_path'          => env('WECHAT_PAYMENT_CERT_PATH', '/data/WECHAT_PAYMENT_CERT/apiclient_cert.pem'),    // XXX: 绝对路径！！！！
+             'key_path'           => env('WECHAT_PAYMENT_KEY_PATH', '/data/WECHAT_PAYMENT_CERT/apiclient_key.pem'),      // XXX: 绝对路径！！！！
              'notify_url'         => env('WECHAT_PAYMENT_NOTIFY_URL', 'https://pay.weixin.qq.com/wxpay/pay.action'),
          ],
          // ...
