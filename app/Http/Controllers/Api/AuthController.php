@@ -28,7 +28,7 @@ class AuthController extends BaseController
             'nick_name'    => 'jkw_' . time(),
             'sex'          => 0,
             'from_user_id' => $from_user_id,
-            'login_time'=>now()
+            'login_time'   => now(),
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
@@ -78,16 +78,16 @@ class AuthController extends BaseController
         }
 
         $user->update([
-            'password' => bcrypt($request->get('password')),
-            'login_time'=>now()
+            'password'   => bcrypt($request->get('password')),
+            'login_time' => now(),
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
-            'token' => $token,
-            'code'  => Utils::hashids_encode($user->id),
-            'is_promoter'=>$user->is_promoter
+            'token'       => $token,
+            'code'        => Utils::hashids_encode($user->id),
+            'is_promoter' => $user->is_promoter,
         ]);
 
     }
@@ -101,14 +101,14 @@ class AuthController extends BaseController
 
             return $this->failed($response, 422);
         }
-        $user->login_time=now();
+        $user->login_time = now();
         $user->save();
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
-            'token' => $token,
-            'code'  => Utils::hashids_encode($user->id),
-            'is_promoter'=>$user->is_promoter
+            'token'       => $token,
+            'code'        => Utils::hashids_encode($user->id),
+            'is_promoter' => $user->is_promoter,
         ]);
     }
 
@@ -123,9 +123,9 @@ class AuthController extends BaseController
             $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
             return $this->success([
-                'token' => $token,
-                'code'  => Utils::hashids_encode($user->id),
-                'is_promoter'=>$user->is_promoter
+                'token'       => $token,
+                'code'        => Utils::hashids_encode($user->id),
+                'is_promoter' => $user->is_promoter,
             ]);
 
         }
@@ -176,9 +176,9 @@ class AuthController extends BaseController
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
-            'token' => $token,
-            'code'  => Utils::hashids_encode($user->id),
-            'is_promoter'=>$user->is_promoter
+            'token'       => $token,
+            'code'        => Utils::hashids_encode($user->id),
+            'is_promoter' => $user->is_promoter,
         ]);
     }
 

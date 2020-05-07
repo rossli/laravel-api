@@ -8,4 +8,6 @@ return [
     'u_index_url'=>env('U_INDEX_URL','https://u.jkwedu.net'),
     'cancel_time'=>env('CANCEL_TIME',60),
     'suggest'=>env('SUGGEST','o_ysnwFSWlmpHXi1tWeMs8hH_4T'),
+    'withdraw_amount'=>env('WITHDRAW_AMOUNT',10),
+    'withdraw_amount_daily_limit'=>env('WITHDRAW_AMOUNT',1000),
 ];

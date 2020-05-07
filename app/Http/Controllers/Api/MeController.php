@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\AccountRecord;
+use App\Models\AdminUser;
 use App\Models\CourseMember;
 use App\Models\GroupGoods;
 use App\Models\GroupStudent;
 use App\Models\Order;
 use App\Models\User;
 use App\Utils\Utils;
+use EasyWeChat\Factory;
 use Illuminate\Http\Request;
 
 class MeController extends BaseController
@@ -236,8 +238,169 @@ class MeController extends BaseController
 
     public function promoteOrders()
     {
-        $data =request()->user()->getInviteOrderList();
+        $data = request()->user()->getInviteOrderList();
 
         return $this->success($data);
+    }
+
+    /**
+     * 发放付款红包
+     * @return mixed
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function withdraw()
+    {
+        $admin_user = $this->getCompanyUser();
+        $user = request()->user();
+        $amount = request()->get('amount', 0);
+
+        if ($admin_user->total_withdraw < $amount) {
+            return $this->failed('企业账户余额不足,请联系管理员或者客服人员');
+        }
+        if ($admin_user->daily_withdraw > config('jkw.withdraw_amount_daily_limit')) {
+            return $this->failed('已达到企业账户日提现限额,请明日再来');
+        }
+
+        if ($amount < $minimum_amount = config('jkw.withdraw_amount')) {
+            return $this->failed('提现金额不能少于' . $minimum_amount . '元');
+        }
+        if ($user->can_withdrawn < $amount) {
+            return $this->failed('您的可提现金额不足');
+        }
+
+        if (!$user->is_promoter) {
+            return $this->failed('您还不是我们的分销人员哦,快快加入吧');
+        }
+
+        $openid = $user->openid;
+        if (!$openid || !$this->checkSubscribe($openid)) {
+            return $this->failed('请先关注公众号后再来提现哦');
+        }
+
+        if (env('APP_DEBUG')) {
+            $minimum_amount = 1;
+            $openid = 'o_ysnwFHdBWTZ0gmeaAFx6aRh_10';
+        }
+
+        $config = config('wechat.payment.default');
+        $payment = Factory::payment($config);
+        $redpack = $payment->redpack;
+        $sn = Utils::makeSn('wd');  //withdraw
+        $redpackData = [
+            'mch_billno'   => $sn,
+            'send_name'    => '师大教科文提现红包',
+            're_openid'    => $openid,
+            'total_num'    => 1,  //固定为1，可不传
+            'total_amount' => $minimum_amount * 100,  //单位为分，不小于100
+            'wishing'      => '继续加油哦',
+            'act_name'     => '提现红包',
+            'remark'       => '邀请越多奖励越多',
+            // ...
+        ];
+        $result = $redpack->sendNormal($redpackData);
+
+        if ($result['return_code'] === 'SUCCESS') {
+            if ($result['result_code'] === 'SUCCESS') {
+                return $this->handleData($amount, $user, $sn, $admin_user);
+            }
+
+            if ($result['err_code'] === 'SYSTEMERROR') {
+                $mchBillNo = $sn;
+                $res = $redpack->info($mchBillNo);
+                if ($res['result_code'] === 'SUCCESS') {
+                    return $this->handleData($amount, $user, $sn, $admin_user);
+                }
+            }
+        } else {
+            return $this->failed('通信错误');
+        }
+    }
+
+    protected function getCompanyUser()
+    {
+        return AdminUser::find(1);
+    }
+
+    /**
+     * 是否关注 公众号
+     * @return mixed
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
+     */
+    public function isSubscribe()
+    {
+        $user = request()->user();
+        $config = config('wechat.official_account.default');
+        $app = Factory::officialAccount($config);
+        $openid = $user->openid;
+        if (!$openid) {
+            return $this->success([
+                'is_subscribe' => 0,
+            ]);
+        }
+
+        return $this->success([
+            'is_subscribe' => $this->checkSubscribe($openid),
+        ]);
+    }
+
+    /**
+     * @param $openid
+     *
+     * @return bool
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
+     */
+    private function checkSubscribe($openid)
+    : bool {
+        $official_config = config('wechat.official_account.default');
+        $official_app = Factory::officialAccount($official_config);
+        $wechat_user = $official_app->user->get($openid);
+        if (isset($wechat_user['subscribe'])) {
+            return $wechat_user['subscribe'];
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param        $amount
+     * @param        $user
+     * @param string $sn
+     * @param        $admin_user
+     *
+     * @return mixed
+     */
+    private function handleData($amount, $user, string $sn, $admin_user)
+    : mixed {
+        \DB::beginTransaction();
+        try {
+            $user->can_withdraw -= $amount;
+            $user->withdrawn += $amount;
+            $user->increment('withdraw_times');
+            $user->save();
+
+            AccountRecord::create([
+                'user_id' => $user->id,
+                'sn'      => $sn,
+                'status'  => 'SUCCESS',
+                'type'    => AccountRecord::TYPE_2,
+                'money'   => $amount,
+            ]);
+
+            $admin_user->increment('total_withdraw_times');
+            $admin_user->daily_withdraw += $amount;
+            $admin_user->total_withdraw += $amount;
+            $admin_user->save();
+
+            return $this->success('处理成功');
+
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+
+            return $this->failed($e->getMessage());
+        }
+        \DB::commit();
     }
 }

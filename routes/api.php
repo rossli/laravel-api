@@ -106,6 +106,12 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             //分销订单记录
             Route::get('/promote-orders', 'MeController@promoteOrders')->name('api.me.promote-orders');
 
+            //分销提现
+            Route::post('/withdraw', 'MeController@withdraw')->name('api.me.withdraw');
+
+            //是否关注 公众号
+            Route::get('/is-subscribe', 'MeController@isSubscribe')->name('api.me.is-subscribe');
+
 
 
         });
