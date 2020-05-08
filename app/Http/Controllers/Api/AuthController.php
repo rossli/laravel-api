@@ -122,23 +122,26 @@ class AuthController extends BaseController
     {
         if ($request->openid) {
             $user = User::where('openid', $request->openid)->first();
+            if(isset($user)){
+                if($user->binding_mobile){
+                    $user->login_time = now();
+                    $user->save();
 
-            $user->login_time = now();
-            $user->save();
+                    $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
-            $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+                    return $this->success([
+                        'token'       => $token,
+                        'code'        => Utils::hashids_encode($user->id),
+                        'is_promoter' => $user->is_promoter,
+                    ]);
+                }
+            }
+            $response = '用户不存在';
 
-            return $this->success([
-                'token'       => $token,
-                'code'        => Utils::hashids_encode($user->id),
-                'is_promoter' => $user->is_promoter,
-            ]);
-
+            return $this->failed($response, 422);
         }
+return $this->failed('数据错误');
 
-        $response = '用户不存在';
-
-        return $this->failed($response, 422);
     }
 
     public function isBind(Request $request)
@@ -178,6 +181,8 @@ class AuthController extends BaseController
                 ]);
             }
             $user->binding_mobile = $request->mobile;
+            $user->mobile = $request->mobile;
+            $user->password = bcrypt($request->get(substr($request->mobile,-6)+0));
             $user->login_time = now();
             $user->save();
 
@@ -189,14 +194,6 @@ class AuthController extends BaseController
             ]);
         }
         return $this->failed('该号码已经有课程,请使用此号码进行登录!');
-
-        $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-
-        return $this->success([
-            'token'       => $token,
-            'code'        => Utils::hashids_encode($user->id),
-            'is_promoter' => $user->is_promoter,
-        ]);
     }
 
 }
