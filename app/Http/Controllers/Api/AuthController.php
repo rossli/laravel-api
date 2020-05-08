@@ -23,7 +23,7 @@ class AuthController extends BaseController
         }
 
         $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
-        if ($from_user_id!==[]) {
+        if ($from_user_id !== []) {
             User::find($from_user_id[0])->increment('currency');
         }
         $user = User::create([
@@ -33,8 +33,8 @@ class AuthController extends BaseController
             'avatar' => config('jkw.default_avatar'),
             'nick_name' => 'jkw_' . time(),
             'sex' => 0,
-            'from_user_id' => $from_user_id!==[]?:0,
-            'login_time'   => now(),
+            'from_user_id' => $from_user_id !== [] ?: 0,
+            'login_time' => now(),
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
@@ -84,15 +84,15 @@ class AuthController extends BaseController
         }
 
         $user->update([
-            'password'   => bcrypt($request->get('password')),
+            'password' => bcrypt($request->get('password')),
             'login_time' => now(),
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
-            'token'       => $token,
-            'code'        => Utils::hashids_encode($user->id),
+            'token' => $token,
+            'code' => Utils::hashids_encode($user->id),
             'is_promoter' => $user->is_promoter,
         ]);
 
@@ -112,8 +112,8 @@ class AuthController extends BaseController
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
-            'token'       => $token,
-            'code'        => Utils::hashids_encode($user->id),
+            'token' => $token,
+            'code' => Utils::hashids_encode($user->id),
             'is_promoter' => $user->is_promoter,
         ]);
     }
@@ -122,16 +122,16 @@ class AuthController extends BaseController
     {
         if ($request->openid) {
             $user = User::where('openid', $request->openid)->first();
-            if(isset($user)){
-                if($user->binding_mobile){
+            if (isset($user)) {
+                if ($user->binding_mobile) {
                     $user->login_time = now();
                     $user->save();
 
                     $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
                     return $this->success([
-                        'token'       => $token,
-                        'code'        => Utils::hashids_encode($user->id),
+                        'token' => $token,
+                        'code' => Utils::hashids_encode($user->id),
                         'is_promoter' => $user->is_promoter,
                     ]);
                 }
@@ -140,7 +140,7 @@ class AuthController extends BaseController
 
             return $this->failed($response, 422);
         }
-return $this->failed('数据错误');
+        return $this->failed('数据错误');
 
     }
 
@@ -177,12 +177,12 @@ return $this->failed('数据错误');
                     'avatar' => config('jkw.default_avatar'),
                     'nick_name' => 'jkw_' . time(),
                     'sex' => 0,
-                    'from_user_id' => $from_user_id!==[] ?:0,
+                    'from_user_id' => $from_user_id !== [] ?: 0,
                 ]);
             }
             $user->binding_mobile = $request->mobile;
             $user->mobile = $request->mobile;
-            $user->password = bcrypt($request->get(substr($request->mobile,-6)+0));
+            $user->password = bcrypt($request->get(substr($request->mobile, -6) + 0));
             $user->login_time = now();
             $user->save();
 
