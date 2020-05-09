@@ -195,7 +195,7 @@ class MeController extends BaseController
         $data = [
             'user_id' => $user->id,
             'nick_name' => $user->nick_name,
-            'avatar' => $user->getAvatar(),
+            'avatar' => $user->avatar ? config('jkw.cdn_domain') . '/' . $user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
             'promote_fee' => $user->promote_fee,   //累计收益
             'can_withdraw' => $user->can_withdraw,  //可提现
             'withdrawn' => $user->withdrawn,   //已提现
