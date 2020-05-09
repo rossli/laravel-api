@@ -12,6 +12,7 @@ use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -31,6 +32,25 @@ class UserController extends BaseController
         ];
 
         return $this->success($data);
+    }
+
+    public function updateAvatar(Request $request)
+    {
+
+        $avatar = explode(',', $request->avatar);
+        if (count($avatar) > 1) {
+            $avatar = base64_decode($avatar[1]);
+            $filename = 'images/' . date('Y-m-d-h-i-s') . '-' . uniqid() . '.png';
+            $bool = Storage::disk('oss')->put($filename, $avatar);
+            if ($bool) {
+                $request->user()->avatar = $filename;
+                $request->user()->save();
+                return $this->success('success');
+            } else {
+                $this->failed('数据错误', -1);
+            }
+        }
+        $this->failed('图片不能为空');
     }
 
     public function updateName(Request $request)
