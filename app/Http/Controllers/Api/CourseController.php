@@ -158,7 +158,7 @@ class CourseController extends BaseController
         $category = Category::with([
             'course' => function ($query) {
                 $query->select('enabled', 'courses.updated_at', 'cover', 'title', 'subtitle', 'courses.id', 'price',
-                    'is_free', 'is_finished', 'origin_price', 'is_activity');
+                    'is_free', 'is_finished', 'origin_price', 'is_activity')->orderBy('id','DESC');
             },
         ])->get();
         $data = [];
