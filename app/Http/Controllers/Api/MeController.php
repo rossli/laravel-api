@@ -302,12 +302,30 @@ class MeController extends BaseController
             // ...
         ];
         $result = $redpack->sendNormal($redpackData);
+//        $result = '{
+//  "send_listid" : "1000041701202005123002719191440",
+//  "err_code" : "SUCCESS",
+//  "re_openid" : "o_ysnwMa8RsUaaQkk-HdftfXa7p0",
+//  "total_amount" : "100",
+//  "err_code_des" : "发放成功",
+//  "return_msg" : "发放成功",
+//  "mch_billno" : "wd202005121803551589277835",
+//  "return_code" : "SUCCESS",
+//  "wxappid" : "wxeb99f78727420b07",
+//  "mch_id" : "1448506702",
+//  "result_code" : "SUCCESS"
+//}';
+//        $result = json_decode($result,1);
 
         if ($result['return_code'] === 'SUCCESS') {
             info('redpack', $result);
             if ($result['result_code'] === 'SUCCESS') {
+
+                $this->handleUser($amount, $user);
+
                 $res = $this->handleData($amount, $user, $sn, $admin_user);
                 if ($res) {
+                    info('提现成功');
                     return $this->success('提现成功');
                 }
 
@@ -318,6 +336,7 @@ class MeController extends BaseController
                 $mchBillNo = $sn;
                 $res = $redpack->info($mchBillNo);
                 if ($res['result_code'] === 'SUCCESS') {
+                    $this->handleUser($amount, $user);
                     $res = $this->handleData($amount, $user, $sn, $admin_user);
                     if ($res) {
                         return $this->success('提现成功');
@@ -389,11 +408,8 @@ class MeController extends BaseController
      {
         \DB::beginTransaction();
         try {
-            $user->can_withdraw -= $amount;
-            $user->withdrawn += $amount;
-            $user->increment('withdraw_times');
-            $user->save();
 
+            info('start');
             AccountRecord::create([
                 'user_id' => $user->id,
                 'sn'      => $sn,
@@ -406,9 +422,7 @@ class MeController extends BaseController
             $admin_user->daily_withdraw += $amount;
             $admin_user->total_withdraw += $amount;
             $admin_user->save();
-
-            return TRUE;
-
+            info('finish');
 
         } catch (\Exception $e) {
             \DB::rollback();
@@ -417,5 +431,18 @@ class MeController extends BaseController
             return FALSE;
         }
         \DB::commit();
+         return TRUE;
+    }
+
+    /**
+     * @param $amount
+     * @param $user
+     */
+    private function handleUser($amount, $user)
+    : void {
+        $user->can_withdraw -= $amount;
+        $user->withdrawn += $amount;
+        $user->increment('withdraw_times');
+        $user->save();
     }
 }

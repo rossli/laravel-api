@@ -14,6 +14,21 @@ class TestController extends Controller
      */
     public function index()
     {
+        $result = '{
+  "send_listid" : "1000041701202005123002719191440",
+  "err_code" : "SUCCESS",
+  "re_openid" : "o_ysnwMa8RsUaaQkk-HdftfXa7p0",
+  "total_amount" : "100",
+  "err_code_des" : "发放成功",
+  "return_msg" : "发放成功",
+  "mch_billno" : "wd202005121803551589277835",
+  "return_code" : "SUCCESS",
+  "wxappid" : "wxeb99f78727420b07",
+  "mch_id" : "1448506702",
+  "result_code" : "SUCCESS"
+}';
+        $result = json_decode($result,1);
+        dd($result);
         $a = '';
         dd(isset($a));
         $a = null;
