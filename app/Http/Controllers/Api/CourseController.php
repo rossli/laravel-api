@@ -389,7 +389,7 @@ class CourseController extends BaseController
 
     public function courseType($project=0)
     {
-        $courses=Course::where('project',$project)->where('enabled',1)->select('id','title','subtitle','cover')->paginate(20);
+        $courses=Course::where('project',$project)->where('enabled',1)->select('id','title','subtitle','cover')->orderBy('id','DESC')->paginate(20);
         $data=[
             'lastPage'=>$courses->lastPage(),
             'page'=>$courses->currentPage(),
