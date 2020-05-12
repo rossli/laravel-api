@@ -12,6 +12,7 @@ use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -23,40 +24,33 @@ class UserController extends BaseController
         $user = new UserResource($request->user());
         $data = [
             "id" => $user->id,
-            "email" => $user->email,
-            "mobile" => $user->mobile,
-            "receiver_mobile" => $user->receiver_mobile,
-            "receiver_name" => $user->receiver_name,
-            "mentee_id" => $user->mentee_id,
-            "mentee_name" => $user->mentee_name,
-            "mentee_avatar" => config('jkw.cdn_domain') . '/' . $user->mentee_avatar,
-            "name" => $user->name,
             "nick_name" => $user->nick_name,
             "wechat_name" => $user->wechat_name,
             "avatar" => $user->avatar ? config('jkw.cdn_domain') . '/' . $user->avatar : config('jkw.cdn_domain') . '/' . config('jkw.default_avatar'),
-            "email_verified_at" => $user->email_verified_at,
-            "agreed" => $user->agreed,
-            "login_time" => $user->login_time,
-            "login_ip" => $user->login_ip,
-            "created_ip" => $user->created_ip,
-            "invite_code" => $user->invite_code,
-            "from_user_id" => $user->from_user_id,
-            "register_type" => $user->register_type,
-            "register_way" => $user->register_way,
-            "uuid" => $user->uuid,
-            "uuid_type" => $user->uuid_type,
-            "sex" => $user->sex,
-            "sign" => $user->sign,
-            "province" => $user->province,
-            "city" => $user->city,
-            "district" => $user->district,
-            "address" => $user->address,
-            "created_at" => $user->created_at,
-            "updated_at" => $user->updated_at,
-
+            'is_promoter' => $user->is_promoter,
+            'url'         => config('jkw.u_index_url') . '/' . Utils::hashids_encode($user->id),
         ];
 
         return $this->success($data);
+    }
+
+    public function updateAvatar(Request $request)
+    {
+
+        $avatar = explode(',', $request->avatar);
+        if (count($avatar) > 1) {
+            $avatar = base64_decode($avatar[1]);
+            $filename = 'images/' . date('Y-m-d-h-i-s') . '-' . uniqid() . '.png';
+            $bool = Storage::disk('oss')->put($filename, $avatar);
+            if ($bool) {
+                $request->user()->avatar = $filename;
+                $request->user()->save();
+                return $this->success('success');
+            } else {
+                $this->failed('数据错误', -1);
+            }
+        }
+        $this->failed('图片不能为空');
     }
 
     public function updateName(Request $request)
@@ -284,4 +278,6 @@ class UserController extends BaseController
 
         return $this->failed('用户不存在');
     }
+
+
 }

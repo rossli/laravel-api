@@ -49,5 +49,23 @@ class BannerController extends BaseController
         return $this->success($data);
     }
 
+    public function adH5()
+    {
+        $banner=Banner::where([
+            ['pos','=',Banner::ME],
+            ['enabled','=',1],
+            ['attr', '=', Banner::ATTR_H5]
+        ])->orderBy('updated_at','DESC')->first();
+        if($banner){
+            $data=[
+                'image'=>config('jkw.cdn_domain') . '/' . $banner->image,
+                'url'=>  $banner->url,
+            ];
+            return $this->success($data);
+        }
+        return $this->failed('没有数据');
+
+    }
+
 
 }

@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::class])->group(function () {
+Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::class])->group(static function () {
     //注册用户
     Route::post('/auth/register', 'AuthController@register')->name('api.auth.register');
     Route::post('/auth/login', 'AuthController@login')->name('api.auth.login');
@@ -40,12 +40,14 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
 
     Route::get('/banners', 'BannerController@index')->name('api.banners.index');
     Route::get('/banners-h5', 'BannerController@indexH5')->name('api.banners.indexH5');
+    Route::get('/banner-ad', 'BannerController@adH5')->name('api.banner.adH5');
     Route::get('/course/list', 'CourseController@list')->name('api.course.list');
     Route::get('/course/recommend', 'CourseController@recommend')->name('api.course.recommend');
     Route::get('/course/guide', 'CourseController@guide')->name('api.course.guide');
     Route::get('/course/kaobian', 'CourseController@kaobian')->name('api.course.kaobian');
     Route::get('/course/open', 'CourseController@open')->name('api.course.open');
     Route::get('/course/{id}', 'CourseController@show')->name('api.course.show');
+    Route::get('/courses-type/{project?}', 'CourseController@courseType')->name('api.course.course-type');
 
     Route::get('/order/wx-share', 'OrderController@wxShare')->name('api.order.wx-share');
 
@@ -74,9 +76,11 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
         Route::post('/users/update/name', 'UserController@updateName')->name('api.users.update.name');
         Route::post('/users/update/password', 'UserController@updatePassword')->name('api.users.update.password');
         Route::post('/users/update/sex', 'UserController@updateSex')->name('api.users.update.sex');
+        Route::post('/users/update/avatar', 'UserController@updateAvatar')->name('api.users.update-avatar');
         Route::get('/users/login-time', 'UserController@loginTime')->name('api.users.login-time');
         Route::get('/users/address', 'UserController@address')->name('api.user.address');
         Route::post('/users/update/address', 'UserController@updateAddress')->name('api.user.update.address');
+
         Route::post('/course/join/{id}', 'CourseController@join')->name('api.course.join');
         Route::get('/course/task/live', 'CourseTaskController@live')->name('api.course-task.live');
         Route::get('/course/task/video', 'CourseTaskController@video')->name('api.course-task.video');
@@ -92,14 +96,36 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
             Route::get('/from-user', 'MeController@fromUser')->name('api.me.from-user');
             Route::get('/currency', 'MeController@currency')->name('api.me.currency');
             Route::get('/code', 'MeController@code')->name('api.me.code');
+
+            //加入分销
+            Route::post('/join-promote', 'MeController@joinPromote')->name('api.me.join-promote');
+
+            //分销账户
+            Route::get('/account', 'MeController@account')->name('api.me.account');
+            //分销账户记录
+            Route::get('/account-records', 'MeController@accountRecord')->name('api.me.account-records');
+
+            //分销订单记录
+            Route::get('/promote-orders', 'MeController@promoteOrders')->name('api.me.promote-orders');
+
+            //分销提现
+            Route::post('/withdraw', 'MeController@withdraw')->name('api.me.withdraw');
+
+            //是否关注 公众号
+            Route::get('/is-subscribe', 'MeController@isSubscribe')->name('api.me.is-subscribe');
+
+
+
         });
 
         Route::prefix('order')->group(function () {
             Route::get('/check-address', 'OrderController@checkAddress')->name('api.order.check-address');
-            Route::get('/book-submit', 'OrderController@bookSubmit')->name('api.order.book-submit');
-            Route::get('/course-submit', 'OrderController@courseSubmit')->name('api.order.course-submit');
-            Route::get('/cart-submit', 'OrderController@cartSubmit')->name('api.order.cart-submit');
-            Route::get('/group-submit', 'OrderController@groupSubmit')->name('api.order.group-submit');
+
+            Route::post('/book-submit', 'OrderController@bookSubmit')->name('api.order.book-submit');
+            Route::post('/course-submit', 'OrderController@courseSubmit')->name('api.orde.course-submit');
+            Route::post('/cart-submit', 'OrderController@cartSubmit')->name('api.order.cart-submit');
+            Route::post('/group-submit', 'OrderController@groupSubmit')->name('api.order.group-submit');
+
             Route::get('/confirm', 'OrderController@confirm')->name('api.order.confirm');
             Route::get('/cancel/{id}', 'OrderController@cancel')->name('api.order.cancel');
             Route::get('/payment-wx', 'OrderController@paymentWx')->name('api.order.payment-wx');
@@ -127,7 +153,6 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
 
         //分销课程 列表
         Route::get('/courses/promote-list', 'CourseController@promoteList')->name('api.courses.promote-list');
-
     });
     Route::prefix('comment')->group(function () {  //评论相关
         Route::post('store', 'CommentController@store')->name('api.comment.store')->middleware('auth:api');

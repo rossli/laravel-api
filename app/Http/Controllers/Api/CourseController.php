@@ -86,7 +86,7 @@ class CourseController extends BaseController
 
         $course = Course::with([
             'task' => function ($query) {
-                $query->select('id', 'title', 'is_free', 'type', 'media_id', 'course_id');
+                $query->where('enabled',1)->select('enabled','id', 'title', 'is_free', 'type', 'media_id', 'course_id');
             },
             'material',
         ])->where('enabled', 1)->find($id);
@@ -365,7 +365,7 @@ class CourseController extends BaseController
      */
     public function promoteList()
     {
-        $courses = Course::where('enabled', 1)->where('is_promote', 1)->get(['id', 'title', 'price', 'promote_fee']);
+        $courses = Course::where('enabled', 1)->where('is_promote', 1)->get(['id', 'title', 'price', 'promote_fee','cover']);
         $user = request()->user();
         $data = [];
         $courses->each(static function ($item) use (&$data, $user) {
@@ -375,9 +375,36 @@ class CourseController extends BaseController
                 'price'       => $item->price,
                 'promote_fee' => $item->promote_fee,
                 'url'         => config('jkw.u_index_url') . '/' . Utils::hashids_encode($user->id . '0' . $item->id),
+                'cover'         => $item->getCover(),
             ];
         });
 
         return $this->success($data);
     }
+
+    /**
+     * 分类列表
+     * @param {int}$project:项目参数
+     */
+
+    public function courseType($project=0)
+    {
+        $courses=Course::where('project',$project)->where('enabled',1)->select('id','title','subtitle','cover')->paginate(20);
+        $data=[
+            'lastPage'=>$courses->lastPage(),
+            'page'=>$courses->currentPage(),
+        ];
+        $coursesItems=$courses->items();
+        foreach ($coursesItems as $item) {
+            $data['course'][]=[
+                'id'=>$item->id,
+                'cover'=>config('jkw.cdn_domain').'/'.$item->cover,
+                'title'=>$item->title,
+                'subtitle'=>$item->subtitle
+            ];
+        }
+        return $this->success($data);
+    }
+
+
 }

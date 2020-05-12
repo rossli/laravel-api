@@ -17,30 +17,31 @@ class AuthController extends BaseController
 
     public function register(RegisterRequest $request)
     {
-        $from_user_id = $request->get('from_user_id') ?? 0;
-        if ($from_user_id) {
-            $from_user_id = Utils::hashids_decode($from_user_id);
-            $from_user_id = $from_user_id[0];
-            $user = User::find($from_user_id);
-            if ($user) {
-                $user->currency++;
-                $user->save();
-            }
+        $userExist = User::where('binding_mobile', $request->get('mobile'))->first();
+        if (isset($userExist)) {
+            return $this->failed('该手机号已经绑定微信,请使用微信登录');
+        }
+
+        $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
+        if ($from_user_id !== []) {
+            User::find($from_user_id[0])->increment('currency');
         }
         $user = User::create([
-            'mobile'       => $request->get('mobile'),
-            'password'     => bcrypt($request->get('password')),
-            'avatar'       => config('jkw.default_avatar'),
-            'nick_name'    => 'jkw_' . time(),
-            'sex'          => 0,
-            'from_user_id' => $from_user_id ?? 0,
+            'mobile' => $request->get('mobile'),
+            'binding_mobile' => $request->get('mobile'),
+            'password' => bcrypt($request->get('password')),
+            'avatar' => config('jkw.default_avatar'),
+            'nick_name' => 'jkw_' . time(),
+            'sex' => 0,
+            'from_user_id' => $from_user_id !== [] ?: 0,
+            'login_time' => now(),
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
             'token' => $token,
-            'code'  => Utils::hashids_encode($user->id),
+            'code' => Utils::hashids_encode($user->id),
         ]);
     }
 
@@ -49,10 +50,16 @@ class AuthController extends BaseController
         $user = User::where('mobile', $request->mobile)->first();
 
         if ($user) {
-
+            $user->login_time = now();
+            $user->save();
             if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-                $response = ['token' => $token, 'code' => $user->getHashCode()];
+                $response = [
+                    'token' => $token,
+                    'code' => $user->getHashCode(),
+                    'is_promoter' => $user->is_promoter,
+                    'url' => config('jkw.u_index_url') . '/' . Utils::hashids_encode($user->id),
+                ];
 
                 return $this->success($response);
             }
@@ -78,13 +85,15 @@ class AuthController extends BaseController
 
         $user->update([
             'password' => bcrypt($request->get('password')),
+            'login_time' => now(),
         ]);
 
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
             'token' => $token,
-            'code'  => Utils::hashids_encode($user->id),
+            'code' => Utils::hashids_encode($user->id),
+            'is_promoter' => $user->is_promoter,
         ]);
 
     }
@@ -98,12 +107,14 @@ class AuthController extends BaseController
 
             return $this->failed($response, 422);
         }
-
+        $user->login_time = now();
+        $user->save();
         $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
         return $this->success([
             'token' => $token,
-            'code'  => Utils::hashids_encode($user->id),
+            'code' => Utils::hashids_encode($user->id),
+            'is_promoter' => $user->is_promoter,
         ]);
     }
 
@@ -111,22 +122,26 @@ class AuthController extends BaseController
     {
         if ($request->openid) {
             $user = User::where('openid', $request->openid)->first();
+            if (isset($user)) {
+                if ($user->binding_mobile) {
+                    $user->login_time = now();
+                    $user->save();
 
-            $user->login_time = now();
-            $user->save();
+                    $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
-            $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+                    return $this->success([
+                        'token' => $token,
+                        'code' => Utils::hashids_encode($user->id),
+                        'is_promoter' => $user->is_promoter,
+                    ]);
+                }
+            }
+            $response = '用户不存在';
 
-            return $this->success([
-                'token' => $token,
-                'code'  => Utils::hashids_encode($user->id),
-            ]);
-
+            return $this->failed($response, 422);
         }
+        return $this->failed('数据错误');
 
-        $response = '用户不存在';
-
-        return $this->failed($response, 422);
     }
 
     public function isBind(Request $request)
@@ -149,36 +164,36 @@ class AuthController extends BaseController
 
     public function bindMobile(BindMobileRequest $request)
     {
-        $user = User::where('openid', $request->openid)->first();
-        if (!$user) {
-            $from_user_id = $request->get('from_user_id');
-            if ($from_user_id) {
-                $from_user_id = Utils::hashids_decode($from_user_id);
-                $from_user_id = $from_user_id[0];
-                $user = User::find($from_user_id);
-                if ($user) {
-                    $user->currency++;
-                    $user->save();
+        $isMobile = User::where('mobile', $request->mobile)->first();
+        if (!$isMobile) {
+            $user = User::where('openid', $request->openid)->first();
+            if (!$user) {
+                $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
+                if (count($from_user_id)) {
+                    User::find($from_user_id[0])->increment('currency');
                 }
+                $user = User::create([
+                    'openid' => $request->openid,
+                    'avatar' => config('jkw.default_avatar'),
+                    'nick_name' => 'jkw_' . time(),
+                    'sex' => 0,
+                    'from_user_id' => $from_user_id !== [] ?: 0,
+                ]);
             }
-            $user = User::create([
-                'openid'       => $request->openid,
-                'avatar'       => config('jkw.default_avatar'),
-                'nick_name'    => 'jkw_' . time(),
-                'sex'          => 0,
-                'from_user_id' => $from_user_id ?? 0,
+            $user->binding_mobile = $request->mobile;
+            $user->mobile = $request->mobile;
+            $user->password = bcrypt($request->get(substr($request->mobile, -6) + 0));
+            $user->login_time = now();
+            $user->save();
+
+            $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+
+            return $this->success([
+                'token' => $token,
+                'code' => Utils::hashids_encode($user->id),
             ]);
         }
-        $user->binding_mobile = $request->mobile;
-        $user->login_time = now();
-        $user->save();
-
-        $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-
-        return $this->success([
-            'token' => $token,
-            'code'  => Utils::hashids_encode($user->id),
-        ]);
+        return $this->failed('该号码已经有课程,请使用此号码进行登录!');
     }
 
 }

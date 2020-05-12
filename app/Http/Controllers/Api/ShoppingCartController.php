@@ -73,17 +73,14 @@ class ShoppingCartController extends BaseController
     public function count()
     {
         $cart = ShoppingCart::where('user_id', request()->user()->id)->get();
-        $count = 0;
-        if ($cart) {
-            $cart->each(function ($item) use (&$count) {
-                $count += $item->number;
-            });
+        if($cart){
+            $data=[
+                'count'=>count($cart)
+            ];
+            return $this->success($data);
         }
-        if ($count) {
-            return $this->success($count);
-        } else {
-            return $this->success(0);
-        }
+        return $this->failed('没有数据!');
+
     }
 
     public function delete(Request $request)
