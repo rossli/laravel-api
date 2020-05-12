@@ -304,6 +304,7 @@ class MeController extends BaseController
         $result = $redpack->sendNormal($redpackData);
 
         if ($result['return_code'] === 'SUCCESS') {
+            info('redpack', $result);
             if ($result['result_code'] === 'SUCCESS') {
                 $res = $this->handleData($amount, $user, $sn, $admin_user);
                 if ($res) {
@@ -385,7 +386,7 @@ class MeController extends BaseController
      * @return mixed
      */
     private function handleData($amount, $user, string $sn, $admin_user)
-    : mixed {
+     {
         \DB::beginTransaction();
         try {
             $user->can_withdraw -= $amount;
