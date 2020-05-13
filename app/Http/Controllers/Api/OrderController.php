@@ -435,6 +435,7 @@ class OrderController extends BaseController
             'coupon_deduction' => $order->coupon_deduction,
             'item'             => $order_item,
             'group_student_id' => $order->group_student_id,
+            'status'           => $order->status
         ];
 
         return $this->success($data);
