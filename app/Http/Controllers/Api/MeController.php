@@ -30,8 +30,8 @@ class MeController extends BaseController
             if ($item->course) {
                 $data[] = [
                     'course_id' => $item->course_id,
-                    'image' => config('jkw.cdn_domain') . '/' . $item->course->cover,
-                    'title' => $item->course->title,
+                    'image'     => config('jkw.cdn_domain') . '/' . $item->course->cover,
+                    'title'     => $item->course->title,
                 ];
             }
 
@@ -68,30 +68,30 @@ class MeController extends BaseController
             $item->orderItem->each(function ($it) use (&$order_item_data, &$order_sum) {
                 $order_sum += $it->num;
                 $order_item_data[] = [
-                    'num' => $it->num,
-                    'course_title' => $it->course_title,
-                    'course_price' => number_format($it->course_price, 2),
+                    'num'                 => $it->num,
+                    'course_title'        => $it->course_title,
+                    'course_price'        => number_format($it->course_price, 2),
                     'course_origin_price' => number_format($it->course_origin_price, 2),
-                    'course_id' => $it->course_id,
-                    'course_cover' => config('jkw.cdn_domain') . '/' . $it->course_cover,
+                    'course_id'           => $it->course_id,
+                    'course_cover'        => config('jkw.cdn_domain') . '/' . $it->course_cover,
                 ];
             });
             $data[] = [
-                'order_id' => $item->id,
-                'order_sn' => $item->order_sn,
-                'total_fee' => number_format($item->total_fee, 2),
-                'coupon_deduction' => number_format($item->coupon_deduction, 2),
-                'has_paid_fee' => number_format($item->has_paid_fee, 2),
-                'status' => Order::STATUS_NAME[$item->status],
-                'type' => $item->type,
-                'paid_at' => $item->paid_at,
-                'cancel_reason' => $item->cancel_reason,
-                'logistics_number' => $item->logistics_number,
-                'logistics_company' => Order::LOGISTICS[$item->logistics_company],
-                'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at,
-                'order_item' => $order_item_data,
-                'sum_order' => $order_sum,
+                'order_id'          => $item->id,
+                'order_sn'          => $item->order_sn,
+                'total_fee'         => number_format($item->total_fee, 2),
+                'coupon_deduction'  => number_format($item->coupon_deduction, 2),
+                'has_paid_fee'      => number_format($item->has_paid_fee, 2),
+                'status'            => Order::STATUS_NAME[ $item->status ],
+                'type'              => $item->type,
+                'paid_at'           => $item->paid_at,
+                'cancel_reason'     => $item->cancel_reason,
+                'logistics_number'  => $item->logistics_number,
+                'logistics_company' => Order::LOGISTICS[ $item->logistics_company ],
+                'created_at'        => $item->created_at,
+                'updated_at'        => $item->updated_at,
+                'order_item'        => $order_item_data,
+                'sum_order'         => $order_sum,
             ];
         });
 
@@ -126,30 +126,30 @@ class MeController extends BaseController
                 $group_goods = GroupGoods::find($it->course_id);
                 $order_sum += $it->num;
                 $order_item_data[] = [
-                    'num' => $it->num,
-                    'course_title' => $it->course_title,
-                    'course_price' => number_format($it->course_price, 2),
+                    'num'                 => $it->num,
+                    'course_title'        => $it->course_title,
+                    'course_price'        => number_format($it->course_price, 2),
                     'course_origin_price' => number_format($it->course_origin_price, 2),
-                    'course_id' => $group_goods->goodsable_id,
-                    'course_cover' => config('jkw.cdn_domain') . '/' . $it->course_cover,
+                    'course_id'           => $group_goods->goodsable_id,
+                    'course_cover'        => config('jkw.cdn_domain') . '/' . $it->course_cover,
                 ];
             });
             $data[] = [
-                'order_id' => $item->id,
-                'order_sn' => $item->order_sn,
-                'total_fee' => number_format($item->total_fee, 2),
-                'coupon_deduction' => number_format($item->coupon_deduction, 2),
-                'status' => GroupStudent::STATUS[$group_student->status],
-                'type' => $group_student->groupGoods->goodsable_type,
-                'paid_at' => $item->paid_at,
-                'cancel_reason' => $item->cancel_reason,
-                'logistics_number' => $item->logistics_number,
-                'logistics_company' => Order::LOGISTICS[$item->logistics_company],
-                'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at,
-                'order_item' => $order_item_data,
-                'num' => $group_student->number,
-                'group_student_id' => $group_student->id,
+                'order_id'          => $item->id,
+                'order_sn'          => $item->order_sn,
+                'total_fee'         => number_format($item->total_fee, 2),
+                'coupon_deduction'  => number_format($item->coupon_deduction, 2),
+                'status'            => GroupStudent::STATUS[ $group_student->status ],
+                'type'              => $group_student->groupGoods->goodsable_type,
+                'paid_at'           => $item->paid_at,
+                'cancel_reason'     => $item->cancel_reason,
+                'logistics_number'  => $item->logistics_number,
+                'logistics_company' => Order::LOGISTICS[ $item->logistics_company ],
+                'created_at'        => $item->created_at,
+                'updated_at'        => $item->updated_at,
+                'order_item'        => $order_item_data,
+                'num'               => $group_student->number,
+                'group_student_id'  => $group_student->id,
 
             ];
         });
@@ -165,8 +165,8 @@ class MeController extends BaseController
         if ($user) {
             $user->each(function ($item) use (&$data) {
                 $data[] = [
-                    'avatar' => config('jkw.cdn_domain') . '/' . $item->avatar,
-                    'nick_name' => $item->nick_name,
+                    'avatar'     => config('jkw.cdn_domain') . '/' . $item->avatar,
+                    'nick_name'  => $item->nick_name,
                     'created_at' => date_format($item->created_at, 'Y-m-d H:i:s'),
                 ];
             });
@@ -209,12 +209,13 @@ class MeController extends BaseController
 
     public function joinPromote()
     {
-        $join = (int)request()->get('join', 0) ? 1 : 0;
+        $join = (int) request()->get('join', 0) ? 1 : 0;
 
         $user = request()->user();
         $user->is_promoter = $join;
         $user->join_at = now();
         $user->save();
+
         return $this->success();
 
     }
@@ -227,9 +228,9 @@ class MeController extends BaseController
         AccountRecord::where('user_id', request()->user()->id)->where('type', $type)->get()->each(static function ($item
         ) use (&$data) {
             $data[] = [
-                'type' => $item->type,
-                'type_name' => $item->getTypeName(),
-                'money' => $item->money,
+                'type'       => $item->type,
+                'type_name'  => $item->getTypeName(),
+                'money'      => $item->money,
                 'created_at' => $item->created_at->toDateTimeString(),
             ];
         });
@@ -257,18 +258,17 @@ class MeController extends BaseController
         $user = request()->user();
         $amount = request()->get('amount', 0);
 
-        if ($admin_user->total_withdraw < $amount) {
+        if ($admin_user->account < $amount) {
             return $this->failed('企业账户余额不足,请联系管理员或者客服人员');
         }
         if ($admin_user->daily_withdraw > config('jkw.withdraw_amount_daily_limit')) {
             return $this->failed('已达到企业账户日提现限额,请明日再来');
         }
 
-
         if ($amount < $minimum_amount = config('jkw.withdraw_amount')) {
             return $this->failed('提现金额不能少于' . $minimum_amount . '元');
         }
-        if ($user->can_withdrawn < $amount) {
+        if ($user->can_withdraw < $amount) {
             return $this->failed('您的可提现金额不足');
         }
 
@@ -276,7 +276,7 @@ class MeController extends BaseController
             return $this->failed('您还不是我们的分销人员哦,快快加入吧');
         }
 
-        $openid = request()->get('openid', '');;
+        $openid = request()->get('openid', '');
         if (!$openid || !$this->checkSubscribe($openid)) {
             return $this->failed('请先关注公众号后再来提现哦');
         }
@@ -291,33 +291,64 @@ class MeController extends BaseController
         $redpack = $payment->redpack;
         $sn = Utils::makeSn('wd');  //withdraw
         $redpackData = [
-            'mch_billno' => $sn,
-            'send_name' => '师大教科文提现红包',
-            're_openid' => $openid,
-            'total_num' => 1,  //固定为1，可不传
+            'mch_billno'   => $sn,
+            'send_name'    => '师大教科文提现红包',
+            're_openid'    => $openid,
+            'total_num'    => 1,  //固定为1，可不传
             'total_amount' => $minimum_amount * 100,  //单位为分，不小于100
-            'wishing' => '继续加油哦',
-            'act_name' => '提现红包',
-            'remark' => '邀请越多奖励越多',
+            'wishing'      => '继续加油哦',
+            'act_name'     => '提现红包',
+            'remark'       => '邀请越多奖励越多',
             // ...
         ];
         $result = $redpack->sendNormal($redpackData);
+//        $result = '{
+//  "send_listid" : "1000041701202005123002719191440",
+//  "err_code" : "SUCCESS",
+//  "re_openid" : "o_ysnwMa8RsUaaQkk-HdftfXa7p0",
+//  "total_amount" : "100",
+//  "err_code_des" : "发放成功",
+//  "return_msg" : "发放成功",
+//  "mch_billno" : "wd202005121803551589277835",
+//  "return_code" : "SUCCESS",
+//  "wxappid" : "wxeb99f78727420b07",
+//  "mch_id" : "1448506702",
+//  "result_code" : "SUCCESS"
+//}';
+//        $result = json_decode($result,1);
 
         if ($result['return_code'] === 'SUCCESS') {
+            info('redpack', $result);
             if ($result['result_code'] === 'SUCCESS') {
-                return $this->handleData($amount, $user, $sn, $admin_user);
+
+                $this->handleUser($amount, $user);
+
+                $res = $this->handleData($amount, $user, $sn, $admin_user);
+                if ($res) {
+                    info('提现成功');
+                    return $this->success('提现成功');
+                }
+
+                return $this->failed('提现失败');
             }
 
             if ($result['err_code'] === 'SYSTEMERROR') {
                 $mchBillNo = $sn;
                 $res = $redpack->info($mchBillNo);
                 if ($res['result_code'] === 'SUCCESS') {
-                    return $this->handleData($amount, $user, $sn, $admin_user);
+                    $this->handleUser($amount, $user);
+                    $res = $this->handleData($amount, $user, $sn, $admin_user);
+                    if ($res) {
+                        return $this->success('提现成功');
+                    }
+
+                    return $this->failed('提现失败');
                 }
             }
-        } else {
-            return $this->failed('通信错误');
+            return $this->failed($result['return_msg']);
         }
+
+        return $this->failed('通信错误');
     }
 
     protected function getCompanyUser()
@@ -353,8 +384,8 @@ class MeController extends BaseController
      * @return bool
      * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
-    private function checkSubscribe($openid): bool
-    {
+    private function checkSubscribe($openid)
+    : bool {
         $official_config = config('wechat.official_account.default');
         $official_app = Factory::officialAccount($official_config);
         $wechat_user = $official_app->user->get($openid);
@@ -373,36 +404,45 @@ class MeController extends BaseController
      *
      * @return mixed
      */
-    private function handleData($amount, $user, string $sn, $admin_user): mixed
-    {
+    private function handleData($amount, $user, string $sn, $admin_user)
+     {
         \DB::beginTransaction();
         try {
-            $user->can_withdraw -= $amount;
-            $user->withdrawn += $amount;
-            $user->increment('withdraw_times');
-            $user->save();
 
+            info('start');
             AccountRecord::create([
                 'user_id' => $user->id,
-                'sn' => $sn,
-                'status' => 'SUCCESS',
-                'type' => AccountRecord::TYPE_2,
-                'money' => $amount,
+                'sn'      => $sn,
+                'status'  => 'SUCCESS',
+                'type'    => AccountRecord::TYPE_2,
+                'money'   => $amount,
             ]);
 
             $admin_user->increment('total_withdraw_times');
             $admin_user->daily_withdraw += $amount;
             $admin_user->total_withdraw += $amount;
             $admin_user->save();
-
-            return $this->success('处理成功');
-
+            info('finish');
 
         } catch (\Exception $e) {
             \DB::rollback();
+            info($e->getMessage());
 
-            return $this->failed($e->getMessage());
+            return FALSE;
         }
         \DB::commit();
+         return TRUE;
+    }
+
+    /**
+     * @param $amount
+     * @param $user
+     */
+    private function handleUser($amount, $user)
+    : void {
+        $user->can_withdraw -= $amount;
+        $user->withdrawn += $amount;
+        $user->increment('withdraw_times');
+        $user->save();
     }
 }
