@@ -74,6 +74,7 @@ class MeController extends BaseController
                     'course_origin_price' => number_format($it->course_origin_price, 2),
                     'course_id'           => $it->course_id,
                     'course_cover'        => config('jkw.cdn_domain') . '/' . $it->course_cover,
+                    'type'                =>$it->type
                 ];
             });
             $data[] = [
