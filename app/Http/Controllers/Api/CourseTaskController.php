@@ -157,6 +157,25 @@ class CourseTaskController extends BaseController
                         $url = $res['data']['url'];
                     }
                     break;
+                case CourseTask::TYPE_PSEUDO:
+                    $result = Talkfun::courseGet($task->media_id);
+                    if ($result['code'] == 0) {
+                        //回放
+                        $url = $result['data']['playbackUrl'];
+
+                        if (!$result['data']['playback']) {
+                            //直播
+                            $result = Talkfun::courseAccess($task->media_id, time(), time(), 'role');
+                            if ($result['code'] == 0) {
+                                $url = $result['data']['liveUrl'];
+                            } else {
+                                return $this->failed('当前没有直播或回放生成中!');
+                            }
+                        }
+                    } else {
+                        return $this->failed('当前没有直播或回放生成中!');
+                    }
+                    break;
                 default:
                     return $this->failed('资源错误!');
             }
