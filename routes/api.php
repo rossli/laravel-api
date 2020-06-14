@@ -162,6 +162,12 @@ Route::namespace('Api')->prefix('v1')->middleware([\Barryvdh\Cors\HandleCors::cl
     //该课程下的评论列表
     Route::get('/courses/comments', 'CourseController@comments')->name('api.courses.comments');
 
+    //活动抽奖接口
+    Route::prefix('activity')->group(function (){
+        Route::get('award','ActivityUserController@awards')->name('api.activity-user.awards');
+        Route::post('/','ActivityUserController@store')->name('api.activity-user.store');
+    });
+
 
 });
 

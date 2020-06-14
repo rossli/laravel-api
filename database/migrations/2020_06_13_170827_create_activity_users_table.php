@@ -19,7 +19,6 @@ class CreateActivityUsersTable extends Migration
             $table->string('mobile')->default('');
             $table->string('wechat')->default('');
             $table->string('remark')->default('');
-            $table->string('awards')->default('');
             $table->tinyInteger('is_student')->default(0);
             $table->tinyInteger('is_ec')->default(0);
             $table->timestamps();
