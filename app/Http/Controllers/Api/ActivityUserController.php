@@ -39,8 +39,9 @@ class ActivityUserController extends BaseController
         \DB::beginTransaction();
         try {
             $activityUser = ActivityUser::firstOrCreate([
-                'name' => $request->name,
                 'mobile' => $request->mobile,
+            ],[
+                'name' => $request->name,
                 'wechat' => $request->wechat ?? '',
             ]);
             Awards::create([
