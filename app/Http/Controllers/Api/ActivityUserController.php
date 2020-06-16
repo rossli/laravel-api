@@ -80,14 +80,14 @@ class ActivityUserController extends BaseController
         }
 
         $proArr = array(
-            array('id' => 1, 'name' => '500元购课抵用券', 'v' => 22),
+            array('id' => 1, 'name' => '500元购课抵用券', 'v' => 25),
             array('id' => 2, 'name' => '教师资格证《思维导图》教材', 'v' => 1),
-            array('id' => 3, 'name' => '差一点就中奖啦', 'v' => 15),
-            array('id' => 4, 'name' => '700元购课抵用券', 'v' => 24),
-            array('id' => 5, 'name' => '价值500元零基础畅学组合', 'v' => 4),
-            array('id' => 6, 'name' => '价值299元教资笔试单科突破课', 'v' => 5),
-            array('id' => 7, 'name' => '600元购课抵用券', 'v' => 24),
-            array('id' => 8, 'name' => '差一点就中奖啦', 'v' => 15)
+            array('id' => 3, 'name' => '差一点就中奖啦', 'v' => 5),
+            array('id' => 4, 'name' => '700元购课抵用券', 'v' => 25),
+            array('id' => 5, 'name' => '价值500元零基础畅学组合', 'v' => 9),
+            array('id' => 6, 'name' => '价值299元教资笔试单科突破课', 'v' => 10),
+            array('id' => 7, 'name' => '600元购课抵用券', 'v' => 20),
+            array('id' => 8, 'name' => '差一点就中奖啦', 'v' => 5)
         );
 
         if (Redis::get('book') > 50) {
