@@ -91,7 +91,7 @@ task('env:upload', function () {
 });
 
 task('reload:php-fpm', function () {
-    run('sudo /etc/init.d/php-fpm restart');
+    run('sudo /etc/init.d/php-fpm7.4 restart');
 });
 
 task('restart:supervisorctl', function () {
