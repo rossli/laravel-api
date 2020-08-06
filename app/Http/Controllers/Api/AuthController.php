@@ -22,9 +22,9 @@ class AuthController extends BaseController
             return $this->failed('该手机号已经绑定微信,请使用微信登录');
         }
 
-        $from_user_id = Utils::hashids_decode($request->get('from_user_id'));
-        if ($from_user_id !== []) {
-            User::find($from_user_id[0])->increment('currency');
+        $from_user_id = Utils::hashids_decode_simple($request->get('from_user_id'));
+        if ($from_user_id) {
+            User::find($from_user_id)->increment('currency');
         }
         $user = User::create([
             'mobile' => $request->get('mobile'),
@@ -33,7 +33,7 @@ class AuthController extends BaseController
             'avatar' => config('jkw.default_avatar'),
             'nick_name' => 'jkw_' . time(),
             'sex' => 0,
-            'from_user_id' => $from_user_id !== [] ?: 0,
+            'from_user_id' => $from_user_id?: 0,
             'login_time' => now(),
         ]);
 
