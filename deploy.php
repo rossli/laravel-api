@@ -41,8 +41,11 @@ add('shared_dirs', []);
 // Writable dirs by web server
 add('writable_dirs', []);
 
+
 // Hosts
-host('jkw.ltd')->user('www')->set('deploy_path', '/data/wwwroot/{{application}}')->stage('staging');
+host('prod')->hostname('jkw.ltd')->user('www')->set('deploy_path', '/data/wwwroot/{{application}}')->stage('prod');
+
+host('test')->hostname('a.laoshiok.net')->user('www')->set('deploy_path', '/data/wwwroot/{{test_application}}')->stage('test');
 
 // Tasks
 
@@ -91,7 +94,7 @@ task('env:upload', function () {
 });
 
 task('reload:php-fpm', function () {
-    run('sudo /etc/init.d/php-fpm restart');
+    run('sudo /etc/init.d/php7.4-fpm restart');
 });
 
 task('restart:supervisorctl', function () {
